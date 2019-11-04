@@ -1,4 +1,4 @@
-# IMT2681 Cloud Technologies Assignment 2
+# IMT2681 Cloud Technologies Project
 
 ### Erlend Fonnes, Johan Selnes, Aksel Baardsen, Knut Jørgen Totland
 
