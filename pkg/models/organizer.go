@@ -7,4 +7,5 @@ package models
 type Organizer interface {
 	Valve
 	Riot
+	Blizzard
 }

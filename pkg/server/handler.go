@@ -32,6 +32,11 @@ func (h *handler) valveHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) riotHandler(w http.ResponseWriter, r *http.Request) {
-	h.GetLolPlaytime()
+	h.GetRiotPlaytime()
 	fmt.Fprintf(w, "Riot!")
+}
+
+func (h *handler) blizzardHandler(w http.ResponseWriter, r *http.Request) {
+	h.GetBlizzardPlaytime("test")
+	fmt.Fprintf(w, "Blizzard!")
 }

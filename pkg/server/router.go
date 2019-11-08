@@ -11,6 +11,7 @@ func newRouter(h *handler, apiVer string) *mux.Router {
 	r.HandleFunc("/", h.testHandler)
 	r.HandleFunc("/riot", h.riotHandler)
 	r.HandleFunc("/valve", h.valveHandler)
+	r.HandleFunc("/blizzard", h.blizzardHandler)
 
 	return r
 }

@@ -18,6 +18,7 @@ package cmd
 
 import (
 	"context"
+	"ctp/pkg/blizzard"
 	"ctp/pkg/models"
 	"ctp/pkg/riot"
 	"ctp/pkg/valve"
@@ -62,14 +63,17 @@ var rootCmd = &cobra.Command{
 			Timeout: timeout,
 		}
 		apiVer := fmt.Sprintf("v%d", config.version)
+
 		// Initializing each of the packages and passing them to the server
 		riot := riot.New(&client)
 		valve := valve.New(&client)
+		blizzard := blizzard.New(&client)
 
 		var organizer = struct {
 			models.Valve
 			models.Riot
-		}{valve, riot}
+			models.Blizzard
+		}{valve, riot, blizzard}
 
 		srv := server.New(config.port, apiVer, organizer)
 
