@@ -8,7 +8,7 @@ import (
 	"ctp/pkg/models"
 )
 
-const writeTimeout, readTimeout, idleTimeout = 60, 60, 60 //timeouts set very high as some requests are suprisingly slow, especially using authentication
+const writeTimeout, readTimeout, idleTimeout = 15, 30, 30
 
 // New creates a new http server
 func New(port int, apiVer string, organizer models.Organizer) *http.Server {

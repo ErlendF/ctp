@@ -5,4 +5,6 @@ package models
 // all of them as parameters, while still maintaining
 // the flexibility provided by using interfaces.
 type Organizer interface {
+	Valve
+	Riot
 }

@@ -1,5 +1,5 @@
 /*
-Copyright © 2019 Erlend Fonnes erlend.fonnes@gmail.com
+Copyright © 2019 BAKEJ erlend.fonnes@gmail.com
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,7 +18,11 @@ package cmd
 
 import (
 	"context"
+	"ctp/pkg/models"
+	"ctp/pkg/riot"
+	"ctp/pkg/valve"
 	"fmt"
+	"net/http"
 	"os"
 	"os/signal"
 	"time"
@@ -53,15 +57,19 @@ var rootCmd = &cobra.Command{
 		// connections), so Clients should be reused instead of created as
 		// needed. Clients are safe for concurrent use by multiple goroutines
 		// - https://golang.org/src/net/http/client.go
-		// timeout := time.Duration(time.Duration(config.clientTimeout) * time.Second)
-		// client := http.Client{
-		// 	Timeout: timeout,
-		// }
+		timeout := time.Duration(time.Duration(config.clientTimeout) * time.Second)
+		client := http.Client{
+			Timeout: timeout,
+		}
 		apiVer := fmt.Sprintf("v%d", config.version)
 		// Initializing each of the packages and passing them to the server
+		riot := riot.New(&client)
+		valve := valve.New(&client)
 
 		var organizer = struct {
-		}{}
+			models.Valve
+			models.Riot
+		}{valve, riot}
 
 		srv := server.New(config.port, apiVer, organizer)
 

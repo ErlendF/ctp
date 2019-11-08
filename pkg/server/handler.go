@@ -5,6 +5,8 @@ import (
 	"net/http"
 
 	"ctp/pkg/models"
+
+	"github.com/sirupsen/logrus"
 )
 
 // Handler embedds the models.Organizer interface
@@ -16,10 +18,20 @@ type handler struct {
 
 //newHandler returns handler
 func newHandler(organizer models.Organizer) *handler {
-	h := &handler{organizer}
-	return h
+	return &handler{organizer}
 }
 
 func (h *handler) testHandler(w http.ResponseWriter, r *http.Request) {
+	logrus.Debugf("testHandler!")
 	fmt.Fprintf(w, "Success!")
+}
+
+func (h *handler) valveHandler(w http.ResponseWriter, r *http.Request) {
+	h.GetValvePlaytime("test")
+	fmt.Fprintf(w, "Valve!")
+}
+
+func (h *handler) riotHandler(w http.ResponseWriter, r *http.Request) {
+	h.GetLolPlaytime()
+	fmt.Fprintf(w, "Riot!")
 }
