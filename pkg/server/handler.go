@@ -36,34 +36,13 @@ func (h *handler) valveHandler(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := h.GetValvePlaytime(id)
 	if err != nil {
-		logrus.WithError(err).WithField("route", mux.CurrentRoute(r).GetName()).Warn("Error getting status")
-
-		//returning errorcode based on error
-		switch {
-		case strings.Contains(err.Error(), models.NonOK):
-			if models.CheckNotFound(err) {
-				http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-				return
-			}
-
-			http.Error(w, http.StatusText(http.StatusBadGateway), http.StatusBadGateway)
-		default:
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		}
-
+		h.logstuff(w, r ,err)
 		return
 	}
 
-	setHeader(w)
-	err = json.NewEncoder(w).Encode(resp)
-
-	if err != nil {
-		logrus.WithError(err).WithField("route", mux.CurrentRoute(r).GetName()).Warn("Could not encode response")
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-
-		return
-	}
+	h.respond(w, r, resp)
 }
+
 
 func (h *handler) riotHandler(w http.ResponseWriter, r *http.Request) {
 	logrus.WithFields(logrus.Fields{"route": mux.CurrentRoute(r).GetName()}).Debugf("Request received")
@@ -86,21 +65,18 @@ func (h *handler) userHandler(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := h.GetUserInfo(id)
 	if err != nil {
-		logrus.WithError(err).WithField("route", mux.CurrentRoute(r).GetName()).Warn("Error getting status")
-
-		//returning errorcode based on error
-		switch {
-		case strings.Contains(err.Error(), models.NonOK):
-			http.Error(w, http.StatusText(http.StatusBadGateway), http.StatusBadGateway)
-		default:
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		}
-
+		h.logstuff(w, r, err)
 		return
 	}
 
-	setHeader(w)
-	err = json.NewEncoder(w).Encode(resp)
+	h.respond(w, r, resp)
+}
+
+
+func (h *handler) respond(w http.ResponseWriter,r *http.Request ,resp interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+
+	err := json.NewEncoder(w).Encode(resp)
 
 	if err != nil {
 		logrus.WithError(err).WithField("route", mux.CurrentRoute(r).GetName()).Warn("Could not encode response")
@@ -110,6 +86,14 @@ func (h *handler) userHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func setHeader(w http.ResponseWriter) {
-	w.Header().Set("Content-Type", "application/json")
+func (h *handler) logstuff(w http.ResponseWriter, r *http.Request, err error) {
+	logrus.WithError(err).WithField("route", mux.CurrentRoute(r).GetName()).Warn("Error getting status")
+
+	//returning errorcode based on error
+	switch {
+	case strings.Contains(err.Error(), models.NonOK):
+		http.Error(w, http.StatusText(http.StatusBadGateway), http.StatusBadGateway)
+	default:
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+	}
 }
