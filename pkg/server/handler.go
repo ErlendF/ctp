@@ -32,6 +32,8 @@ func (h *handler) testHandler(w http.ResponseWriter, r *http.Request) {
 func (h *handler) valveHandler(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
 
+	logrus.WithFields(logrus.Fields{"route": mux.CurrentRoute(r).GetName(), "ID": id}).Debugf("Request recieved")
+
 	resp, err := h.GetValvePlaytime(id)
 	if err != nil {
 		logrus.WithError(err).WithField("route", mux.CurrentRoute(r).GetName()).Warn("Error getting status")
@@ -40,13 +42,13 @@ func (h *handler) valveHandler(w http.ResponseWriter, r *http.Request) {
 		switch {
 		case strings.Contains(err.Error(), models.NonOK):
 			if models.CheckNotFound(err) {
-				http.Error(w, "Not found", http.StatusNotFound)
+				http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 				return
 			}
 
-			http.Error(w, "Bad gateway", http.StatusBadGateway)
+			http.Error(w, http.StatusText(http.StatusBadGateway), http.StatusBadGateway)
 		default:
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		}
 
 		return
@@ -56,7 +58,7 @@ func (h *handler) valveHandler(w http.ResponseWriter, r *http.Request) {
 	err = json.NewEncoder(w).Encode(resp)
 	if err != nil {
 		logrus.WithError(err).WithField("route", mux.CurrentRoute(r).GetName()).Warn("Could not encode response")
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 }

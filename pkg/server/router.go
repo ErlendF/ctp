@@ -8,10 +8,10 @@ import (
 func newRouter(h *handler, apiVer string) *mux.Router {
 	r := mux.NewRouter()
 
-	r.HandleFunc("/", h.testHandler)
-	r.HandleFunc("/riot", h.riotHandler)
-	r.HandleFunc("/valve/{id:[0-9]+}", h.valveHandler)
-	r.HandleFunc("/blizzard", h.blizzardHandler)
+	r.HandleFunc("/", h.testHandler).Name("root")
+	r.HandleFunc("/riot", h.riotHandler).Name("riot")
+	r.HandleFunc("/valve/{id:[0-9]+}", h.valveHandler).Name("valve")
+	r.HandleFunc("/blizzard", h.blizzardHandler).Name("blizzard")
 
 	return r
 }
