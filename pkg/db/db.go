@@ -15,8 +15,6 @@ type Database struct {
 	ctx context.Context
 }
 
-const testConn = "connectivity"
-
 //New returns a new databse
 func New(key string) (*Database, error) {
 	db := &Database{ctx: context.Background()}

@@ -41,7 +41,6 @@ var config struct {
 	jsonFormatter   bool
 	shutdownTimeout int
 	clientTimeout   int
-	version         int
 	port            int
 	dbkey           string
 }
@@ -60,11 +59,10 @@ var rootCmd = &cobra.Command{
 		// connections), so Clients should be reused instead of created as
 		// needed. Clients are safe for concurrent use by multiple goroutines
 		// - https://golang.org/src/net/http/client.go
-		timeout := time.Duration(time.Duration(config.clientTimeout) * time.Second)
+		timeout := time.Duration(config.clientTimeout) * time.Second
 		client := http.Client{
 			Timeout: timeout,
 		}
-		apiVer := fmt.Sprintf("v%d", config.version)
 
 		// Initializing each of the packages and passing them to the server
 		riot := riot.New(&client)
@@ -79,7 +77,7 @@ var rootCmd = &cobra.Command{
 			models.UserManager
 		}{valve, riot, blizzard, um}
 
-		srv := server.New(config.port, apiVer, organizer)
+		srv := server.New(config.port, organizer)
 
 		// Making an channel to listen for errors (later blocking until either error or signal is received)
 		errChan := make(chan error)
@@ -130,7 +128,6 @@ func init() {
 	// Reads commandline arguments into config
 	rootCmd.Flags().IntVarP(&config.shutdownTimeout, "shutdownTimeout", "s", 15, "Sets the timeout (in seconds) for graceful shutdown")
 	rootCmd.Flags().IntVarP(&config.clientTimeout, "clientTimeout", "c", 15, "Sets the timeout (in seconds) for the http client which makes requests to the external APIs")
-	rootCmd.Flags().IntVarP(&config.version, "version", "n", 1, "Sets the version for the API")
 	rootCmd.Flags().IntVarP(&config.port, "port", "p", 80, "Sets the port the API should listen to")
 	rootCmd.Flags().BoolVarP(&config.verbose, "verbose", "v", false, "Verbose logging")
 	rootCmd.Flags().BoolVarP(&config.jsonFormatter, "jsonFormatter", "j", false, "JSON logging format")
@@ -138,7 +135,7 @@ func init() {
 }
 
 // setupLog initializes logrus logger
-func setupLog(verbose, JSONFormatter bool) {
+func setupLog(verbose, jsonFormatter bool) {
 	logLevel := logrus.InfoLevel
 
 	if verbose {
@@ -148,7 +145,7 @@ func setupLog(verbose, JSONFormatter bool) {
 	logrus.SetLevel(logLevel)
 	logrus.SetOutput(os.Stdout)
 
-	if JSONFormatter {
+	if jsonFormatter {
 		logrus.SetFormatter(&logrus.JSONFormatter{})
 	}
 }

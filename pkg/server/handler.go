@@ -32,7 +32,7 @@ func (h *handler) testHandler(w http.ResponseWriter, r *http.Request) {
 func (h *handler) valveHandler(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
 
-	logrus.WithFields(logrus.Fields{"route": mux.CurrentRoute(r).GetName(), "ID": id}).Debugf("Request recieved")
+	logrus.WithFields(logrus.Fields{"route": mux.CurrentRoute(r).GetName(), "ID": id}).Debugf("Request received")
 
 	resp, err := h.GetValvePlaytime(id)
 	if err != nil {
@@ -64,20 +64,20 @@ func (h *handler) valveHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) riotHandler(w http.ResponseWriter, r *http.Request) {
-	logrus.WithFields(logrus.Fields{"route": mux.CurrentRoute(r).GetName()}).Debugf("Request recieved")
+	logrus.WithFields(logrus.Fields{"route": mux.CurrentRoute(r).GetName()}).Debugf("Request received")
 	h.GetRiotPlaytime()
 	fmt.Fprintf(w, "Riot!")
 }
 
 func (h *handler) blizzardHandler(w http.ResponseWriter, r *http.Request) {
-	logrus.WithFields(logrus.Fields{"route": mux.CurrentRoute(r).GetName()}).Debugf("Request recieved")
+	logrus.WithFields(logrus.Fields{"route": mux.CurrentRoute(r).GetName()}).Debugf("Request received")
 	h.GetBlizzardPlaytime("test")
 	fmt.Fprintf(w, "Blizzard!")
 }
 
 func (h *handler) userHandler(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
-	logrus.WithFields(logrus.Fields{"route": mux.CurrentRoute(r).GetName()}).Debugf("Request recieved")
+	logrus.WithFields(logrus.Fields{"route": mux.CurrentRoute(r).GetName()}).Debugf("Request received")
 
 	resp, err := h.GetUserInfo(id)
 	if err != nil {

@@ -5,14 +5,16 @@ import (
 )
 
 // NewRouter creates a new router
-func newRouter(h *handler, apiVer string) *mux.Router {
+func newRouter(h *handler) *mux.Router {
 	r := mux.NewRouter()
 
-	r.HandleFunc("/", h.testHandler).Name("root")
-	r.HandleFunc("/riot", h.riotHandler).Name("riot")
-	r.HandleFunc("/valve/{id:[0-9]+}", h.valveHandler).Name("valve")
-	r.HandleFunc("/blizzard", h.blizzardHandler).Name("blizzard")
-	r.HandleFunc("/user/{id}", h.userHandler).Name("Userinfo")
+	s := r.PathPrefix("/api/v1/").Subrouter()
+
+	s.HandleFunc("/", h.testHandler).Name("root")
+	s.HandleFunc("/riot", h.riotHandler).Name("riot")
+	s.HandleFunc("/valve/{id:[0-9]+}", h.valveHandler).Name("valve")
+	s.HandleFunc("/blizzard", h.blizzardHandler).Name("blizzard")
+	s.HandleFunc("/user/{id}", h.userHandler).Name("Userinfo")
 
 	return r
 }

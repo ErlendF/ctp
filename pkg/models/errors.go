@@ -8,12 +8,12 @@ import (
 )
 
 //NonOK specifies errormessage returned when statuscode returned from api is not 200
-const NonOK = "Non 200 statuscode"
+const NonOK = "non 200 statuscode"
 
 //nonOKfmt is used to format the error message returned by CheckStatusCode
 const nonOKfmt = NonOK + ": %d"
 
-const trim = "Non 200 statuscode: "
+const trim = "non 200 statuscode: "
 
 //CheckStatusCode checks the status code and returns an error if it is not 200
 func CheckStatusCode(code int) error {
