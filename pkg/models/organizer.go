@@ -9,4 +9,5 @@ type Organizer interface {
 	Riot
 	Blizzard
 	UserManager
+	Authenticator
 }

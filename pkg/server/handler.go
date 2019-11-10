@@ -36,26 +36,35 @@ func (h *handler) valveHandler(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := h.GetValvePlaytime(id)
 	if err != nil {
-		h.logstuff(w, r ,err)
+		logRespond(w, r, err)
 		return
 	}
 
-	h.respond(w, r, resp)
+	respond(w, r, resp)
 }
-
 
 func (h *handler) riotHandler(w http.ResponseWriter, r *http.Request) {
 	logrus.WithFields(logrus.Fields{"route": mux.CurrentRoute(r).GetName()}).Debugf("Request received")
 
-	_, _ = h.GetRiotPlaytime()
-	_, _ = fmt.Fprintf(w, "Riot!")
+	resp, err := h.GetRiotPlaytime()
+	if err != nil {
+		logRespond(w, r, err)
+		return
+	}
+
+	respond(w, r, resp)
 }
 
 func (h *handler) blizzardHandler(w http.ResponseWriter, r *http.Request) {
 	logrus.WithFields(logrus.Fields{"route": mux.CurrentRoute(r).GetName()}).Debugf("Request received")
 
-	_, _ = h.GetBlizzardPlaytime("test")
-	_, _ = fmt.Fprintf(w, "Blizzard!")
+	resp, err := h.GetBlizzardPlaytime("test")
+	if err != nil {
+		logRespond(w, r, err)
+		return
+	}
+
+	respond(w, r, resp)
 }
 
 func (h *handler) userHandler(w http.ResponseWriter, r *http.Request) {
@@ -65,15 +74,27 @@ func (h *handler) userHandler(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := h.GetUserInfo(id)
 	if err != nil {
-		h.logstuff(w, r, err)
+		logRespond(w, r, err)
 		return
 	}
 
-	h.respond(w, r, resp)
+	respond(w, r, resp)
 }
 
+func (h *handler) login(w http.ResponseWriter, r *http.Request) {
+	h.Redirect(w, r)
+}
 
-func (h *handler) respond(w http.ResponseWriter,r *http.Request ,resp interface{}) {
+func (h *handler) redirected(w http.ResponseWriter, r *http.Request) {
+	id, err := h.HandleOAuth2Callback(w, r)
+	if err != nil {
+		logRespond(w, r, err)
+	}
+
+	logrus.Debugf("Sucess! %s", id)
+}
+
+func respond(w http.ResponseWriter, r *http.Request, resp interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 
 	err := json.NewEncoder(w).Encode(resp)
@@ -86,7 +107,7 @@ func (h *handler) respond(w http.ResponseWriter,r *http.Request ,resp interface{
 	}
 }
 
-func (h *handler) logstuff(w http.ResponseWriter, r *http.Request, err error) {
+func logRespond(w http.ResponseWriter, r *http.Request, err error) {
 	logrus.WithError(err).WithField("route", mux.CurrentRoute(r).GetName()).Warn("Error getting status")
 
 	//returning errorcode based on error

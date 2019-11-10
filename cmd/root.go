@@ -18,6 +18,7 @@ package cmd
 
 import (
 	"context"
+	"ctp/pkg/auth"
 	"ctp/pkg/blizzard"
 	"ctp/pkg/models"
 	"ctp/pkg/riot"
@@ -70,12 +71,20 @@ var rootCmd = &cobra.Command{
 		valve := valve.New(&client, valveAPIKey)
 		blizzard := blizzard.New(&client)
 		um := user.New()
+
+		clientID := os.Getenv("GOOGLE_OAUTH2_CLIENT_ID")
+		clientSecret := os.Getenv("GOOGLE_OAUTH2_CLIENT_SECRET")
+		auth, err := auth.New(context.Background(), clientID, clientSecret) //FIX: context
+		if err != nil {
+			logrus.WithError(err).Fatalf("Unable to get new Authenticator:%s", err)
+		}
 		var organizer = struct {
 			models.Valve
 			models.Riot
 			models.Blizzard
 			models.UserManager
-		}{valve, riot, blizzard, um}
+			models.Authenticator
+		}{valve, riot, blizzard, um, auth}
 
 		srv := server.New(config.port, organizer)
 

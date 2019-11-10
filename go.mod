@@ -7,11 +7,15 @@ require (
 	firebase.google.com/go v3.10.0+incompatible
 	github.com/bombsimon/wsl v1.2.7 // indirect
 	github.com/bxcodec/faker v2.0.1+incompatible
+	github.com/coreos/go-oidc v2.1.0+incompatible
 	github.com/gorilla/mux v1.7.3
 	github.com/joho/godotenv v1.3.0
 	github.com/mitchellh/mapstructure v1.1.2
+	github.com/pquerna/cachecontrol v0.0.0-20180517163645-1555304b9b35 // indirect
 	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/cobra v0.0.5
 	golang.org/x/net v0.0.0-20191109021931-daa7c04131f5
+	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
 	google.golang.org/api v0.13.0
+	gopkg.in/square/go-jose.v2 v2.4.0 // indirect
 )

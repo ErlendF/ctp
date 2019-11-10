@@ -15,6 +15,8 @@ func newRouter(h *handler) *mux.Router {
 	s.HandleFunc("/valve/{id:[0-9]+}", h.valveHandler).Name("valve")
 	s.HandleFunc("/blizzard", h.blizzardHandler).Name("blizzard")
 	s.HandleFunc("/user/{id}", h.userHandler).Name("Userinfo")
+	s.HandleFunc("/login", h.login).Name("login")
+	s.HandleFunc("/loginRedirected", h.redirected).Name("redirected")
 
 	return r
 }
