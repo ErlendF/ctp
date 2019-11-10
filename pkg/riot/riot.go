@@ -20,5 +20,9 @@ func New(client models.Client) *Riot {
 //GetRiotPlaytime gets playtime on League of Legends
 func (r *Riot) GetRiotPlaytime() (*time.Duration, error) {
 	logrus.Debugf("GetLolPlaytime")
+
+	
+
+
 	return nil, nil
 }
