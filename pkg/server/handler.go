@@ -64,13 +64,43 @@ func (h *handler) valveHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) riotHandler(w http.ResponseWriter, r *http.Request) {
+	logrus.WithFields(logrus.Fields{"route": mux.CurrentRoute(r).GetName()}).Debugf("Request recieved")
 	h.GetRiotPlaytime()
 	fmt.Fprintf(w, "Riot!")
 }
 
 func (h *handler) blizzardHandler(w http.ResponseWriter, r *http.Request) {
+	logrus.WithFields(logrus.Fields{"route": mux.CurrentRoute(r).GetName()}).Debugf("Request recieved")
 	h.GetBlizzardPlaytime("test")
 	fmt.Fprintf(w, "Blizzard!")
+}
+
+func (h *handler) userHandler(w http.ResponseWriter, r *http.Request) {
+	id := mux.Vars(r)["id"]
+	logrus.WithFields(logrus.Fields{"route": mux.CurrentRoute(r).GetName()}).Debugf("Request recieved")
+
+	resp, err := h.GetUserInfo(id)
+	if err != nil {
+		logrus.WithError(err).WithField("route", mux.CurrentRoute(r).GetName()).Warn("Error getting status")
+
+		//returning errorcode based on error
+		switch {
+		case strings.Contains(err.Error(), models.NonOK):
+			http.Error(w, http.StatusText(http.StatusBadGateway), http.StatusBadGateway)
+		default:
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		}
+
+		return
+	}
+
+	setHeader(w)
+	err = json.NewEncoder(w).Encode(resp)
+	if err != nil {
+		logrus.WithError(err).WithField("route", mux.CurrentRoute(r).GetName()).Warn("Could not encode response")
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 }
 
 func setHeader(w http.ResponseWriter) {

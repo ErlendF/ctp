@@ -21,6 +21,7 @@ import (
 	"ctp/pkg/blizzard"
 	"ctp/pkg/models"
 	"ctp/pkg/riot"
+	"ctp/pkg/user"
 	"ctp/pkg/valve"
 	"fmt"
 	"net/http"
@@ -70,12 +71,13 @@ var rootCmd = &cobra.Command{
 		valveAPIKey := os.Getenv("VALVE_API_KEY")
 		valve := valve.New(&client, valveAPIKey)
 		blizzard := blizzard.New(&client)
-
+		um := user.New()
 		var organizer = struct {
 			models.Valve
 			models.Riot
 			models.Blizzard
-		}{valve, riot, blizzard}
+			models.UserManager
+		}{valve, riot, blizzard, um}
 
 		srv := server.New(config.port, apiVer, organizer)
 
