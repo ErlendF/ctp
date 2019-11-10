@@ -5,6 +5,7 @@ go 1.13
 require (
 	cloud.google.com/go/firestore v1.0.0
 	firebase.google.com/go v3.10.0+incompatible
+	github.com/bombsimon/wsl v1.2.7 // indirect
 	github.com/bxcodec/faker v2.0.1+incompatible
 	github.com/gorilla/mux v1.7.3
 	github.com/joho/godotenv v1.3.0

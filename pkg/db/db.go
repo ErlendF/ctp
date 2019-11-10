@@ -22,6 +22,7 @@ func New(key string) (*Database, error) {
 	// We use a service account, load credentials file that you downloaded from your project's settings menu.
 	opt := option.WithCredentialsFile(key)
 	app, err := firebase.NewApp(db.ctx, nil, opt)
+
 	if err != nil {
 		return nil, err
 	}

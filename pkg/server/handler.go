@@ -56,27 +56,32 @@ func (h *handler) valveHandler(w http.ResponseWriter, r *http.Request) {
 
 	setHeader(w)
 	err = json.NewEncoder(w).Encode(resp)
+
 	if err != nil {
 		logrus.WithError(err).WithField("route", mux.CurrentRoute(r).GetName()).Warn("Could not encode response")
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+
 		return
 	}
 }
 
 func (h *handler) riotHandler(w http.ResponseWriter, r *http.Request) {
 	logrus.WithFields(logrus.Fields{"route": mux.CurrentRoute(r).GetName()}).Debugf("Request received")
-	h.GetRiotPlaytime()
-	fmt.Fprintf(w, "Riot!")
+
+	_, _ = h.GetRiotPlaytime()
+	_, _ = fmt.Fprintf(w, "Riot!")
 }
 
 func (h *handler) blizzardHandler(w http.ResponseWriter, r *http.Request) {
 	logrus.WithFields(logrus.Fields{"route": mux.CurrentRoute(r).GetName()}).Debugf("Request received")
-	h.GetBlizzardPlaytime("test")
-	fmt.Fprintf(w, "Blizzard!")
+
+	_, _ = h.GetBlizzardPlaytime("test")
+	_, _ = fmt.Fprintf(w, "Blizzard!")
 }
 
 func (h *handler) userHandler(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
+
 	logrus.WithFields(logrus.Fields{"route": mux.CurrentRoute(r).GetName()}).Debugf("Request received")
 
 	resp, err := h.GetUserInfo(id)
@@ -96,9 +101,11 @@ func (h *handler) userHandler(w http.ResponseWriter, r *http.Request) {
 
 	setHeader(w)
 	err = json.NewEncoder(w).Encode(resp)
+
 	if err != nil {
 		logrus.WithError(err).WithField("route", mux.CurrentRoute(r).GetName()).Warn("Could not encode response")
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+
 		return
 	}
 }

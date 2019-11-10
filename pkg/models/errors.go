@@ -20,6 +20,7 @@ func CheckStatusCode(code int) error {
 	if code != http.StatusOK {
 		return fmt.Errorf(nonOKfmt, code)
 	}
+
 	return nil
 }
 
@@ -32,10 +33,8 @@ func CheckNotFound(err error) bool {
 	if !strings.Contains(err.Error(), NonOK) {
 		return false
 	}
-	statusCode := strings.TrimPrefix(err.Error(), trim)
-	if statusCode == strconv.Itoa(http.StatusNotFound) { // NOT HARD CODED, YES
-		return true
-	}
 
-	return false
+	statusCode := strings.TrimPrefix(err.Error(), trim)
+
+	return statusCode == strconv.Itoa(http.StatusNotFound)
 }

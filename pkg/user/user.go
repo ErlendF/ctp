@@ -17,9 +17,9 @@ func New() *Manager {
 
 //GetUserInfo gets the relevant info for the given user
 func (m *Manager) GetUserInfo(username string) (*models.UserInfo, error) {
-
 	var info models.UserInfo
 
 	err := faker.FakeData(&info)
+
 	return &info, err
 }
