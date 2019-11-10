@@ -7,7 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-//Blizzard is a struct which contains everything necessary to handle a request related to riot
+//Blizzard is a struct which contains everything necessary to handle a request related to blizzard
 type Blizzard struct {
 	models.Client
 }

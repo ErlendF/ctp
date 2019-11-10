@@ -1,11 +1,14 @@
 package server
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"ctp/pkg/models"
 
+	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 )
 
@@ -27,8 +30,35 @@ func (h *handler) testHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) valveHandler(w http.ResponseWriter, r *http.Request) {
-	h.GetValvePlaytime("test")
-	fmt.Fprintf(w, "Valve!")
+	id := mux.Vars(r)["id"]
+
+	resp, err := h.GetValvePlaytime(id)
+	if err != nil {
+		logrus.WithError(err).WithField("route", mux.CurrentRoute(r).GetName()).Warn("Error getting status")
+
+		//returning errorcode based on error
+		switch {
+		case strings.Contains(err.Error(), models.NonOK):
+			if models.CheckNotFound(err) {
+				http.Error(w, "Not found", http.StatusNotFound)
+				return
+			}
+
+			http.Error(w, "Bad gateway", http.StatusBadGateway)
+		default:
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+		}
+
+		return
+	}
+
+	setHeader(w)
+	err = json.NewEncoder(w).Encode(resp)
+	if err != nil {
+		logrus.WithError(err).WithField("route", mux.CurrentRoute(r).GetName()).Warn("Could not encode response")
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (h *handler) riotHandler(w http.ResponseWriter, r *http.Request) {
@@ -39,4 +69,8 @@ func (h *handler) riotHandler(w http.ResponseWriter, r *http.Request) {
 func (h *handler) blizzardHandler(w http.ResponseWriter, r *http.Request) {
 	h.GetBlizzardPlaytime("test")
 	fmt.Fprintf(w, "Blizzard!")
+}
+
+func setHeader(w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json")
 }

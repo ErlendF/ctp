@@ -30,6 +30,7 @@ import (
 
 	"ctp/pkg/server"
 
+	_ "github.com/joho/godotenv/autoload" //importing .env to os.env
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -66,7 +67,8 @@ var rootCmd = &cobra.Command{
 
 		// Initializing each of the packages and passing them to the server
 		riot := riot.New(&client)
-		valve := valve.New(&client)
+		valveAPIKey := os.Getenv("VALVE_API_KEY")
+		valve := valve.New(&client, valveAPIKey)
 		blizzard := blizzard.New(&client)
 
 		var organizer = struct {
