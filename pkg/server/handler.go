@@ -99,7 +99,7 @@ func (h *handler) authCallback(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err = h.SetUser(&models.UserInfo{ID: id})
+	err = h.SetUser(&models.User{ID: id})
 	if err != nil {
 		logRespond(w, r, err)
 		return

@@ -17,8 +17,8 @@ func New(db models.Database) *Manager {
 }
 
 //GetUserInfo gets the relevant info for the given user
-func (m *Manager) GetUserInfo(username string) (*models.UserInfo, error) {
-	var info models.UserInfo
+func (m *Manager) GetUserInfo(username string) (*models.User, error) {
+	var info models.User
 
 	err := faker.FakeData(&info)
 
@@ -26,6 +26,6 @@ func (m *Manager) GetUserInfo(username string) (*models.UserInfo, error) {
 }
 
 //SetUser updates a given user, or adds it if it doesn't exist already
-func (m *Manager) SetUser(user *models.UserInfo) error {
+func (m *Manager) SetUser(user *models.User) error {
 	return m.db.SetUser(user)
 }

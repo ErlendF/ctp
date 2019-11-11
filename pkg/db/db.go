@@ -43,13 +43,13 @@ func New(key string) (*Database, error) {
 }
 
 //SetUser updates a given user, or adds it if it doesn't exist already
-func (db *Database) SetUser(info *models.UserInfo) error {
+func (db *Database) SetUser(info *models.User) error {
 	_, err := db.Collection(userCol).Doc(info.ID).Set(db.ctx, info)
 	return err
 }
 
 //GetUser gets a user from the database
-func (db *Database) GetUser(id string) (*models.UserInfo, error) {
+func (db *Database) GetUser(id string) (*models.User, error) {
 	doc, err := db.Collection(userCol).Doc(id).Get(db.ctx)
 	if err != nil {
 		if strings.Contains(err.Error(), "code = NotFound") {
@@ -59,7 +59,7 @@ func (db *Database) GetUser(id string) (*models.UserInfo, error) {
 	}
 
 	data := doc.Data()
-	var info models.UserInfo
+	var info models.User
 	err = mapstructure.Decode(data, &info)
 	if err != nil {
 		return nil, err
