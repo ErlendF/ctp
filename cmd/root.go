@@ -20,6 +20,7 @@ import (
 	"context"
 	"ctp/pkg/auth"
 	"ctp/pkg/blizzard"
+	"ctp/pkg/db"
 	"ctp/pkg/models"
 	"ctp/pkg/riot"
 	"ctp/pkg/user"
@@ -61,16 +62,20 @@ var rootCmd = &cobra.Command{
 		// needed. Clients are safe for concurrent use by multiple goroutines
 		// - https://golang.org/src/net/http/client.go
 		timeout := time.Duration(config.clientTimeout) * time.Second
-		client := http.Client{
+		client := &http.Client{
 			Timeout: timeout,
 		}
 
 		// Initializing each of the packages and passing them to the server
-		riot := riot.New(&client)
+		riot := riot.New(client)
 		valveAPIKey := os.Getenv("VALVE_API_KEY")
-		valve := valve.New(&client, valveAPIKey)
-		blizzard := blizzard.New(&client)
-		um := user.New()
+		valve := valve.New(client, valveAPIKey)
+		blizzard := blizzard.New(client)
+		db, err := db.New(config.dbkey)
+		if err != nil {
+			logrus.WithError(err).Fatalf("Unable to get new Database:%s", err)
+		}
+		um := user.New(db)
 
 		clientID := os.Getenv("GOOGLE_OAUTH2_CLIENT_ID")
 		clientSecret := os.Getenv("GOOGLE_OAUTH2_CLIENT_SECRET")
@@ -140,7 +145,7 @@ func init() {
 	rootCmd.Flags().IntVarP(&config.port, "port", "p", 80, "Sets the port the API should listen to")
 	rootCmd.Flags().BoolVarP(&config.verbose, "verbose", "v", false, "Verbose logging")
 	rootCmd.Flags().BoolVarP(&config.jsonFormatter, "jsonFormatter", "j", false, "JSON logging format")
-	rootCmd.Flags().StringVarP(&config.dbkey, "dbkey", "d", "./FBKEY.json", "Path to the firebase key file")
+	rootCmd.Flags().StringVarP(&config.dbkey, "dbkey", "d", "./fbkey.json", "Path to the firebase key file")
 }
 
 // setupLog initializes logrus logger

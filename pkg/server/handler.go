@@ -99,7 +99,13 @@ func (h *handler) authCallback(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	logrus.Debugf("Sucess! %s", id)
+	err = h.SetUser(&models.UserInfo{ID: id})
+	if err != nil {
+		logRespond(w, r, err)
+		return
+	}
+
+	logrus.Debugf("Auth callback sucess!")
 }
 
 func respond(w http.ResponseWriter, r *http.Request, resp interface{}) {
