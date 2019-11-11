@@ -85,10 +85,18 @@ func (h *handler) login(w http.ResponseWriter, r *http.Request) {
 	h.Redirect(w, r)
 }
 
-func (h *handler) redirected(w http.ResponseWriter, r *http.Request) {
+func (h *handler) authCallback(w http.ResponseWriter, r *http.Request) {
 	id, err := h.HandleOAuth2Callback(w, r)
 	if err != nil {
-		logRespond(w, r, err)
+		logrus.WithError(err).WithField("route", mux.CurrentRoute(r).GetName()).Warn("Error getting status")
+
+		//returning errorcode based on error
+		switch {
+		case err.Error() == models.InvalidAuthState:
+			http.Error(w, fmt.Sprintf("%s: invalid state", http.StatusText(http.StatusBadRequest)), http.StatusBadRequest)
+		default:
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		}
 	}
 
 	logrus.Debugf("Sucess! %s", id)

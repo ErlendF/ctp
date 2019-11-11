@@ -15,6 +15,9 @@ const nonOKfmt = NonOK + ": %d"
 
 const trim = "non 200 statuscode: "
 
+//InvalidAuthState defines the error returned if the state for the authenticaiton request does not match the state stored in the cookie
+const InvalidAuthState = "Invalid state"
+
 //CheckStatusCode checks the status code and returns an error if it is not 200
 func CheckStatusCode(code int) error {
 	if code != http.StatusOK {
