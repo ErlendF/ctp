@@ -43,8 +43,8 @@ func New(key string) (*Database, error) {
 }
 
 //SetUser updates a given user, or adds it if it doesn't exist already
-func (db *Database) SetUser(info *models.User) error {
-	_, err := db.Collection(userCol).Doc(info.ID).Set(db.ctx, info)
+func (db *Database) SetUser(user *models.User) error {
+	_, err := db.Collection(userCol).Doc(user.ID).Set(db.ctx, user)
 	return err
 }
 
@@ -59,11 +59,11 @@ func (db *Database) GetUser(id string) (*models.User, error) {
 	}
 
 	data := doc.Data()
-	var info models.User
-	err = mapstructure.Decode(data, &info)
+	var user models.User
+	err = mapstructure.Decode(data, &user)
 	if err != nil {
 		return nil, err
 	}
 
-	return &info, nil
+	return &user, nil
 }

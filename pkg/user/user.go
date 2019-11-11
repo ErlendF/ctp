@@ -2,8 +2,6 @@ package user
 
 import (
 	"ctp/pkg/models"
-
-	"github.com/bxcodec/faker"
 )
 
 //Manager is a struct which contains everything necessary
@@ -16,13 +14,9 @@ func New(db models.Database) *Manager {
 	return &Manager{db: db}
 }
 
-//GetUserInfo gets the relevant info for the given user
-func (m *Manager) GetUserInfo(username string) (*models.User, error) {
-	var info models.User
-
-	err := faker.FakeData(&info)
-
-	return &info, err
+//GetUser gets the relevant info for the given user
+func (m *Manager) GetUser(id string) (*models.User, error) {
+	return m.db.GetUser(id)
 }
 
 //SetUser updates a given user, or adds it if it doesn't exist already

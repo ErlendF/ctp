@@ -72,7 +72,7 @@ func (h *handler) userHandler(w http.ResponseWriter, r *http.Request) {
 
 	logrus.WithFields(logrus.Fields{"route": mux.CurrentRoute(r).GetName()}).Debugf("Request received")
 
-	resp, err := h.GetUserInfo(id)
+	resp, err := h.GetUser(id)
 	if err != nil {
 		logRespond(w, r, err)
 		return
