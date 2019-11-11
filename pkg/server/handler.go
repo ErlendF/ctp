@@ -105,7 +105,29 @@ func (h *handler) authCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logrus.Debugf("Auth callback sucess!")
+	// token, err := h.GetNewToken(id)
+	// if err != nil {
+	// 	logRespond(w, r, err)
+	// 	return
+	// }
+
+	// test, err := h.ValidateToken(token)
+	// if err != nil {
+	// 	logrus.Debugf("Failed!")
+	// 	logRespond(w, r, err)
+	// 	return
+	// }
+	// if test != id {
+	// 	logrus.Debugf("Failed, not equal!")
+	// 	logRespond(w, r, err)
+	// 	return
+	// }
+
+	// respondPlain(w, r, token)
+}
+
+func (h *handler) updateUser(w http.ResponseWriter, r *http.Request) {
+
 }
 
 func respond(w http.ResponseWriter, r *http.Request, resp interface{}) {
@@ -113,6 +135,16 @@ func respond(w http.ResponseWriter, r *http.Request, resp interface{}) {
 
 	err := json.NewEncoder(w).Encode(resp)
 
+	if err != nil {
+		logrus.WithError(err).WithField("route", mux.CurrentRoute(r).GetName()).Warn("Could not encode response")
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+
+		return
+	}
+}
+
+func respondPlain(w http.ResponseWriter, r *http.Request, resp string) {
+	_, err := fmt.Fprintf(w, resp)
 	if err != nil {
 		logrus.WithError(err).WithField("route", mux.CurrentRoute(r).GetName()).Warn("Could not encode response")
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

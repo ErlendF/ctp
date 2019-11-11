@@ -7,18 +7,19 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/http"
-	"sync"
 
 	"github.com/coreos/go-oidc"
+	"github.com/gorilla/mux"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 )
 
 //Authenticator contains everything used by an authenticator
 type Authenticator struct {
-	ctx      context.Context
-	mu       sync.RWMutex
-	config   oauth2.Config
-	verifier *oidc.IDTokenVerifier
+	ctx        context.Context
+	config     oauth2.Config
+	verifier   *oidc.IDTokenVerifier
+	hmacSecret []byte
 }
 
 const stateCookie = "oauthstate"
@@ -46,12 +47,24 @@ func New(ctx context.Context, clientID string, clientSecret string) (*Authentica
 		Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
 	}
 
+	authenticator.hmacSecret = make([]byte, 512)
+	_, err = rand.Read(authenticator.hmacSecret)
+	if err != nil {
+		return nil, err
+	}
+
 	return authenticator, nil
 }
 
 //Redirect redirects
 func (a *Authenticator) Redirect(w http.ResponseWriter, r *http.Request) {
-	state := generateStateOauthCookie(w)
+	state, err := generateStateOauthCookie(w)
+	if err != nil {
+		logrus.WithError(err).WithField("route", mux.CurrentRoute(r).GetName()).Warn("Could not generate state for authentication")
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+
+		return
+	}
 	http.Redirect(w, r, a.config.AuthCodeURL(state), http.StatusFound)
 }
 
@@ -93,14 +106,17 @@ func (a *Authenticator) HandleOAuth2Callback(w http.ResponseWriter, r *http.Requ
 
 // makes a random
 // based on example from https://dev.to/douglasmakey/oauth2-example-with-go-3n8a
-func generateStateOauthCookie(w http.ResponseWriter) string {
+func generateStateOauthCookie(w http.ResponseWriter) (string, error) {
 	b := make([]byte, 16)
-	rand.Read(b)
+	_, err := rand.Read(b)
+	if err != nil {
+		return "", err
+	}
 	state := base64.URLEncoding.EncodeToString(b)
 	cookie := http.Cookie{Name: stateCookie, Value: state}
 	http.SetCookie(w, &cookie)
 
-	return state
+	return state, nil
 }
 
 func removeStateOauthCookie(w http.ResponseWriter) {

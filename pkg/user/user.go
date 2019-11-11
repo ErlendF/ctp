@@ -19,7 +19,16 @@ func (m *Manager) GetUser(id string) (*models.User, error) {
 	return m.db.GetUser(id)
 }
 
-//SetUser updates a given user, or adds it if it doesn't exist already
+//SetUser updates a given user
 func (m *Manager) SetUser(user *models.User) error {
 	return m.db.SetUser(user)
 }
+
+// //AddUser adds a new user
+// func (m *Manager) SetUser(user *models.User) (string, error) {
+// 	err := m.db.SetUser(user)
+// 	if err != nil {
+// 		return "", err
+// 	}
+// 	token, err := m.
+// }

@@ -6,4 +6,6 @@ import "net/http"
 type Authenticator interface {
 	Redirect(w http.ResponseWriter, r *http.Request)
 	HandleOAuth2Callback(w http.ResponseWriter, r *http.Request) (string, error)
+	GetNewToken(id string) (string, error)
+	ValidateToken(tokenString string) (string, error)
 }
