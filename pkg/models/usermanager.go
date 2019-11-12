@@ -4,4 +4,5 @@ package models
 type UserManager interface {
 	GetUser(username string) (*User, error)
 	SetUser(user *User) error
+	UpdateGame(id string, game *Game) error
 }

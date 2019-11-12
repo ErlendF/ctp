@@ -32,3 +32,7 @@ func (m *Manager) SetUser(user *models.User) error {
 // 	}
 // 	token, err := m.
 // }
+
+func (m *Manager) UpdateGame(id string, game *models.Game) error {
+	return m.db.UpdateGame(id, game)
+}
