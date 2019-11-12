@@ -26,6 +26,35 @@ func newHandler(organizer models.Organizer) *handler {
 
 func (h *handler) testHandler(w http.ResponseWriter, r *http.Request) {
 	logrus.Debugf("testHandler!")
+	//debug start
+
+	tmpGame := models.Game{
+		Name: "League",
+		Time: 12,
+	}
+
+	tmpUser := models.User{
+		ID:            "117575669351657432712",
+		Token:         "",
+		Name:          "Johan",
+		TotalGameTime: 12,
+		Games:         nil,
+	}
+
+	tmpUser.Games = append(tmpUser.Games, tmpGame)
+	//debug end
+
+	err := h.SetUser(&tmpUser)
+	if err != nil {
+		logrus.WithError(err).Debugf("Test failed!")
+	}
+
+	game, _ := h.GetRiotPlaytime()
+	err = h.UpdateGame(tmpUser.ID, game)
+	if err != nil {
+		logrus.WithError(err).Warnf("Update game failed!")
+	}
+
 	fmt.Fprintf(w, "Success!")
 }
 
@@ -97,6 +126,8 @@ func (h *handler) authCallback(w http.ResponseWriter, r *http.Request) {
 		default:
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		}
+
+		return
 	}
 
 	err = h.SetUser(&models.User{ID: id})
@@ -105,25 +136,25 @@ func (h *handler) authCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// token, err := h.GetNewToken(id)
-	// if err != nil {
-	// 	logRespond(w, r, err)
-	// 	return
-	// }
+	token, err := h.GetNewToken(id)
+	if err != nil {
+		logRespond(w, r, err)
+		return
+	}
 
-	// test, err := h.ValidateToken(token)
-	// if err != nil {
-	// 	logrus.Debugf("Failed!")
-	// 	logRespond(w, r, err)
-	// 	return
-	// }
-	// if test != id {
-	// 	logrus.Debugf("Failed, not equal!")
-	// 	logRespond(w, r, err)
-	// 	return
-	// }
+	test, err := h.ValidateToken(token)
+	if err != nil {
+		logrus.Debugf("Failed!")
+		logRespond(w, r, err)
+		return
+	}
+	if test != id {
+		logrus.Debugf("Failed, not equal!")
+		logRespond(w, r, err)
+		return
+	}
 
-	// respondPlain(w, r, token)
+	respondPlain(w, r, token)
 }
 
 func (h *handler) updateUser(w http.ResponseWriter, r *http.Request) {
@@ -163,4 +194,9 @@ func logRespond(w http.ResponseWriter, r *http.Request, err error) {
 	default:
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 	}
+}
+
+func (h *handler) notImplemented(w http.ResponseWriter, r *http.Request) {
+	logrus.Debugf("notImplemented!")
+	fmt.Fprintf(w, "Not implemented!")
 }

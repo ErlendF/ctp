@@ -43,7 +43,7 @@ func New(ctx context.Context, clientID string, clientSecret string) (*Authentica
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
 		Endpoint:     provider.Endpoint(),
-		RedirectURL:  "http://localhost:8080/api/v1/authcallback",
+		RedirectURL:  "http://localhost:8080/api/v1/authcallback", //TODO dynamically
 		Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
 	}
 

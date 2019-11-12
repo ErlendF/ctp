@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/sirupsen/logrus"
 )
 
 //GetNewToken generates a new token for the given id
@@ -37,10 +38,13 @@ func (a *Authenticator) ValidateToken(tokenString string) (string, error) {
 		return "", fmt.Errorf("Invalid token")
 	}
 
+	logrus.Debugf("Claims: %+v", claims)
 	expClaim, ok := claims["exp"]
 	if !ok {
 		return "", fmt.Errorf("Invalid expiration for token")
 	}
+
+	logrus.Debugf("expClaim: %+v", expClaim)
 	expInt, ok := expClaim.(int64)
 	if !ok {
 		return "", fmt.Errorf("Invalid expiration for token")

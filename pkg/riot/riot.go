@@ -2,7 +2,6 @@ package riot
 
 import (
 	"ctp/pkg/models"
-	"time"
 
 	"github.com/sirupsen/logrus"
 )
@@ -18,11 +17,10 @@ func New(client models.Client) *Riot {
 }
 
 //GetRiotPlaytime gets playtime on League of Legends
-func (r *Riot) GetRiotPlaytime() (*time.Duration, error) {
+func (r *Riot) GetRiotPlaytime() (*models.Game, error) {
 	logrus.Debugf("GetLolPlaytime")
 
-	
-
-
-	return nil, nil
+	// db.UpdateGame("League", 9, "117575669351657432712")
+	game := &models.Game{Name: "League", Time: 9}
+	return game, nil
 }

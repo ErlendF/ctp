@@ -48,6 +48,29 @@ func (db *Database) SetUser(user *models.User) error {
 	return err
 }
 
+func (db *Database) UpdateGame(id string, tmpGame *models.Game) error {
+	user, err := db.GetUser(id)
+	if err != nil {
+		return err
+	}
+
+	gamePresent := false
+
+	//update game if present
+	for i := range user.Games {
+		if user.Games[i].Name == tmpGame.Name {
+			user.Games[i].Time += tmpGame.Time
+			gamePresent = true
+		}
+	}
+
+	if !gamePresent {
+		user.Games = append(user.Games, *tmpGame)
+	}
+
+	return db.SetUser(user)
+}
+
 //GetUser gets a user from the database
 func (db *Database) GetUser(id string) (*models.User, error) {
 	doc, err := db.Collection(userCol).Doc(id).Get(db.ctx)

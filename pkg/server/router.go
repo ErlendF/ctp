@@ -17,11 +17,14 @@ func newRouter(h *handler) *mux.Router {
 	g.HandleFunc("/riot", h.riotHandler).Name("riot")
 	g.HandleFunc("/valve/{id:[0-9]+}", h.valveHandler).Name("valve")
 	g.HandleFunc("/blizzard", h.blizzardHandler).Name("blizzard")
-	g.HandleFunc("/user/{id}", h.userHandler).Name("Userinfo")
+	g.HandleFunc("/user/{id}", h.userHandler).Name("getUser")
 	g.HandleFunc("/login", h.login).Name("login")
 	g.HandleFunc("/authcallback", h.authCallback).Name("authCallback")
 
 	s.HandleFunc("/user/{id}", h.updateUser).Methods(http.MethodPost).Name("updateUser")
+
+	//catch all
+	r.PathPrefix("/").HandlerFunc(h.notImplemented)
 
 	return r
 }
