@@ -103,27 +103,40 @@ func logRespond(w http.ResponseWriter, r *http.Request, err error) {
 }
 
 func (h *handler) regLeague(w http.ResponseWriter, r *http.Request) {
-	id := r.Context().Value(ctxKey("id"))
-	logrus.Debugf("regLeague, id: %s", id)
+	id, err := getID(r)
+	if err != nil {
+		logRespond(w, r, err)
+		return
+	}
 
 	var regInfo models.SummonerRegistration
 
-	err := json.NewDecoder(r.Body).Decode(&regInfo)
+	err = json.NewDecoder(r.Body).Decode(&regInfo)
 	if err != nil {
 		logRespond(w, r, err)
 		return
 	}
 
-	err = h.RegisterLeague(&regInfo)
+	err = h.RegisterLeague(id, &regInfo)
 	if err != nil {
 		logRespond(w, r, err)
 		return
 	}
 
-	//write ok?
+	respondPlain(w, r, "Sucess")
 }
 
 func (h *handler) notFound(w http.ResponseWriter, r *http.Request) {
 	logrus.WithField("request", r.RequestURI).Debugf("Not found handler")
 	http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+}
+
+func getID(r *http.Request) (string, error) {
+	id := r.Context().Value(ctxKey("id"))
+	idStr, ok := id.(string)
+	if !ok {
+		return "", fmt.Errorf("Invalid id")
+	}
+
+	return idStr, nil
 }

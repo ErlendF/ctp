@@ -63,13 +63,12 @@ func (m *Manager) AuthCallback(w http.ResponseWriter, r *http.Request) (string, 
 }
 
 //RegisterLeague registeres League of Legends for a given user
-func (m *Manager) RegisterLeague(reg *models.SummonerRegistration) error {
+func (m *Manager) RegisterLeague(id string, reg *models.SummonerRegistration) error {
 	err := m.o.ValidateSummoner(reg)
 	if err != nil {
 		return err
 	}
 
-	id := "117575669351657432712"
 	user := &models.User{ID: id}
 
 	user.Lol = *reg

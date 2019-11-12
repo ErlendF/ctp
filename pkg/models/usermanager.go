@@ -9,6 +9,6 @@ type UserManager interface {
 	UpdateGame(id string, game *Game) error
 	Redirect(w http.ResponseWriter, r *http.Request)
 	AuthCallback(w http.ResponseWriter, r *http.Request) (string, error)
-	RegisterLeague(reg *SummonerRegistration) error
+	RegisterLeague(id string, reg *SummonerRegistration) error
 	JohanTestFunc()
 }
