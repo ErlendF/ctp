@@ -32,8 +32,6 @@ func (h *handler) testHandler(w http.ResponseWriter, r *http.Request) {
 func (h *handler) userHandler(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
 
-	logrus.WithFields(logrus.Fields{"route": mux.CurrentRoute(r).GetName()}).Debugf("Request received")
-
 	resp, err := h.GetUser(id)
 	if err != nil {
 		logRespond(w, r, err)
@@ -126,5 +124,6 @@ func (h *handler) regLeague(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) notFound(w http.ResponseWriter, r *http.Request) {
+	logrus.WithField("request", r.RequestURI).Debugf("Not found handler")
 	http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 }
