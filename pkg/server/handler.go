@@ -125,7 +125,6 @@ func (h *handler) regLeague(w http.ResponseWriter, r *http.Request) {
 	//write ok?
 }
 
-func (h *handler) notImplemented(w http.ResponseWriter, r *http.Request) {
-	logrus.Debugf("notImplemented!")
-	fmt.Fprintf(w, "Not implemented!")
+func (h *handler) notFound(w http.ResponseWriter, r *http.Request) {
+	http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 }

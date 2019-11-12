@@ -9,7 +9,7 @@ import (
 // NewRouter creates a new router
 func newRouter(h *handler, mw *middleware) *mux.Router {
 	r := mux.NewRouter()
-	r.NotFoundHandler = http.HandlerFunc(h.notImplemented)
+	r.NotFoundHandler = http.HandlerFunc(h.notFound)
 
 	get := r.PathPrefix("/api/v1/").Methods(http.MethodGet).Subrouter()
 
