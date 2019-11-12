@@ -18,6 +18,8 @@ type handler struct {
 	models.UserManager
 }
 
+const invalidID = "Invalid id"
+
 //newHandler returns handler
 func newHandler(um models.UserManager) *handler {
 	return &handler{um}
@@ -95,6 +97,8 @@ func logRespond(w http.ResponseWriter, r *http.Request, err error) {
 
 	//returning errorcode based on error
 	switch {
+	case err.Error() == invalidID:
+		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 	case strings.Contains(err.Error(), models.NonOK):
 		http.Error(w, http.StatusText(http.StatusBadGateway), http.StatusBadGateway)
 	default:
@@ -135,7 +139,7 @@ func getID(r *http.Request) (string, error) {
 	id := r.Context().Value(ctxKey("id"))
 	idStr, ok := id.(string)
 	if !ok {
-		return "", fmt.Errorf("Invalid id")
+		return "", fmt.Errorf(invalidID)
 	}
 
 	return idStr, nil
