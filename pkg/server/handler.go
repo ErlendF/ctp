@@ -51,7 +51,7 @@ func (h *handler) login(w http.ResponseWriter, r *http.Request) {
 func (h *handler) authCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	resp, err := h.AuthCallback(w, r)
 	if err != nil {
-		logrus.WithError(err).WithField("route", mux.CurrentRoute(r).GetName()).Warn("Error getting status")
+		logrus.WithError(err).WithField("route", mux.CurrentRoute(r).GetName()).Warn("Error getting token")
 
 		//returning errorcode based on error
 		switch {
@@ -116,6 +116,13 @@ func (h *handler) regLeague(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err = h.RegisterLeague(&regInfo)
+	if err != nil {
+		logRespond(w, r, err)
+		return
+	}
+
+	//write ok?
 }
 
 func (h *handler) notImplemented(w http.ResponseWriter, r *http.Request) {

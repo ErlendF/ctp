@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"cloud.google.com/go/firestore"
+	"github.com/fatih/structs"
 	"github.com/mitchellh/mapstructure"
 	"golang.org/x/net/context"
 
@@ -70,6 +71,40 @@ func (db *Database) UpdateGame(id string, tmpGame *models.Game) error {
 	}
 
 	return db.SetUser(user)
+}
+
+//UpdateUser updates the relevant fields of the user
+//checks for empty values
+//!!Needs to be updated for new types!!
+func (db *Database) UpdateUser(user *models.User) error {
+	m := structs.Map(user)
+	delete(m, "ID")
+	delete(m, "Games")
+
+	for k, v := range m {
+		switch v.(type) {
+		case string:
+			if v == "" {
+				delete(m, k)
+			}
+		case int:
+			if v == 0 {
+				delete(m, k)
+			}
+		case map[string]interface{}:
+			if k != "Lol" {
+				return fmt.Errorf("Unknown type")
+			}
+
+			s := v.(map[string]interface{})
+			if s["SummonerName"].(string) == "" || s["SummonerRegion"].(string) == "" {
+				delete(m, k)
+			}
+		}
+	}
+
+	_, err := db.Collection(userCol).Doc(user.ID).Set(db.ctx, m, firestore.MergeAll)
+	return err
 }
 
 //GetUser gets a user from the database

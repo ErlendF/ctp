@@ -67,11 +67,15 @@ var rootCmd = &cobra.Command{
 		}
 
 		// Initializing each of the packages and passing them to the server
-		riot := riot.New(client)
+		riotAPIKey := os.Getenv("RIOT_API_KEY")
+		riot := riot.New(client, riotAPIKey)
+
 		valveAPIKey := os.Getenv("VALVE_API_KEY")
 		valve := valve.New(client, valveAPIKey)
+
 		blizzard := blizzard.New(client)
 		db, err := db.New(config.dbkey)
+		
 		if err != nil {
 			logrus.WithError(err).Fatalf("Unable to get new Database:%s", err)
 		}
