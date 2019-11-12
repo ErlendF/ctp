@@ -4,6 +4,7 @@ import (
 	"ctp/pkg/models"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -32,6 +33,12 @@ func (b *Blizzard) GetBlizzardPlaytime(platform, region, ID string) (*time.Durat
 		return nil, err
 	}
 	defer resp.Body.Close()
+
+	// Checks status header
+	if resp.StatusCode != http.StatusOK {
+		logrus.Errorf("non 200 statuscode: %d", resp.StatusCode)
+		return nil, fmt.Errorf("non 200 statuscode: %d", resp.StatusCode)
+	}
 
 	// Decodes the response to get playtime.
 	var gameTime models.BlizzardResp
