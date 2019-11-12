@@ -9,3 +9,15 @@ type Authenticator interface {
 	GetNewToken(id string) (string, error)
 	ValidateToken(tokenString string) (string, error)
 }
+
+//TokenValidator validates a token
+type TokenValidator interface {
+	ValidateToken(tokenString string) (string, error)
+}
+
+//TokenGenerator generates a new token
+type TokenGenerator interface {
+	GetNewToken(id string) (string, error)
+	Redirect(w http.ResponseWriter, r *http.Request)
+	HandleOAuth2Callback(w http.ResponseWriter, r *http.Request) (string, error)
+}

@@ -47,11 +47,13 @@ func New(ctx context.Context, clientID string, clientSecret string) (*Authentica
 		Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
 	}
 
-	authenticator.hmacSecret = make([]byte, 512)
-	_, err = rand.Read(authenticator.hmacSecret)
-	if err != nil {
-		return nil, err
-	}
+	// authenticator.hmacSecret = make([]byte, 512)
+	// _, err = rand.Read(authenticator.hmacSecret)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	authenticator.hmacSecret = []byte("test")
 
 	return authenticator, nil
 }

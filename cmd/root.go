@@ -75,7 +75,7 @@ var rootCmd = &cobra.Command{
 
 		blizzard := blizzard.New(client)
 		db, err := db.New(config.dbkey)
-		
+
 		if err != nil {
 			logrus.WithError(err).Fatalf("Unable to get new Database:%s", err)
 		}
@@ -94,7 +94,7 @@ var rootCmd = &cobra.Command{
 		}{valve, riot, blizzard, auth}
 
 		um := user.New(db, organizer)
-		srv := server.New(config.port, um)
+		srv := server.New(config.port, um, auth)
 
 		// Making an channel to listen for errors (later blocking until either error or signal is received)
 		errChan := make(chan error)

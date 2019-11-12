@@ -8,5 +8,5 @@ type Organizer interface {
 	Valve
 	Riot
 	Blizzard
-	Authenticator
+	TokenGenerator
 }

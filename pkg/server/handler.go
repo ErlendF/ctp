@@ -25,7 +25,6 @@ func newHandler(um models.UserManager) *handler {
 
 func (h *handler) testHandler(w http.ResponseWriter, r *http.Request) {
 	logrus.Debugf("testHandler!")
-	//debug start
 	h.JohanTestFunc()
 	fmt.Fprintf(w, "Test handler!")
 }
@@ -106,7 +105,8 @@ func logRespond(w http.ResponseWriter, r *http.Request, err error) {
 }
 
 func (h *handler) regLeague(w http.ResponseWriter, r *http.Request) {
-	logrus.Debugf("regLeague")
+	id := r.Context().Value(ctxKey("id"))
+	logrus.Debugf("regLeague, id: %s", id)
 
 	var regInfo models.SummonerRegistration
 

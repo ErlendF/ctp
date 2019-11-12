@@ -59,15 +59,6 @@ func (m *Manager) AuthCallback(w http.ResponseWriter, r *http.Request) (string, 
 		return "", err
 	}
 
-	test, err := m.o.ValidateToken(token)
-	if err != nil {
-		logrus.Debugf("Failed!")
-		return "", err
-	}
-	if test != id {
-		logrus.Debugf("Failed, not equal!")
-		return "", err
-	}
 	return token, nil
 }
 
