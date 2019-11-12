@@ -2,16 +2,22 @@ package user
 
 import (
 	"ctp/pkg/models"
+	"net/http"
+
+	"github.com/sirupsen/logrus"
 )
 
 //Manager is a struct which contains everything necessary
 type Manager struct {
+	o  models.Organizer
 	db models.Database
 }
 
-//New returns a new riot instance
-func New(db models.Database) *Manager {
-	return &Manager{db: db}
+//New returns a new user manager instance
+// Organizer is used to simplify the passing of all interfaces to the handler.
+func New(db models.Database, organizer models.Organizer) *Manager {
+	m := &Manager{db: db, o: organizer}
+	return m
 }
 
 //GetUser gets the relevant info for the given user
@@ -24,15 +30,73 @@ func (m *Manager) SetUser(user *models.User) error {
 	return m.db.SetUser(user)
 }
 
-// //AddUser adds a new user
-// func (m *Manager) SetUser(user *models.User) (string, error) {
-// 	err := m.db.SetUser(user)
-// 	if err != nil {
-// 		return "", err
-// 	}
-// 	token, err := m.
-// }
-
+//UpdateGame updates the gametime for the given game
 func (m *Manager) UpdateGame(id string, game *models.Game) error {
 	return m.db.UpdateGame(id, game)
+}
+
+//UpdateAllGames updates all games the user has registered
+func (m *Manager) UpdateAllGames(id string) error {
+	return nil
+}
+
+//Redirect redirects the user to oauth providers
+func (m *Manager) Redirect(w http.ResponseWriter, r *http.Request) {
+	m.o.Redirect(w, r)
+}
+
+//AuthCallback handles oauth callback
+func (m *Manager) AuthCallback(w http.ResponseWriter, r *http.Request) (string, error) {
+	id, err := m.o.HandleOAuth2Callback(w, r)
+
+	err = m.SetUser(&models.User{ID: id})
+	if err != nil {
+		return "", err
+	}
+
+	token, err := m.o.GetNewToken(id)
+	if err != nil {
+		return "", err
+	}
+
+	test, err := m.o.ValidateToken(token)
+	if err != nil {
+		logrus.Debugf("Failed!")
+		return "", err
+	}
+	if test != id {
+		logrus.Debugf("Failed, not equal!")
+		return "", err
+	}
+	return token, nil
+}
+
+//JohanTestFunc is just a method for johan to test things :-)
+func (m *Manager) JohanTestFunc() {
+	tmpGame := models.Game{
+		Name: "League",
+		Time: 12,
+	}
+
+	tmpUser := models.User{
+		ID:            "117575669351657432712",
+		Token:         "",
+		Name:          "Johan",
+		TotalGameTime: 12,
+		Games:         nil,
+	}
+
+	tmpUser.Games = append(tmpUser.Games, tmpGame)
+	//debug end
+
+	err := m.db.SetUser(&tmpUser)
+	if err != nil {
+		logrus.WithError(err).Debugf("Test failed!")
+	}
+
+	game, _ := m.o.GetRiotPlaytime()
+	err = m.UpdateGame(tmpUser.ID, game)
+	if err != nil {
+		logrus.WithError(err).Warnf("Update game failed!")
+	}
 }

@@ -75,7 +75,6 @@ var rootCmd = &cobra.Command{
 		if err != nil {
 			logrus.WithError(err).Fatalf("Unable to get new Database:%s", err)
 		}
-		um := user.New(db)
 
 		clientID := os.Getenv("GOOGLE_OAUTH2_CLIENT_ID")
 		clientSecret := os.Getenv("GOOGLE_OAUTH2_CLIENT_SECRET")
@@ -87,11 +86,11 @@ var rootCmd = &cobra.Command{
 			models.Valve
 			models.Riot
 			models.Blizzard
-			models.UserManager
 			models.Authenticator
-		}{valve, riot, blizzard, um, auth}
+		}{valve, riot, blizzard, auth}
 
-		srv := server.New(config.port, organizer)
+		um := user.New(db, organizer)
+		srv := server.New(config.port, um)
 
 		// Making an channel to listen for errors (later blocking until either error or signal is received)
 		errChan := make(chan error)

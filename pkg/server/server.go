@@ -11,8 +11,8 @@ import (
 const writeTimeout, readTimeout, idleTimeout = 15, 30, 30
 
 // New creates a new http server
-func New(port int, organizer models.Organizer) *http.Server {
-	handler := newHandler(organizer)
+func New(port int, um models.UserManager) *http.Server {
+	handler := newHandler(um)
 	router := newRouter(handler)
 
 	return &http.Server{

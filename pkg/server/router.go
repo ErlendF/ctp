@@ -14,13 +14,14 @@ func newRouter(h *handler) *mux.Router {
 	g := s.Methods(http.MethodGet).Subrouter()
 
 	g.HandleFunc("/", h.testHandler).Name("root")
-	g.HandleFunc("/riot", h.riotHandler).Name("riot")
-	g.HandleFunc("/valve/{id:[0-9]+}", h.valveHandler).Name("valve")
-	g.HandleFunc("/blizzard", h.blizzardHandler).Name("blizzard")
 	g.HandleFunc("/user/{id}", h.userHandler).Name("getUser")
 	g.HandleFunc("/login", h.login).Name("login")
-	g.HandleFunc("/authcallback", h.authCallback).Name("authCallback")
+	g.HandleFunc("/authcallback", h.authCallbackHandler).Name("authCallback")
 
+	// g.HandleFunc("/register/blizz", h.regshit).Name("reg")
+	// g.HandleFunc("/register/valve", h.regshit).Name("reg")
+
+	s.HandleFunc("/register/league", h.regLeague).Methods(http.MethodPost).Name("regLeague")
 	s.HandleFunc("/user/{id}", h.updateUser).Methods(http.MethodPost).Name("updateUser")
 
 	//catch all

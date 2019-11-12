@@ -48,6 +48,7 @@ func (db *Database) SetUser(user *models.User) error {
 	return err
 }
 
+//UpdateGame updates the gametime for the given game
 func (db *Database) UpdateGame(id string, tmpGame *models.Game) error {
 	user, err := db.GetUser(id)
 	if err != nil {
@@ -59,7 +60,7 @@ func (db *Database) UpdateGame(id string, tmpGame *models.Game) error {
 	//update game if present
 	for i := range user.Games {
 		if user.Games[i].Name == tmpGame.Name {
-			user.Games[i].Time += tmpGame.Time
+			user.Games[i].Time = tmpGame.Time
 			gamePresent = true
 		}
 	}

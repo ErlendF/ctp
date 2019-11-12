@@ -6,11 +6,12 @@ type User struct {
 	Token         string `json:"token"`
 	Name          string `json:"username"`
 	TotalGameTime int    `json:"totalPlayTime"`
-	Games		  []Game
+	LolaccountID  string `json:"-"`
+	Games         []Game
 }
 
 //Game part of User
 type Game struct {
-	Name	string `json:"Game"`
-	Time	int    `json:"PlayTime"`
+	Name string `json:"game"`
+	Time int    `json:"playTime"`
 }
