@@ -45,7 +45,7 @@ func (b *Blizzard) GetBlizzardPlaytime(platform, region, ID string) (*time.Durat
 		logrus.Errorf("Error splitting time: %v", err)
 		return nil, err
 	}
-	compTime, err := nanoTime(gameTime.QuickPlayStats.AllHeroes.Game.TimePlayed)
+	compTime, err := nanoTime(gameTime.CompetitiveStats.AllHeroes.Game.TimePlayed)
 	if err != nil {
 		logrus.Errorf("Error splitting time: %v", err)
 		return nil, err
