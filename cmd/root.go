@@ -82,7 +82,8 @@ var rootCmd = &cobra.Command{
 
 		clientID := os.Getenv("GOOGLE_OAUTH2_CLIENT_ID")
 		clientSecret := os.Getenv("GOOGLE_OAUTH2_CLIENT_SECRET")
-		auth, err := auth.New(context.Background(), clientID, clientSecret) //FIX: context
+		hmacSecret := os.Getenv("HMAC_SECRET")
+		auth, err := auth.New(context.Background(), clientID, clientSecret, hmacSecret) //TODO: context
 		if err != nil {
 			logrus.WithError(err).Fatalf("Unable to get new Authenticator:%s", err)
 		}

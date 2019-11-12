@@ -25,7 +25,7 @@ type Authenticator struct {
 const stateCookie = "oauthstate"
 
 //New returns a new authenticator
-func New(ctx context.Context, clientID string, clientSecret string) (*Authenticator, error) {
+func New(ctx context.Context, clientID string, clientSecret string, hmacSecret string) (*Authenticator, error) {
 	authenticator := &Authenticator{ctx: ctx}
 
 	provider, err := oidc.NewProvider(ctx, "https://accounts.google.com")
@@ -47,14 +47,7 @@ func New(ctx context.Context, clientID string, clientSecret string) (*Authentica
 		Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
 	}
 
-	// authenticator.hmacSecret = make([]byte, 512)
-	// _, err = rand.Read(authenticator.hmacSecret)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	authenticator.hmacSecret = []byte("test")
-
+	authenticator.hmacSecret = []byte(hmacSecret)
 	return authenticator, nil
 }
 

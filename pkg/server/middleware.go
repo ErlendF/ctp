@@ -13,9 +13,9 @@ type middleware struct {
 	models.TokenValidator
 }
 
-// The provided key must be comparable and should not be of type string
+// "The provided key must be comparable and should not be of type string
 // or any other built-in type to avoid collisions between packages using context.
-// Users of WithValue should define their own types for keys. - https://golang.org/pkg/context/#WithValue
+// Users of WithValue should define their own types for keys." - https://golang.org/pkg/context/#WithValue
 type ctxKey string
 
 func newMiddleware(val models.TokenValidator) *middleware {
