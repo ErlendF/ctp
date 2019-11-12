@@ -58,7 +58,7 @@ func (h *handler) riotHandler(w http.ResponseWriter, r *http.Request) {
 func (h *handler) blizzardHandler(w http.ResponseWriter, r *http.Request) {
 	logrus.WithFields(logrus.Fields{"route": mux.CurrentRoute(r).GetName()}).Debugf("Request received")
 
-	resp, err := h.GetBlizzardPlaytime("test")
+	resp, err := h.GetBlizzardPlaytime("test", "test", "test")
 	if err != nil {
 		logRespond(w, r, err)
 		return
