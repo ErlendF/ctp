@@ -4,6 +4,8 @@ import (
 	"ctp/pkg/models"
 	"encoding/json"
 	"fmt"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -51,14 +53,53 @@ func (b *Blizzard) GetBlizzardPlaytime(platform, region, ID string) (*time.Durat
 		return nil, err
 	}
 
-	xd := quickTime + compTime
-	return &xd, nil
+	totalTime := quickTime + compTime
+	return &totalTime, nil
 }
 
 // nanoTime gets a formatted time string and returns it in nanoseconds
-func nanoTime(time string) (time.Duration, error) {
+func nanoTime(strTime string) (time.Duration, error) {
+	absTime := time.Duration(0)
+	parts := strings.Split(strTime, ":")
+	switch len(parts) {
+	case 1:
+		sec, err := strconv.Atoi(parts[0])
+		if err != nil {
+			return 0, err
+		}
+		absTime += time.Duration(sec) * time.Second
+	case 2:
+		min, err := strconv.Atoi(parts[0])
+		if err != nil {
+			return 0, err
+		}
+		absTime = time.Duration(min) * time.Minute
+		sec, err := strconv.Atoi(parts[1])
+		if err != nil {
+			return 0, err
+		}
+		absTime += time.Duration(sec) * time.Second
+	case 3:
+		hour, err := strconv.Atoi(parts[0])
+		if err != nil {
+			return 0, err
+		}
+		absTime = time.Duration(hour) * time.Hour
+		min, err := strconv.Atoi(parts[1])
+		if err != nil {
+			return 0, err
+		}
+		absTime = time.Duration(min) * time.Minute
+		sec, err := strconv.Atoi(parts[2])
+		if err != nil {
+			return 0, err
+		}
+		absTime = time.Duration(sec) * time.Second
+	default:
+		// returns error if parts of string exceeds 3 (hr:min:sec)
+		logrus.Errorf("OW API has changed the way time is encoded")
+		return 0, fmt.Errorf("OW API changed the way time is encoded, got |%d| parts", len(parts))
+	}
 
-
-
-	return 0, nil
+	return absTime, nil
 }
