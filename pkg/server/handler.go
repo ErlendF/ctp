@@ -96,6 +96,22 @@ func (h *handler) updateUser(w http.ResponseWriter, r *http.Request) {
 	respondPlain(w, r, "Success")
 }
 
+func (h *handler) updateGames(w http.ResponseWriter, r *http.Request) {
+	id, err := getID(r)
+	if err != nil {
+		logRespond(w, r, err)
+		return
+	}
+
+	err = h.UpdateGames(id)
+	if err != nil {
+		logRespond(w, r, err)
+		return
+	}
+
+	respondPlain(w, r, "Success")
+}
+
 func (h *handler) getUser(w http.ResponseWriter, r *http.Request) {
 	id, err := getID(r)
 	if err != nil {

@@ -62,7 +62,7 @@ func (m *Manager) SetUser(user *models.User) error {
 	}
 
 	if user.Overwatch != nil {
-		user.Overwatch, err = m.GetBlizzardPlaytime(user.Overwatch)
+		user.Overwatch, err = m.GetBlizzardPlaytime(user.Overwatch) //TODO: call validate here after it has been made
 		if err != nil {
 			return err
 		}
@@ -73,14 +73,42 @@ func (m *Manager) SetUser(user *models.User) error {
 	return m.db.UpdateUser(user)
 }
 
-//UpdateGame updates the gametime for the given game
-func (m *Manager) UpdateGame(id string, game *models.Game) error {
-	return m.db.UpdateGame(id, game)
-}
+//UpdateGames updates all games the user has registered
+func (m *Manager) UpdateGames(id string) error {
+	user, err := m.db.GetUser(id)
+	if err != nil {
+		return err
+	}
 
-//UpdateAllGames updates all games the user has registered
-func (m *Manager) UpdateAllGames(id string) error {
-	return nil
+	var updatedGames []models.Game
+	if user.Lol != nil {
+		lolGame, err := m.GetRiotPlaytime(user.Lol)
+		if err != nil {
+			return err
+		}
+
+		updatedGames = append(updatedGames, *lolGame)
+	}
+
+	//TODO: overwatch needs to be changed to fit game format
+	// if user.Overwatch != nil {
+	// 	user.Overwatch, err = m.GetBlizzardPlaytime(user.Overwatch)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// }
+
+	if user.Valve != "" {
+		games, err := m.GetValvePlaytime(user.Valve)
+		if err != nil {
+			return err
+		}
+		updatedGames = append(games, updatedGames...)
+	}
+
+	user.Games = updatedGames
+
+	return m.db.UpdateGames(user)
 }
 
 //Redirect redirects the user to oauth providers

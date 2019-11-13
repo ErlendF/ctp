@@ -140,7 +140,8 @@ func (db *Database) UpdateGames(user *models.User) error {
 //checks for empty values
 func (db *Database) UpdateUser(user *models.User) error {
 
-	user.Name = "" // username is updated by dedicated function
+	user.Name = "" // username and games are updated by dedicated functions
+	user.Games = nil
 
 	s := structs.New(user)
 	m := make(map[string]interface{})
