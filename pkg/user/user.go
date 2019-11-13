@@ -107,6 +107,10 @@ func (m *Manager) JohanTestFunc() {
 	}
 
 	tmpUser2, _ := m.db.GetUser("117575669351657432712")
+
+	logrus.Debugf(tmpUser2.Lol.AccountID)
+	
+
 	game, err := m.GetRiotPlaytime(tmpUser2.Lol)
 	if err != nil {
 		logrus.WithError(err).Debugf("Get riot playtime oopsie!")
