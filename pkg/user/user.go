@@ -98,18 +98,6 @@ func (m *Manager) AuthCallback(w http.ResponseWriter, r *http.Request) (string, 
 	return token, nil
 }
 
-//RegisterLeague registeres League of Legends for a given user
-func (m *Manager) RegisterLeague(id string, reg *models.SummonerRegistration) error {
-	reg, err := m.ValidateSummoner(reg)
-	if err != nil {
-		return err
-	}
-
-	user := &models.User{ID: id, Lol: reg}
-
-	return m.db.UpdateUser(user)
-}
-
 //JohanTestFunc is just a method for johan to test things :-)
 func (m *Manager) JohanTestFunc() {
 	tmpGame := models.Game{
