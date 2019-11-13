@@ -24,9 +24,19 @@ func New(db models.Database, organizer models.Organizer) *Manager {
 	return m
 }
 
-//GetUser gets the relevant info for the given user
+//GetUser gets the relevant info for the given user by id
 func (m *Manager) GetUser(id string) (*models.User, error) {
 	return m.db.GetUser(id)
+}
+
+//GetUserByName gets the relevant info for the given user by username
+func (m *Manager) GetUserByName(username string) (*models.User, error) {
+	user, err := m.db.GetUserByName(username)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
 
 //SetUser updates a given user

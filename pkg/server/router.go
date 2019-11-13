@@ -14,10 +14,9 @@ func newRouter(h *handler, mw *middleware) *mux.Router {
 	get := r.PathPrefix("/api/v1/").Methods(http.MethodGet).Subrouter()
 
 	get.HandleFunc("/", h.testHandler).Name("root")
-	get.HandleFunc("/user/{id}", h.userHandler).Name("getUserByID")
-	// get.HandleFunc("/user/{username:[a-zA-Z0-9 ]{1,15}}", h.userHandler).Name("getUserByID")
 	get.HandleFunc("/login", h.login).Name("login")
 	get.HandleFunc("/authcallback", h.authCallbackHandler).Name("authCallback")
+	get.HandleFunc("/user/{username:[a-zA-Z0-9 ]{1,15}}", h.getPublicUser).Name("getPublicUser")
 
 	auth := r.PathPrefix("/api/v1/").Subrouter()
 	auth.HandleFunc("/register/league", h.regLeague).Methods(http.MethodPost).Name("regLeague")

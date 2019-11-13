@@ -31,10 +31,10 @@ func (h *handler) testHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Test handler!")
 }
 
-func (h *handler) userHandler(w http.ResponseWriter, r *http.Request) {
-	id := mux.Vars(r)["id"]
+func (h *handler) getPublicUser(w http.ResponseWriter, r *http.Request) {
+	username := mux.Vars(r)["username"]
 
-	resp, err := h.GetUser(id)
+	resp, err := h.GetUserByName(username)
 	if err != nil {
 		logRespond(w, r, err)
 		return
