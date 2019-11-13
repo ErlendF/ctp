@@ -67,19 +67,23 @@ var rootCmd = &cobra.Command{
 		}
 
 		// Initializing each of the packages and passing them to the server
-		riot := riot.New(client)
+		riotAPIKey := os.Getenv("RIOT_API_KEY")
+		riot := riot.New(client, riotAPIKey)
+
 		valveAPIKey := os.Getenv("VALVE_API_KEY")
 		valve := valve.New(client, valveAPIKey)
+
 		blizzard := blizzard.New(client)
 		db, err := db.New(config.dbkey)
+
 		if err != nil {
 			logrus.WithError(err).Fatalf("Unable to get new Database:%s", err)
 		}
-		um := user.New(db)
 
 		clientID := os.Getenv("GOOGLE_OAUTH2_CLIENT_ID")
 		clientSecret := os.Getenv("GOOGLE_OAUTH2_CLIENT_SECRET")
-		auth, err := auth.New(context.Background(), clientID, clientSecret) //FIX: context
+		hmacSecret := os.Getenv("HMAC_SECRET")
+		auth, err := auth.New(context.Background(), clientID, clientSecret, hmacSecret) //TODO: context
 		if err != nil {
 			logrus.WithError(err).Fatalf("Unable to get new Authenticator:%s", err)
 		}
@@ -87,11 +91,11 @@ var rootCmd = &cobra.Command{
 			models.Valve
 			models.Riot
 			models.Blizzard
-			models.UserManager
 			models.Authenticator
-		}{valve, riot, blizzard, um, auth}
+		}{valve, riot, blizzard, auth}
 
-		srv := server.New(config.port, organizer)
+		um := user.New(db, organizer)
+		srv := server.New(config.port, um, auth)
 
 		// Making an channel to listen for errors (later blocking until either error or signal is received)
 		errChan := make(chan error)

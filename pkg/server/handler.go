@@ -12,94 +12,28 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// Handler embedds the models.Organizer interface
-// which contains interfaces to respond to each of the routes.
-// Organizer is used to simplify the passing of all interfaces to the handler.
+// Handler embedds the models.UserManager interface
+// which contains all functions to manage a user
 type handler struct {
-	models.Organizer
+	models.UserManager
 }
 
+const invalidID = "Invalid id"
+
 //newHandler returns handler
-func newHandler(organizer models.Organizer) *handler {
-	return &handler{organizer}
+func newHandler(um models.UserManager) *handler {
+	return &handler{um}
 }
 
 func (h *handler) testHandler(w http.ResponseWriter, r *http.Request) {
 	logrus.Debugf("testHandler!")
-	//debug start
 
-	tmpGame := models.Game{
-		Name: "League",
-		Time: 12,
-	}
-
-	tmpUser := models.User{
-		ID:            "117575669351657432712",
-		Token:         "",
-		Name:          "Johan",
-		TotalGameTime: 12,
-		Games:         nil,
-	}
-
-	tmpUser.Games = append(tmpUser.Games, tmpGame)
-	//debug end
-
-	err := h.SetUser(&tmpUser)
-	if err != nil {
-		logrus.WithError(err).Debugf("Test failed!")
-	}
-
-	game, _ := h.GetRiotPlaytime()
-	err = h.UpdateGame(tmpUser.ID, game)
-	if err != nil {
-		logrus.WithError(err).Warnf("Update game failed!")
-	}
-
-	fmt.Fprintf(w, "Success!")
-}
-
-func (h *handler) valveHandler(w http.ResponseWriter, r *http.Request) {
-	id := mux.Vars(r)["id"]
-
-	logrus.WithFields(logrus.Fields{"route": mux.CurrentRoute(r).GetName(), "ID": id}).Debugf("Request received")
-
-	resp, err := h.GetValvePlaytime(id)
-	if err != nil {
-		logRespond(w, r, err)
-		return
-	}
-
-	respond(w, r, resp)
-}
-
-func (h *handler) riotHandler(w http.ResponseWriter, r *http.Request) {
-	logrus.WithFields(logrus.Fields{"route": mux.CurrentRoute(r).GetName()}).Debugf("Request received")
-
-	resp, err := h.GetRiotPlaytime()
-	if err != nil {
-		logRespond(w, r, err)
-		return
-	}
-
-	respond(w, r, resp)
-}
-
-func (h *handler) blizzardHandler(w http.ResponseWriter, r *http.Request) {
-	logrus.WithFields(logrus.Fields{"route": mux.CurrentRoute(r).GetName()}).Debugf("Request received")
-
-	resp, err := h.GetBlizzardPlaytime("test", "test", "test")
-	if err != nil {
-		logRespond(w, r, err)
-		return
-	}
-
-	respond(w, r, resp)
+	h.JohanTestFunc()
+	fmt.Fprintf(w, "Test handler!")
 }
 
 func (h *handler) userHandler(w http.ResponseWriter, r *http.Request) {
 	id := mux.Vars(r)["id"]
-
-	logrus.WithFields(logrus.Fields{"route": mux.CurrentRoute(r).GetName()}).Debugf("Request received")
 
 	resp, err := h.GetUser(id)
 	if err != nil {
@@ -114,10 +48,10 @@ func (h *handler) login(w http.ResponseWriter, r *http.Request) {
 	h.Redirect(w, r)
 }
 
-func (h *handler) authCallback(w http.ResponseWriter, r *http.Request) {
-	id, err := h.HandleOAuth2Callback(w, r)
+func (h *handler) authCallbackHandler(w http.ResponseWriter, r *http.Request) {
+	resp, err := h.AuthCallback(w, r)
 	if err != nil {
-		logrus.WithError(err).WithField("route", mux.CurrentRoute(r).GetName()).Warn("Error getting status")
+		logrus.WithError(err).WithField("route", mux.CurrentRoute(r).GetName()).Warn("Error getting token")
 
 		//returning errorcode based on error
 		switch {
@@ -129,32 +63,7 @@ func (h *handler) authCallback(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
-
-	err = h.SetUser(&models.User{ID: id})
-	if err != nil {
-		logRespond(w, r, err)
-		return
-	}
-
-	token, err := h.GetNewToken(id)
-	if err != nil {
-		logRespond(w, r, err)
-		return
-	}
-
-	test, err := h.ValidateToken(token)
-	if err != nil {
-		logrus.Debugf("Failed!")
-		logRespond(w, r, err)
-		return
-	}
-	if test != id {
-		logrus.Debugf("Failed, not equal!")
-		logRespond(w, r, err)
-		return
-	}
-
-	respondPlain(w, r, token)
+	respondPlain(w, r, resp)
 }
 
 func (h *handler) updateUser(w http.ResponseWriter, r *http.Request) {
@@ -189,6 +98,8 @@ func logRespond(w http.ResponseWriter, r *http.Request, err error) {
 
 	//returning errorcode based on error
 	switch {
+	case err.Error() == invalidID:
+		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 	case strings.Contains(err.Error(), models.NonOK):
 		http.Error(w, http.StatusText(http.StatusBadGateway), http.StatusBadGateway)
 	default:
@@ -196,7 +107,41 @@ func logRespond(w http.ResponseWriter, r *http.Request, err error) {
 	}
 }
 
-func (h *handler) notImplemented(w http.ResponseWriter, r *http.Request) {
-	logrus.Debugf("notImplemented!")
-	fmt.Fprintf(w, "Not implemented!")
+func (h *handler) regLeague(w http.ResponseWriter, r *http.Request) {
+	id, err := getID(r)
+	if err != nil {
+		logRespond(w, r, err)
+		return
+	}
+
+	var regInfo models.SummonerRegistration
+
+	err = json.NewDecoder(r.Body).Decode(&regInfo)
+	if err != nil {
+		logRespond(w, r, err)
+		return
+	}
+
+	err = h.RegisterLeague(id, &regInfo)
+	if err != nil {
+		logRespond(w, r, err)
+		return
+	}
+
+	respondPlain(w, r, "Sucess")
+}
+
+func (h *handler) notFound(w http.ResponseWriter, r *http.Request) {
+	logrus.WithField("request", r.RequestURI).Debugf("Not found handler")
+	http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+}
+
+func getID(r *http.Request) (string, error) {
+	id := r.Context().Value(ctxKey("id"))
+	idStr, ok := id.(string)
+	if !ok {
+		return "", fmt.Errorf(invalidID)
+	}
+
+	return idStr, nil
 }

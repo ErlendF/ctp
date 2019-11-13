@@ -8,6 +8,5 @@ type Organizer interface {
 	Valve
 	Riot
 	Blizzard
-	UserManager
-	Authenticator
+	TokenGenerator
 }
