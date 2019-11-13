@@ -60,7 +60,10 @@ func (r *Riot) GetRiotPlaytime(reg models.SummonerRegistration) (*models.Game, e
 
 	err = json.NewDecoder(resp.Body).Decode(&matches)
 
-	game := &models.Game{Name: "LeagueOfLegends", Time: matches.TotalGames}
+	var duration int
+	duration = matches.TotalGames * 35 / 60
+
+	game := &models.Game{Name: "LeagueOfLegends", Time: duration}
 	return game, nil
 }
 

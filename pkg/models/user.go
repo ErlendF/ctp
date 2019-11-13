@@ -13,5 +13,5 @@ type User struct {
 //Game part of User
 type Game struct {
 	Name string `json:"game"`
-	Time int    `json:"playTime"`
+	Time int   `json:"playTime"`
 }
