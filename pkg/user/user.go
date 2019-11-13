@@ -7,8 +7,6 @@ import (
 	"regexp"
 
 	"github.com/sirupsen/logrus"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
 )
 
 //Manager is a struct which contains everything necessary
@@ -74,10 +72,7 @@ func (m *Manager) AuthCallback(w http.ResponseWriter, r *http.Request) (string, 
 
 	err = m.db.CreateUser(&models.User{ID: id})
 	if err != nil {
-		if grpc.Code(err) != codes.AlreadyExists {
-			return "", err
-		}
-		err = nil
+		return "", err
 	}
 
 	token, err := m.GetNewToken(id)

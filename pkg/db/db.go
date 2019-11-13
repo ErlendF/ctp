@@ -14,6 +14,7 @@ import (
 	"google.golang.org/api/option"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 //Database contains a firestore client and a context
@@ -47,7 +48,10 @@ func New(key string) (*Database, error) {
 //CreateUser creates a user
 func (db *Database) CreateUser(user *models.User) error {
 	_, err := db.Collection(userCol).Doc(user.ID).Create(db.ctx, user)
-	return err
+	if err != nil && grpc.Code(err) != codes.AlreadyExists {
+		return err
+	}
+	return nil
 }
 
 //SetUser updates a given user, or adds it if it doesn't exist already
@@ -100,7 +104,7 @@ func (db *Database) UpdateUser(user *models.User) error {
 func (db *Database) GetUser(id string) (*models.User, error) {
 	doc, err := db.Collection(userCol).Doc(id).Get(db.ctx)
 	if err != nil {
-		if grpc.Code(err) != codes.NotFound {
+		if status.Code(err) != codes.NotFound {
 			err = fmt.Errorf("NotFound")
 		}
 		return nil, err
@@ -120,7 +124,7 @@ func (db *Database) GetUser(id string) (*models.User, error) {
 func (db *Database) GetUserByName(name string) (*models.User, error) {
 	docs, err := db.Collection(userCol).Where("name", "==", name).Documents(db.ctx).GetAll()
 	if err != nil {
-		if grpc.Code(err) != codes.NotFound {
+		if status.Code(err) != codes.NotFound {
 			err = fmt.Errorf("NotFound")
 		}
 		return nil, err
