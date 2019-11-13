@@ -69,6 +69,22 @@ func (h *handler) updateUser(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func (h *handler) getUser(w http.ResponseWriter, r *http.Request) {
+	id, err := getID(r)
+	if err != nil {
+		logRespond(w, r, err)
+		return
+	}
+
+	resp, err := h.GetUser(id)
+	if err != nil {
+		logRespond(w, r, err)
+		return
+	}
+
+	respond(w, r, resp)
+}
+
 func respond(w http.ResponseWriter, r *http.Request, resp interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 
