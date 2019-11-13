@@ -24,11 +24,39 @@ func New(client models.Client, apiKey string) *Riot {
 }
 
 //GetRiotPlaytime gets playtime on League of Legends
-func (r *Riot) GetRiotPlaytime() (*models.Game, error) {
+func (r *Riot) GetRiotPlaytime(reg models.SummonerRegistration) (*models.Game, error) {
 	logrus.Debugf("GetLolPlaytime")
 
-	// db.UpdateGame("League", 9, "117575669351657432712")
-	game := &models.Game{Name: "League", Time: 9}
+	URL := fmt.Sprintf("https://%s.api.riotgames.com/lol/match/v4/matchlists/by-account/%s?beginIndex=99999", reg.SummonerRegion, reg.AccountID)
+
+	formatURL, err := url.Parse(URL)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(http.MethodGet, formatURL.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("X-Riot-Token", r.apiKey)
+
+	resp, err := r.Client.Do(req)
+
+	if err != nil{
+		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusOK  {
+		logrus.WithField("StatusCode", resp.StatusCode).Warn()
+		return nil, fmt.Errorf(string(resp.StatusCode))
+	}
+
+	var matches models.MatchList
+
+	err = json.NewDecoder(resp.Body).Decode(&matches)
+
+	game := &models.Game{Name: "LeagueOfLegends", Time: matches.TotalGames}
 	return game, nil
 }
 

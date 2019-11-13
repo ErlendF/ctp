@@ -106,8 +106,11 @@ func (m *Manager) JohanTestFunc() {
 		logrus.WithError(err).Debugf("Test failed!")
 	}
 
-	game, _ := m.GetRiotPlaytime()
-	err = m.UpdateGame(tmpUser.ID, game)
+
+	tmpUser2, _ := m.db.GetUser("117575669351657432712")
+	game, _ := m.o.GetRiotPlaytime(tmpUser2.Lol)
+
+	err = m.UpdateGame("117575669351657432712", game)
 	if err != nil {
 		logrus.WithError(err).Warnf("Update game failed!")
 	}
