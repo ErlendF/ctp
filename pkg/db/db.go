@@ -12,8 +12,8 @@ import (
 	firebase "firebase.google.com/go" // Same as python's import dependency as alias.
 
 	"google.golang.org/api/option"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 //Database contains a firestore client and a context
@@ -100,7 +100,7 @@ func (db *Database) UpdateUser(user *models.User) error {
 func (db *Database) GetUser(id string) (*models.User, error) {
 	doc, err := db.Collection(userCol).Doc(id).Get(db.ctx)
 	if err != nil {
-		if grpc.Code(err) != codes.NotFound {
+		if status.Code(err) != codes.NotFound {
 			err = fmt.Errorf("NotFound")
 		}
 		return nil, err
@@ -120,7 +120,7 @@ func (db *Database) GetUser(id string) (*models.User, error) {
 func (db *Database) GetUserByName(name string) (*models.User, error) {
 	docs, err := db.Collection(userCol).Where("name", "==", name).Documents(db.ctx).GetAll()
 	if err != nil {
-		if grpc.Code(err) != codes.NotFound {
+		if status.Code(err) != codes.NotFound {
 			err = fmt.Errorf("NotFound")
 		}
 		return nil, err
