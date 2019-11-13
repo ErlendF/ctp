@@ -25,7 +25,7 @@ type Authenticator struct {
 const stateCookie = "oauthstate"
 
 //New returns a new authenticator
-func New(ctx context.Context, clientID string, clientSecret string, hmacSecret string) (*Authenticator, error) {
+func New(ctx context.Context, port int, clientID string, clientSecret string, hmacSecret string) (*Authenticator, error) {
 	authenticator := &Authenticator{ctx: ctx}
 
 	provider, err := oidc.NewProvider(ctx, "https://accounts.google.com")
@@ -43,7 +43,7 @@ func New(ctx context.Context, clientID string, clientSecret string, hmacSecret s
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
 		Endpoint:     provider.Endpoint(),
-		RedirectURL:  "http://localhost:8080/api/v1/authcallback", //TODO dynamically
+		RedirectURL:  fmt.Sprintf("http://localhost:%d/api/v1/authcallback", port),
 		Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
 	}
 
@@ -51,8 +51,8 @@ func New(ctx context.Context, clientID string, clientSecret string, hmacSecret s
 	return authenticator, nil
 }
 
-//Redirect redirects
-func (a *Authenticator) Redirect(w http.ResponseWriter, r *http.Request) {
+//AuthRedirect redirects the user to the oauth providers confirmation page
+func (a *Authenticator) AuthRedirect(w http.ResponseWriter, r *http.Request) {
 	state, err := generateStateOauthCookie(w)
 	if err != nil {
 		logrus.WithError(err).WithField("route", mux.CurrentRoute(r).GetName()).Warn("Could not generate state for authentication")

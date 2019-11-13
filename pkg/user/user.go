@@ -2,21 +2,27 @@ package user
 
 import (
 	"ctp/pkg/models"
+	"fmt"
 	"net/http"
+	"regexp"
 
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 )
 
 //Manager is a struct which contains everything necessary
 type Manager struct {
-	o  models.Organizer
+	models.Organizer
 	db models.Database
 }
 
-//New returns a new user manager instance
+// New returns a new user manager instance.
+// The manager takes a db and organizer. It embedds the organizer to simplify calls
 // Organizer is used to simplify the passing of all interfaces to the handler.
 func New(db models.Database, organizer models.Organizer) *Manager {
-	m := &Manager{db: db, o: organizer}
+	m := &Manager{db: db}
+	m.Organizer = organizer
 	return m
 }
 
@@ -27,7 +33,24 @@ func (m *Manager) GetUser(id string) (*models.User, error) {
 
 //SetUser updates a given user
 func (m *Manager) SetUser(user *models.User) error {
-	return m.db.SetUser(user)
+	var err error
+	if user.Name != "" {
+		err = validateUserName(user.Name)
+		if err != nil {
+			return err
+		}
+	}
+
+	if user.Lol != nil {
+		user.Lol, err = m.ValidateSummoner(user.Lol)
+		if err != nil {
+			return err
+		}
+	}
+
+	//TODO: validate steam and other ids or registrations
+
+	return m.db.UpdateUser(user)
 }
 
 //UpdateGame updates the gametime for the given game
@@ -42,19 +65,22 @@ func (m *Manager) UpdateAllGames(id string) error {
 
 //Redirect redirects the user to oauth providers
 func (m *Manager) Redirect(w http.ResponseWriter, r *http.Request) {
-	m.o.Redirect(w, r)
+	m.AuthRedirect(w, r)
 }
 
 //AuthCallback handles oauth callback
 func (m *Manager) AuthCallback(w http.ResponseWriter, r *http.Request) (string, error) {
-	id, err := m.o.HandleOAuth2Callback(w, r)
+	id, err := m.HandleOAuth2Callback(w, r)
 
-	err = m.SetUser(&models.User{ID: id})
+	err = m.db.CreateUser(&models.User{ID: id})
 	if err != nil {
-		return "", err
+		if grpc.Code(err) != codes.AlreadyExists {
+			return "", err
+		}
+		err = nil
 	}
 
-	token, err := m.o.GetNewToken(id)
+	token, err := m.GetNewToken(id)
 	if err != nil {
 		return "", err
 	}
@@ -64,14 +90,12 @@ func (m *Manager) AuthCallback(w http.ResponseWriter, r *http.Request) (string, 
 
 //RegisterLeague registeres League of Legends for a given user
 func (m *Manager) RegisterLeague(id string, reg *models.SummonerRegistration) error {
-	err := m.o.ValidateSummoner(reg)
+	reg, err := m.ValidateSummoner(reg)
 	if err != nil {
 		return err
 	}
 
-	user := &models.User{ID: id}
-
-	user.Lol = *reg
+	user := &models.User{ID: id, Lol: reg}
 
 	return m.db.UpdateUser(user)
 }
@@ -93,20 +117,68 @@ func (m *Manager) JohanTestFunc() {
 		Name:          "Johan",
 		TotalGameTime: 12,
 		Games:         nil,
+		Valve:         "76561198075109466",
 	}
 
 	tmpUser.Games = append(tmpUser.Games, tmpGame)
 	tmpUser.Games = append(tmpUser.Games, tmpGame2)
 	//debug end
 
-	err := m.db.SetUser(&tmpUser)
+	tmpUser2, err := m.db.GetUser("117575669351657432712")
+	if err != nil {
+		logrus.WithError(err).Debugf("Could not get user!")
+		return
+	}
+	tmpUser.Lol = tmpUser2.Lol
+
+	err = m.db.SetUser(&tmpUser)
 	if err != nil {
 		logrus.WithError(err).Debugf("Test failed!")
 	}
 
-	game, _ := m.o.GetRiotPlaytime()
-	err = m.UpdateGame(tmpUser.ID, game)
+	tmpUser3, err := m.db.GetUser("117575669351657432712")
+	if err != nil {
+		logrus.WithError(err).Debugf("Could not get user!")
+		return
+	}
+
+	logrus.Debugf(tmpUser3.Lol.AccountID)
+	logrus.Debugf(tmpUser3.Lol.SummonerRegion)
+	logrus.Debugf(tmpUser3.Lol.SummonerName)
+
+	game, err := m.GetRiotPlaytime(tmpUser3.Lol)
+	if err != nil {
+		logrus.WithError(err).Debugf("Get riot playtime oopsie!")
+		return
+	}
+
+	err = m.db.UpdateGame("117575669351657432712", game)
 	if err != nil {
 		logrus.WithError(err).Warnf("Update game failed!")
+		return
 	}
+
+	games, err := m.GetValvePlaytime(tmpUser3.Valve)
+	if err != nil {
+		logrus.WithError(err).Warnf("Valve playtime failed!")
+		return
+	}
+
+	for _, game := range games {
+		logrus.Debugf(game.Name)
+		err = m.db.UpdateGame("117575669351657432712", &game)
+		if err != nil {
+			logrus.WithError(err).Warnf("Update game failed!")
+			return
+		}
+	}
+}
+
+//validateUserName checks if the name entered is a valid name for a user
+func validateUserName(name string) error {
+	re := regexp.MustCompile("^[a-zA-Z0-9 ]{1,15}$")
+	if !re.MatchString(name) {
+		return fmt.Errorf("Invalid username")
+	}
+	return nil
 }

@@ -28,6 +28,7 @@ func (m *middleware) auth(next http.Handler) http.Handler {
 		token := r.Header.Get("Authorization")
 		id, err := m.ValidateToken(token)
 		if err != nil {
+			logrus.WithError(err).Warn("Invalid authorization")
 			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 			return
 		}

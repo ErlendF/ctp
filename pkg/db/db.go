@@ -3,7 +3,6 @@ package db
 import (
 	"ctp/pkg/models"
 	"fmt"
-	"strings"
 
 	"cloud.google.com/go/firestore"
 	"github.com/fatih/structs"
@@ -13,6 +12,8 @@ import (
 	firebase "firebase.google.com/go" // Same as python's import dependency as alias.
 
 	"google.golang.org/api/option"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 )
 
 //Database contains a firestore client and a context
@@ -41,6 +42,12 @@ func New(key string) (*Database, error) {
 	}
 
 	return db, nil
+}
+
+//CreateUser creates a user
+func (db *Database) CreateUser(user *models.User) error {
+	_, err := db.Collection(userCol).Doc(user.ID).Create(db.ctx, user)
+	return err
 }
 
 //SetUser updates a given user, or adds it if it doesn't exist already
@@ -75,31 +82,13 @@ func (db *Database) UpdateGame(id string, tmpGame *models.Game) error {
 
 //UpdateUser updates the relevant fields of the user
 //checks for empty values
-//!!Needs to be updated for new types!!
 func (db *Database) UpdateUser(user *models.User) error {
-	m := structs.Map(user)
-	delete(m, "ID")
-	delete(m, "Games")
+	s := structs.New(user)
+	m := make(map[string]interface{})
 
-	for k, v := range m {
-		switch v.(type) {
-		case string:
-			if v == "" {
-				delete(m, k)
-			}
-		case int:
-			if v == 0 {
-				delete(m, k)
-			}
-		case map[string]interface{}:
-			if k != "Lol" {
-				return fmt.Errorf("Unknown type")
-			}
-
-			s := v.(map[string]interface{})
-			if s["SummonerName"].(string) == "" || s["SummonerRegion"].(string) == "" {
-				delete(m, k)
-			}
+	for _, f := range s.Fields() {
+		if !f.IsZero() {
+			m[f.Tag("firestore")] = f.Value()
 		}
 	}
 
@@ -111,13 +100,37 @@ func (db *Database) UpdateUser(user *models.User) error {
 func (db *Database) GetUser(id string) (*models.User, error) {
 	doc, err := db.Collection(userCol).Doc(id).Get(db.ctx)
 	if err != nil {
-		if strings.Contains(err.Error(), "code = NotFound") {
+		if grpc.Code(err) != codes.NotFound {
 			err = fmt.Errorf("NotFound")
 		}
 		return nil, err
 	}
 
 	data := doc.Data()
+	var user models.User
+	err = mapstructure.Decode(data, &user)
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+//GetUserByName gets a user by name
+func (db *Database) GetUserByName(name string) (*models.User, error) {
+	docs, err := db.Collection(userCol).Where("name", "==", name).Documents(db.ctx).GetAll()
+	if err != nil {
+		if grpc.Code(err) != codes.NotFound {
+			err = fmt.Errorf("NotFound")
+		}
+		return nil, err
+	}
+
+	if len(docs) > 1 {
+		return nil, fmt.Errorf("Multiple users with same username")
+	}
+
+	data := docs[0].Data()
 	var user models.User
 	err = mapstructure.Decode(data, &user)
 	if err != nil {

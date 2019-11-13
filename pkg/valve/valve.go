@@ -23,21 +23,36 @@ func New(getter models.Getter, apiKey string) *Valve {
 }
 
 //GetValvePlaytime gets playtime on steam for specified game
-func (v *Valve) GetValvePlaytime(ID string) (*models.ValveResp, error) {
-	resp, err := v.Get(fmt.Sprintf("http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=%s&format=json&steamid=%s", v.apiKey, ID))
+func (v *Valve) GetValvePlaytime(ID string) ([]models.Game, error) {
+	logrus.Debugf("GetSteamPlaytime")
+	resp, err := v.Get(fmt.Sprintf("http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=%s&format=json&steamid=%s&include_appinfo=true", v.apiKey, ID))
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	var games models.ValveResp
-	err = json.NewDecoder(resp.Body).Decode(&games)
+	if err = models.CheckStatusCode(resp.StatusCode); err != nil {
+		return nil, err
+	}
+
+	var valvegames models.ValveResp
+	err = json.NewDecoder(resp.Body).Decode(&valvegames)
 
 	if err != nil {
 		return nil, err
 	}
 
-	logrus.Debugf("GetSteamPlaytime")
+	var games []models.Game
 
-	return &games, nil
+	for _, game := range valvegames.Response.Games {
+		var tmpGame models.Game
+		tmpGame.Name = game.Name
+		tmpGame.Time = game.PlaytimeForever
+
+		if tmpGame.Time != 0 {
+			games = append(games, tmpGame)
+		}
+	}
+
+	return games, nil
 }

@@ -2,8 +2,8 @@ package models
 
 //Riot interface defines all methods which should be provided by riot
 type Riot interface {
-	GetRiotPlaytime() (*Game, error)
-	ValidateSummoner(reg *SummonerRegistration) error
+	GetRiotPlaytime(reg *SummonerRegistration) (*Game, error)
+	ValidateSummoner(reg *SummonerRegistration) (*SummonerRegistration, error)
 }
 
 //MatchList should have a meaningfull comment - TODO
@@ -28,6 +28,7 @@ type Matches struct {
 
 //SummonerRegistration contains the necessary information to register a summoner (league of legends account)
 type SummonerRegistration struct {
-	SummonerName   string `json:"summonerName"`
-	SummonerRegion string `json:"summonerRegion"`
+	SummonerName   string `json:"summonerName" firestore:"summonerName"`
+	SummonerRegion string `json:"summonerRegion" firestore:"summonerRegion"`
+	AccountID      string `json:"accountId" firestore:"accountId"`
 }
