@@ -51,8 +51,8 @@ func New(ctx context.Context, clientID string, clientSecret string, hmacSecret s
 	return authenticator, nil
 }
 
-//Redirect redirects
-func (a *Authenticator) Redirect(w http.ResponseWriter, r *http.Request) {
+//AuthRedirect redirects the user to the oauth providers confirmation page
+func (a *Authenticator) AuthRedirect(w http.ResponseWriter, r *http.Request) {
 	state, err := generateStateOauthCookie(w)
 	if err != nil {
 		logrus.WithError(err).WithField("route", mux.CurrentRoute(r).GetName()).Warn("Could not generate state for authentication")

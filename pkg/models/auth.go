@@ -2,14 +2,6 @@ package models
 
 import "net/http"
 
-//Authenticator contains all functions which needs to be provided by an authenticator
-type Authenticator interface {
-	Redirect(w http.ResponseWriter, r *http.Request)
-	HandleOAuth2Callback(w http.ResponseWriter, r *http.Request) (string, error)
-	GetNewToken(id string) (string, error)
-	ValidateToken(tokenString string) (string, error)
-}
-
 //TokenValidator validates a token
 type TokenValidator interface {
 	ValidateToken(tokenString string) (string, error)
@@ -18,6 +10,6 @@ type TokenValidator interface {
 //TokenGenerator generates a new token
 type TokenGenerator interface {
 	GetNewToken(id string) (string, error)
-	Redirect(w http.ResponseWriter, r *http.Request)
+	AuthRedirect(w http.ResponseWriter, r *http.Request)
 	HandleOAuth2Callback(w http.ResponseWriter, r *http.Request) (string, error)
 }
