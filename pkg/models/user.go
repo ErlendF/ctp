@@ -5,8 +5,9 @@ type User struct {
 	ID            string                `json:"-" firestore:"id"`
 	Name          string                `json:"username,omitempty" firestore:"name"`
 	TotalGameTime int                   `json:"totalPlayTime" firestore:"totalGameTime"`
-	Lol           *SummonerRegistration `json:"lol,omitempty" firestore:"lol"`
-	Valve         string                `json:"valve,omitempty" firestore:"valve"`
+	Lol           *SummonerRegistration `json:"lol" firestore:"lol"`
+	Valve         string                `json:"valve" firestore:"valve"`
+	Overwatch     *Overwatch            `json:"overwatch" firestore:"overwatch"`
 	Games         []Game                `json:"games" firestore:"games"`
 }
 

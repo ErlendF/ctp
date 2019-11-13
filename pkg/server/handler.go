@@ -27,7 +27,8 @@ func newHandler(um models.UserManager) *handler {
 }
 
 func (h *handler) testHandler(w http.ResponseWriter, r *http.Request) {
-	logrus.Debug("testHandler!")
+	logrus.Debugf("testHandler!")
+
 	h.JohanTestFunc()
 	fmt.Fprintf(w, "Test handler!")
 }
