@@ -91,7 +91,7 @@ var rootCmd = &cobra.Command{
 			models.Valve
 			models.Riot
 			models.Blizzard
-			models.Authenticator
+			models.TokenGenerator
 		}{valve, riot, blizzard, auth}
 
 		um := user.New(db, organizer)

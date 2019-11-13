@@ -9,14 +9,16 @@ import (
 
 //Manager is a struct which contains everything necessary
 type Manager struct {
-	o  models.Organizer
+	models.Organizer
 	db models.Database
 }
 
-//New returns a new user manager instance
+// New returns a new user manager instance.
+// The manager takes a db and organizer. It embedds the organizer to simplify calls
 // Organizer is used to simplify the passing of all interfaces to the handler.
 func New(db models.Database, organizer models.Organizer) *Manager {
-	m := &Manager{db: db, o: organizer}
+	m := &Manager{db: db}
+	m.Organizer = organizer
 	return m
 }
 
@@ -42,19 +44,19 @@ func (m *Manager) UpdateAllGames(id string) error {
 
 //Redirect redirects the user to oauth providers
 func (m *Manager) Redirect(w http.ResponseWriter, r *http.Request) {
-	m.o.Redirect(w, r)
+	m.AuthRedirect(w, r)
 }
 
 //AuthCallback handles oauth callback
 func (m *Manager) AuthCallback(w http.ResponseWriter, r *http.Request) (string, error) {
-	id, err := m.o.HandleOAuth2Callback(w, r)
+	id, err := m.HandleOAuth2Callback(w, r)
 
 	err = m.SetUser(&models.User{ID: id})
 	if err != nil {
 		return "", err
 	}
 
-	token, err := m.o.GetNewToken(id)
+	token, err := m.GetNewToken(id)
 	if err != nil {
 		return "", err
 	}
@@ -64,7 +66,7 @@ func (m *Manager) AuthCallback(w http.ResponseWriter, r *http.Request) (string, 
 
 //RegisterLeague registeres League of Legends for a given user
 func (m *Manager) RegisterLeague(id string, reg *models.SummonerRegistration) error {
-	reg, err := m.o.ValidateSummoner(reg)
+	reg, err := m.ValidateSummoner(reg)
 	if err != nil {
 		return err
 	}
