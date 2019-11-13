@@ -101,24 +101,29 @@ func (m *Manager) JohanTestFunc() {
 	tmpUser.Games = append(tmpUser.Games, tmpGame2)
 	//debug end
 
-	// err := m.db.SetUser(&tmpUser)
-	// if err != nil {
-	// 	logrus.WithError(err).Debugf("Test failed!")
-	// }
-
 	tmpUser2, err := m.db.GetUser("117575669351657432712")
 	if err != nil {
 		logrus.WithError(err).Debugf("Could not get user!")
 		return
 	}
+	tmpUser.Lol = tmpUser2.Lol
 
-	tmpUser2, _ := m.db.GetUser("117575669351657432712")
+	err = m.db.SetUser(&tmpUser)
+	if err != nil {
+		logrus.WithError(err).Debugf("Test failed!")
+	}
 
-	logrus.Debugf(tmpUser2.Lol.AccountID)
-	logrus.Debugf(tmpUser2.Lol.SummonerRegion)
-	logrus.Debugf(tmpUser2.Lol.SummonerName)
+	tmpUser3, err := m.db.GetUser("117575669351657432712")
+	if err != nil {
+		logrus.WithError(err).Debugf("Could not get user!")
+		return
+	}
 
-	game, err := m.GetRiotPlaytime(tmpUser2.Lol)
+	logrus.Debugf(tmpUser3.Lol.AccountID)
+	logrus.Debugf(tmpUser3.Lol.SummonerRegion)
+	logrus.Debugf(tmpUser3.Lol.SummonerName)
+
+	game, err := m.GetRiotPlaytime(tmpUser3.Lol)
 	if err != nil {
 		logrus.WithError(err).Debugf("Get riot playtime oopsie!")
 		return
