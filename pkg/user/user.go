@@ -114,6 +114,7 @@ func (m *Manager) JohanTestFunc() {
 	game, err := m.GetRiotPlaytime(tmpUser2.Lol)
 	if err != nil {
 		logrus.WithError(err).Debugf("Get riot playtime oopsie!")
+		return
 	}
 
 	err = m.db.UpdateGame("117575669351657432712", game)
