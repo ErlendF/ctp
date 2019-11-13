@@ -108,7 +108,8 @@ func (m *Manager) JohanTestFunc() {
 
 
 	tmpUser2, _ := m.db.GetUser("117575669351657432712")
-	game, _ := m.o.GetRiotPlaytime(tmpUser2.Lol)
+	game, err := m.GetRiotPlaytime(tmpUser2.Lol)
+
 
 	err = m.UpdateGame("117575669351657432712", game)
 	if err != nil {
