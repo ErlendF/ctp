@@ -22,7 +22,8 @@ The application accepts the following commandline arguments:
 ```
  -h, --help                  Help for CTA2
  -p, --port int              Specifies which port the API should listen to (default 80)
- -d, --dbkey string          Path to the firebase key file (default "./FBKEY.json")
+ -d, --domain string         Specifies the domain for the redirect URI used for authentication (default "localhost")
+ -f, --fbkey string          Path to the firebase key file (default "./FBKEY.json")
  -v, --verbose               Verbose logging
  -j, --jsonFormatter         JSON logging format
  -s, --shutdownTimeout int   Sets the timeout (in seconds) for graceful shutdown (default 15)
