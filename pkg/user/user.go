@@ -37,6 +37,11 @@ func (m *Manager) SetUser(user *models.User) error {
 		if err != nil {
 			return err
 		}
+
+		err = m.db.SetUsername(user)
+		if err != nil {
+			return err
+		}
 	}
 
 	if user.Lol != nil {

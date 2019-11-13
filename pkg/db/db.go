@@ -54,6 +54,25 @@ func (db *Database) CreateUser(user *models.User) error {
 	return nil
 }
 
+//SetUsername sets the username for the user, returns error if it is already in use
+func (db *Database) SetUsername(user *models.User) error {
+	users := db.Collection(userCol)
+	docs, err := users.Where("name", "==", user.Name).Documents(db.ctx).GetAll()
+
+	if err != nil {
+		return err
+	}
+	if len(docs) != 0 {
+		return fmt.Errorf("Name allready in use")
+	}
+
+	_, err = users.Doc(user.ID).Update(db.ctx, []firestore.Update{
+		{Path: "name", Value: user.Name},
+	})
+
+	return err
+}
+
 //SetUser updates a given user, or adds it if it doesn't exist already
 func (db *Database) SetUser(user *models.User) error {
 	_, err := db.Collection(userCol).Doc(user.ID).Set(db.ctx, user)
@@ -87,6 +106,9 @@ func (db *Database) UpdateGame(id string, tmpGame *models.Game) error {
 //UpdateUser updates the relevant fields of the user
 //checks for empty values
 func (db *Database) UpdateUser(user *models.User) error {
+
+	user.Name = "" // username is updated by dedicated function
+
 	s := structs.New(user)
 	m := make(map[string]interface{})
 
@@ -130,7 +152,11 @@ func (db *Database) GetUserByName(name string) (*models.User, error) {
 		return nil, err
 	}
 
-	if len(docs) > 1 {
+	// checking that only one user was recieved
+	switch {
+	case len(docs) < 1:
+		return nil, fmt.Errorf("NotFound")
+	case len(docs) > 1:
 		return nil, fmt.Errorf("Multiple users with same username")
 	}
 
