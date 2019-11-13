@@ -80,10 +80,14 @@ var rootCmd = &cobra.Command{
 			logrus.WithError(err).Fatalf("Unable to get new Database:%s", err)
 		}
 
+		ctx := context.Background()
+		ctxC, cancelC := context.WithCancel(ctx)
+		defer cancelC()
+
 		clientID := os.Getenv("GOOGLE_OAUTH2_CLIENT_ID")
 		clientSecret := os.Getenv("GOOGLE_OAUTH2_CLIENT_SECRET")
 		hmacSecret := os.Getenv("HMAC_SECRET")
-		auth, err := auth.New(context.Background(), clientID, clientSecret, hmacSecret) //TODO: context
+		auth, err := auth.New(ctxC, config.port, clientID, clientSecret, hmacSecret)
 		if err != nil {
 			logrus.WithError(err).Fatalf("Unable to get new Authenticator:%s", err)
 		}
@@ -121,11 +125,11 @@ var rootCmd = &cobra.Command{
 			logrus.WithError(err).Errorf("Shutting down server due to error")
 		}
 
-		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(config.shutdownTimeout)*time.Second)
-		defer cancel()
+		ctxT, cancelT := context.WithTimeout(ctx, time.Duration(config.shutdownTimeout)*time.Second)
+		defer cancelT()
 
 		// Attempting to shut down the server
-		if err := srv.Shutdown(ctx); err != nil {
+		if err := srv.Shutdown(ctxT); err != nil {
 			logrus.WithError(err).Fatalf("Unable to gracefully shutdown server")
 		}
 

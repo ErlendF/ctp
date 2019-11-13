@@ -25,7 +25,7 @@ type Authenticator struct {
 const stateCookie = "oauthstate"
 
 //New returns a new authenticator
-func New(ctx context.Context, clientID string, clientSecret string, hmacSecret string) (*Authenticator, error) {
+func New(ctx context.Context, port int, clientID string, clientSecret string, hmacSecret string) (*Authenticator, error) {
 	authenticator := &Authenticator{ctx: ctx}
 
 	provider, err := oidc.NewProvider(ctx, "https://accounts.google.com")
@@ -43,7 +43,7 @@ func New(ctx context.Context, clientID string, clientSecret string, hmacSecret s
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
 		Endpoint:     provider.Endpoint(),
-		RedirectURL:  "http://localhost:8080/api/v1/authcallback", //TODO dynamically
+		RedirectURL:  fmt.Sprintf("http://localhost:%d/api/v1/authcallback", port),
 		Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
 	}
 
