@@ -27,6 +27,9 @@ func New(client models.Client, apiKey string) *Riot {
 func (r *Riot) GetRiotPlaytime(reg models.SummonerRegistration) (*models.Game, error) {
 	logrus.Debugf("GetLolPlaytime")
 	logrus.Debugf("reg: %+v", reg)
+	if reg.SummonerRegion == "" || reg.AccountID == "" {
+		return nil, fmt.Errorf("missing summonerinfo")
+	}
 
 	URL := fmt.Sprintf("https://%s.api.riotgames.com/lol/match/v4/matchlists/by-account/%s?beginIndex=99999", reg.SummonerRegion, reg.AccountID)
 
@@ -57,7 +60,10 @@ func (r *Riot) GetRiotPlaytime(reg models.SummonerRegistration) (*models.Game, e
 
 	err = json.NewDecoder(resp.Body).Decode(&matches)
 
-	game := &models.Game{Name: "LeagueOfLegends", Time: matches.TotalGames}
+	var duration int
+	duration = matches.TotalGames * 35 / 60
+
+	game := &models.Game{Name: "LeagueOfLegends", Time: duration}
 	return game, nil
 }
 
