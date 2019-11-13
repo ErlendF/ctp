@@ -119,7 +119,7 @@ func (h *handler) getUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := h.GetUser(id)
+	resp, err := h.GetUserByID(id)
 	if err != nil {
 		logRespond(w, r, err)
 		return

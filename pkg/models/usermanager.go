@@ -4,7 +4,7 @@ import "net/http"
 
 //UserManager contains all functions a usermanager is expected to provide
 type UserManager interface {
-	GetUser(id string) (*User, error)
+	GetUserByID(id string) (*User, error)
 	GetUserByName(username string) (*User, error)
 	SetUser(user *User) error
 	UpdateGames(id string) error

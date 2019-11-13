@@ -24,9 +24,9 @@ func New(db models.Database, organizer models.Organizer) *Manager {
 	return m
 }
 
-//GetUser gets the relevant info for the given user by id
-func (m *Manager) GetUser(id string) (*models.User, error) {
-	return m.db.GetUser(id)
+//GetUserByID gets the relevant info for the given user by id
+func (m *Manager) GetUserByID(id string) (*models.User, error) {
+	return m.db.GetUserByID(id)
 }
 
 //GetUserByName gets the relevant info for the given user by username
@@ -75,7 +75,7 @@ func (m *Manager) SetUser(user *models.User) error {
 
 //UpdateGames updates all games the user has registered
 func (m *Manager) UpdateGames(id string) error {
-	user, err := m.db.GetUser(id)
+	user, err := m.db.GetUserByID(id)
 	if err != nil {
 		return err
 	}
@@ -157,19 +157,19 @@ func (m *Manager) JohanTestFunc() {
 	tmpUser.Games = append(tmpUser.Games, tmpGame2)
 	//debug end
 
-	tmpUser2, err := m.db.GetUser("117575669351657432712")
+	tmpUser2, err := m.db.GetUserByID("117575669351657432712")
 	if err != nil {
 		logrus.WithError(err).Debug("Could not get user!")
 		return
 	}
 	tmpUser.Lol = tmpUser2.Lol
 
-	err = m.db.SetUser(&tmpUser)
+	err = m.db.OverwriteUser(&tmpUser)
 	if err != nil {
 		logrus.WithError(err).Debug("Test failed!")
 	}
 
-	tmpUser3, err := m.db.GetUser("117575669351657432712")
+	tmpUser3, err := m.db.GetUserByID("117575669351657432712")
 	if err != nil {
 		logrus.WithError(err).Debug("Could not get user!")
 		return
@@ -185,17 +185,12 @@ func (m *Manager) JohanTestFunc() {
 		return
 	}
 
-	err = m.db.UpdateGame("117575669351657432712", game)
-	if err != nil {
-		logrus.WithError(err).Warn("Update game failed!")
-		return
-	}
-
 	games, err := m.GetValvePlaytime(tmpUser3.Valve)
 	if err != nil {
 		logrus.WithError(err).Warn("Valve playtime failed!")
 		return
 	}
+	games = append(games, *game)
 	tmpUser3.Games = games
 
 	err = m.db.UpdateGames(tmpUser3)

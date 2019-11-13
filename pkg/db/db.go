@@ -54,110 +54,8 @@ func (db *Database) CreateUser(user *models.User) error {
 	return nil
 }
 
-//SetUsername sets the username for the user, returns error if it is already in use
-func (db *Database) SetUsername(user *models.User) error {
-	users := db.Collection(userCol)
-	docs, err := users.Where("name", "==", user.Name).Documents(db.ctx).GetAll()
-
-	if err != nil {
-		return err
-	}
-	if len(docs) != 0 {
-		return fmt.Errorf("Name allready in use")
-	}
-
-	_, err = users.Doc(user.ID).Update(db.ctx, []firestore.Update{
-		{Path: "name", Value: user.Name},
-	})
-
-	return err
-}
-
-//SetUser updates a given user, or adds it if it doesn't exist already
-func (db *Database) SetUser(user *models.User) error {
-	_, err := db.Collection(userCol).Doc(user.ID).Set(db.ctx, user)
-	return err
-}
-
-//UpdateGame updates the gametime for the given game
-func (db *Database) UpdateGame(id string, tmpGame *models.Game) error {
-	user, err := db.GetUser(id)
-	if err != nil {
-		return err
-	}
-
-	gamePresent := false
-
-	//update game if present
-	for i := range user.Games {
-		if user.Games[i].Name == tmpGame.Name {
-			user.Games[i].Time = tmpGame.Time
-			gamePresent = true
-		}
-	}
-
-	if !gamePresent {
-		user.Games = append(user.Games, *tmpGame)
-	}
-
-	return db.SetUser(user)
-}
-
-//UpdateGames updates the games for the given user
-func (db *Database) UpdateGames(user *models.User) error {
-	dbUser, err := db.GetUser(user.ID)
-	if err != nil {
-		return err
-	}
-
-	// checking that each game in the database is still present in the new games array
-	for _, dbGame := range dbUser.Games {
-		len := len(user.Games)
-		gameFound := false
-
-		// looking for the game in user.Games
-		for i := 0; i < len && !gameFound; i++ {
-			if dbGame.Name == user.Games[i].Name && dbGame.ValveID == user.Games[i].ValveID {
-				gameFound = true
-				break
-			}
-		}
-
-		// if the game was not present, adding it
-		if !gameFound {
-			user.Games = append(user.Games, dbGame)
-		}
-	}
-
-	_, err = db.Collection(userCol).Doc(user.ID).Update(db.ctx, []firestore.Update{
-		{Path: "games", Value: user.Games},
-	})
-
-	return err
-}
-
-//UpdateUser updates the relevant fields of the user
-//checks for empty values
-func (db *Database) UpdateUser(user *models.User) error {
-
-	user.Name = "" // username and games are updated by dedicated functions
-	user.Games = nil
-
-	s := structs.New(user)
-	m := make(map[string]interface{})
-
-	for _, f := range s.Fields() {
-		if !f.IsZero() {
-			m[f.Tag("firestore")] = f.Value()
-		}
-	}
-
-	_, err := db.Collection(userCol).Doc(user.ID).Set(db.ctx, m, firestore.MergeAll)
-	return err
-}
-
-//GetUser gets a user from the database
-func (db *Database) GetUser(id string) (*models.User, error) {
+//GetUserByID gets a user from the database
+func (db *Database) GetUserByID(id string) (*models.User, error) {
 	doc, err := db.Collection(userCol).Doc(id).Get(db.ctx)
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
@@ -202,4 +100,82 @@ func (db *Database) GetUserByName(name string) (*models.User, error) {
 	}
 
 	return &user, nil
+}
+
+//UpdateUser updates the relevant fields of the user
+//checks for empty values
+func (db *Database) UpdateUser(user *models.User) error {
+
+	user.Name = "" // username and games are updated by dedicated functions
+	user.Games = nil
+
+	s := structs.New(user)
+	m := make(map[string]interface{})
+
+	for _, f := range s.Fields() {
+		if !f.IsZero() {
+			m[f.Tag("firestore")] = f.Value()
+		}
+	}
+
+	_, err := db.Collection(userCol).Doc(user.ID).Set(db.ctx, m, firestore.MergeAll)
+	return err
+}
+
+//UpdateGames updates the games for the given user
+func (db *Database) UpdateGames(user *models.User) error {
+	dbUser, err := db.GetUserByID(user.ID)
+	if err != nil {
+		return err
+	}
+
+	// checking that each game in the database is still present in the new games array
+	for _, dbGame := range dbUser.Games {
+		len := len(user.Games)
+		gameFound := false
+
+		// looking for the game in user.Games
+		for i := 0; i < len && !gameFound; i++ {
+			if dbGame.Name == user.Games[i].Name && dbGame.ValveID == user.Games[i].ValveID {
+				gameFound = true
+				break
+			}
+		}
+
+		// if the game was not present, adding it
+		if !gameFound {
+			user.Games = append(user.Games, dbGame)
+		}
+	}
+
+	_, err = db.Collection(userCol).Doc(user.ID).Update(db.ctx, []firestore.Update{
+		{Path: "games", Value: user.Games},
+	})
+
+	return err
+}
+
+//SetUsername sets the username for the user, returns error if it is already in use
+func (db *Database) SetUsername(user *models.User) error {
+	users := db.Collection(userCol)
+	docs, err := users.Where("name", "==", user.Name).Documents(db.ctx).GetAll()
+
+	if err != nil {
+		return err
+	}
+	if len(docs) != 0 {
+		return fmt.Errorf("Name allready in use")
+	}
+
+	_, err = users.Doc(user.ID).Update(db.ctx, []firestore.Update{
+		{Path: "name", Value: user.Name},
+	})
+
+	return err
+}
+
+//OverwriteUser overwrites the user specified by the user id, or creates it if it didn't exist already
+func (db *Database) OverwriteUser(user *models.User) error {
+	_, err := db.Collection(userCol).Doc(user.ID).Set(db.ctx, user)
+	return err
 }
