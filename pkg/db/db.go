@@ -126,7 +126,7 @@ func (db *Database) UpdateUser(user *models.User) error {
 func (db *Database) GetUser(id string) (*models.User, error) {
 	doc, err := db.Collection(userCol).Doc(id).Get(db.ctx)
 	if err != nil {
-		if status.Code(err) != codes.NotFound {
+		if status.Code(err) == codes.NotFound {
 			err = fmt.Errorf("NotFound")
 		}
 		return nil, err
