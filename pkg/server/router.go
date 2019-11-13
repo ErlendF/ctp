@@ -11,7 +11,7 @@ func newRouter(h *handler, mw *middleware) *mux.Router {
 	r := mux.NewRouter()
 	r.NotFoundHandler = http.HandlerFunc(h.notFound)
 
-	get := r.PathPrefix("/api/v1/").Methods(http.MethodGet).Subrouter()
+	get := r.PathPrefix("/api/v1").Methods(http.MethodGet).Subrouter()
 	get.HandleFunc("/", h.testHandler).Name("root")
 	get.HandleFunc("/login", h.login).Name("login")
 	get.HandleFunc("/authcallback", h.authCallbackHandler).Name("authCallback")
