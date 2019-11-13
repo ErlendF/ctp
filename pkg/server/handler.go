@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strings"
 
 	"ctp/pkg/models"
 
@@ -158,8 +157,18 @@ func logRespond(w http.ResponseWriter, r *http.Request, err error) {
 	switch {
 	case err.Error() == invalidID:
 		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
-	case strings.Contains(err.Error(), models.NonOK):
+	case err.Error() == models.NotFound:
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+	case models.CheckNotFound(err):
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+
+	// assuming client errors to external APIs are caused by bad user input
+	case models.GetHTTPErrorClass(err) == models.ClientError:
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+	case models.GetHTTPErrorClass(err) == models.ServerError:
 		http.Error(w, http.StatusText(http.StatusBadGateway), http.StatusBadGateway)
+
+	// invalid request body where input was expected
 	case err == io.EOF:
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 	default:
