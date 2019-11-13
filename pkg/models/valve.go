@@ -2,7 +2,7 @@ package models
 
 //Valve interface defines all methods which should be provided by valve
 type Valve interface {
-	GetValvePlaytime(ID string) (*ValveResp, error)
+	GetValvePlaytime(ID string) ([]Game, error)
 }
 
 //ValveResp is used for testing
