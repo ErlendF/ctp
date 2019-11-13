@@ -97,7 +97,7 @@ func (db *Database) UpdateUser(user *models.User) error {
 			}
 
 			s := v.(map[string]interface{})
-			if s["SummonerName"].(string) == "" || s["SummonerRegion"].(string) == "" {
+			if s["SummonerName"].(string) == "" || s["SummonerRegion"].(string) == "" || s["AccountID"].(string) == "" {
 				delete(m, k)
 			}
 		}

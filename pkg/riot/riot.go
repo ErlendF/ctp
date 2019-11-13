@@ -2,6 +2,7 @@ package riot
 
 import (
 	"ctp/pkg/models"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -32,7 +33,7 @@ func (r *Riot) GetRiotPlaytime() (*models.Game, error) {
 }
 
 //ValidateSummoner validates the summoner
-func (r *Riot) ValidateSummoner(regInfo *models.SummonerRegistration) error {
+func (r *Riot) ValidateSummoner(reg *models.SummonerRegistration) (*models.SummonerRegistration, error) {
 	var regions = []string{"RU", "KR", "BR1", "OC1", "JP1", "NA1", "EUN1", "EUW1", "TR1", "LA1", "LA2"}
 	// var err error
 
@@ -40,36 +41,48 @@ func (r *Riot) ValidateSummoner(regInfo *models.SummonerRegistration) error {
 
 	//Validating region
 	for _, r := range regions {
-		if r == regInfo.SummonerRegion {
+		if r == reg.SummonerRegion {
 			validRegion = true
 		}
 	}
 
 	if !validRegion {
-		return fmt.Errorf("invalid region")
+		logrus.WithField("SummonerRegion", reg.SummonerRegion).Warnf("invalid region")
+		return nil, fmt.Errorf("invalid region")
 	}
 
 	//Validating name
-	URL := fmt.Sprintf("https://%s.api.riotgames.com/lol/summoner/v4/summoners/by-name/%s", regInfo.SummonerRegion, regInfo.SummonerName)
+	URL := fmt.Sprintf("https://%s.api.riotgames.com/lol/summoner/v4/summoners/by-name/%s", reg.SummonerRegion, reg.SummonerName)
 
 	formatURL, err := url.Parse(URL)
 	if err != nil {
-		return err
+		return nil, err
 	}
+
 	req, err := http.NewRequest(http.MethodGet, formatURL.String(), nil)
 	if err != nil {
-		return err
+		return nil, err
 	}
+
 	req.Header.Set("X-Riot-Token", r.apiKey)
 
 	resp, err := r.Client.Do(req)
 
 	if err != nil{
-		return err
-	}
-	if resp.StatusCode != http.StatusOK  {
-		return fmt.Errorf(string(resp.StatusCode))
+		return nil, err
 	}
 
-	return nil
+	if resp.StatusCode != http.StatusOK  {
+		logrus.WithField("SummonerName", reg.SummonerName).Warnf("invalid SummonerName")
+		return nil, fmt.Errorf(string(resp.StatusCode))
+	}
+
+	var tmpReg models.SummonerRegistration
+
+	err = json.NewDecoder(resp.Body).Decode(&tmpReg)
+
+	reg.AccountID = tmpReg.AccountID
+
+	return reg, nil
 }
+

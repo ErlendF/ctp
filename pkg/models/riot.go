@@ -3,7 +3,7 @@ package models
 //Riot interface defines all methods which should be provided by riot
 type Riot interface {
 	GetRiotPlaytime() (*Game, error)
-	ValidateSummoner(reg *SummonerRegistration) error
+	ValidateSummoner(reg *SummonerRegistration) (*SummonerRegistration, error)
 }
 
 //MatchList should have a meaningfull comment - TODO
@@ -30,4 +30,6 @@ type Matches struct {
 type SummonerRegistration struct {
 	SummonerName   string `json:"summonerName"`
 	SummonerRegion string `json:"summonerRegion"`
+	AccountID      string `json:"accountId"`
 }
+

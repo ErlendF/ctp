@@ -93,7 +93,7 @@ func respondPlain(w http.ResponseWriter, r *http.Request, resp string) {
 }
 
 func logRespond(w http.ResponseWriter, r *http.Request, err error) {
-	logrus.WithError(err).WithField("route", mux.CurrentRoute(r).GetName()).Warn("Error getting status")
+	logrus.WithError(err).WithField("route", mux.CurrentRoute(r).GetName()).Warn("Error")
 
 	//returning errorcode based on error
 	switch {
