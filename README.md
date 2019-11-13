@@ -15,7 +15,7 @@ GOOGLE_OAUTH2_CLIENT_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxx
 HMAC_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
-It is intended for these to be put in an **.env** file (just like sample.env, replacing the x's), which is injected into the environment variables for the running application by [joho/godotenv/autoload](https://github.com/joho/godotenv), which is imported in cmd/root. Whichever way they are added to the environemnt for the application, they are required to be present with valid values for the application to run.
+It is intended for these to be put in an **.env** file (just like sample.env, replacing the x's), which is injected into the environment variables for the running application by [joho/godotenv/autoload](https://github.com/joho/godotenv), which is imported in cmd/root. Whichever way they are added to the environment for the application, they are required to be present with valid values for the application to run.
 
 
 The application accepts the following commandline arguments:
