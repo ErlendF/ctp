@@ -101,12 +101,16 @@ func (m *Manager) JohanTestFunc() {
 	tmpUser.Games = append(tmpUser.Games, tmpGame2)
 	//debug end
 
-	err := m.db.SetUser(&tmpUser)
-	if err != nil {
-		logrus.WithError(err).Debugf("Test failed!")
-	}
+	// err := m.db.SetUser(&tmpUser)
+	// if err != nil {
+	// 	logrus.WithError(err).Debugf("Test failed!")
+	// }
 
-	tmpUser2, _ := m.db.GetUser("117575669351657432712")
+	tmpUser2, err := m.db.GetUser("117575669351657432712")
+	if err != nil {
+		logrus.WithError(err).Debugf("Could not get user!")
+		return
+	}
 	game, err := m.GetRiotPlaytime(tmpUser2.Lol)
 	if err != nil {
 		logrus.WithError(err).Debugf("Get riot playtime oopsie!")
@@ -116,5 +120,6 @@ func (m *Manager) JohanTestFunc() {
 	err = m.db.UpdateGame("117575669351657432712", game)
 	if err != nil {
 		logrus.WithError(err).Warnf("Update game failed!")
+		return
 	}
 }
