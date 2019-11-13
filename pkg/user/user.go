@@ -117,6 +117,7 @@ func (m *Manager) JohanTestFunc() {
 		Name:          "Johan",
 		TotalGameTime: 12,
 		Games:         nil,
+		Valve:		"76561198075109466",
 	}
 
 	tmpUser.Games = append(tmpUser.Games, tmpGame)
@@ -155,6 +156,17 @@ func (m *Manager) JohanTestFunc() {
 	if err != nil {
 		logrus.WithError(err).Warnf("Update game failed!")
 		return
+	}
+
+	games, err := m.GetValvePlaytime("117575669351657432712")
+
+
+	for _, game := range games{
+		err = m.db.UpdateGame("117575669351657432712", &game)
+		if err != nil {
+			logrus.WithError(err).Warnf("Update game failed!")
+			return
+		}
 	}
 }
 
