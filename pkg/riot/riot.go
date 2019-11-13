@@ -43,11 +43,11 @@ func (r *Riot) GetRiotPlaytime(reg models.SummonerRegistration) (*models.Game, e
 
 	resp, err := r.Client.Do(req)
 
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 
-	if resp.StatusCode != http.StatusOK  {
+	if resp.StatusCode != http.StatusOK {
 		logrus.WithField("StatusCode", resp.StatusCode).Warn()
 		return nil, fmt.Errorf(string(resp.StatusCode))
 	}
@@ -96,11 +96,11 @@ func (r *Riot) ValidateSummoner(reg *models.SummonerRegistration) (*models.Summo
 
 	resp, err := r.Client.Do(req)
 
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 
-	if resp.StatusCode != http.StatusOK  {
+	if resp.StatusCode != http.StatusOK {
 		logrus.WithField("SummonerName", reg.SummonerName).Warnf("invalid SummonerName")
 		return nil, fmt.Errorf(string(resp.StatusCode))
 	}
@@ -113,4 +113,3 @@ func (r *Riot) ValidateSummoner(reg *models.SummonerRegistration) (*models.Summo
 
 	return reg, nil
 }
-
