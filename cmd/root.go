@@ -66,16 +66,21 @@ var rootCmd = &cobra.Command{
 			Timeout: timeout,
 		}
 
-		// Initializing each of the packages and passing them to the server
+		// Getting required environment variables (injected by github.com/joho/godotenv/autoload)
 		riotAPIKey := os.Getenv("RIOT_API_KEY")
-		riot := riot.New(client, riotAPIKey)
-
 		valveAPIKey := os.Getenv("VALVE_API_KEY")
-		valve := valve.New(client, valveAPIKey)
+		clientID := os.Getenv("GOOGLE_OAUTH2_CLIENT_ID")
+		clientSecret := os.Getenv("GOOGLE_OAUTH2_CLIENT_SECRET")
+		hmacSecret := os.Getenv("HMAC_SECRET")
+		if clientID == "" || clientSecret == "" || hmacSecret == "" || riotAPIKey == "" || valveAPIKey == "" {
+			logrus.Fatalf("Invalid environment variables")
+		}
 
+		// Initializing each of the packages and passing them to the server
+		riot := riot.New(client, riotAPIKey)
+		valve := valve.New(client, valveAPIKey)
 		blizzard := blizzard.New(client)
 		db, err := db.New(config.dbkey)
-
 		if err != nil {
 			logrus.WithError(err).Fatalf("Unable to get new Database:%s", err)
 		}
@@ -84,9 +89,6 @@ var rootCmd = &cobra.Command{
 		ctxC, cancelC := context.WithCancel(ctx)
 		defer cancelC()
 
-		clientID := os.Getenv("GOOGLE_OAUTH2_CLIENT_ID")
-		clientSecret := os.Getenv("GOOGLE_OAUTH2_CLIENT_SECRET")
-		hmacSecret := os.Getenv("HMAC_SECRET")
 		auth, err := auth.New(ctxC, config.port, clientID, clientSecret, hmacSecret)
 		if err != nil {
 			logrus.WithError(err).Fatalf("Unable to get new Authenticator:%s", err)
