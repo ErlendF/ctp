@@ -3,7 +3,6 @@ package db
 import (
 	"ctp/pkg/models"
 	"fmt"
-	"strings"
 
 	"cloud.google.com/go/firestore"
 	"github.com/fatih/structs"
@@ -13,6 +12,8 @@ import (
 	firebase "firebase.google.com/go" // Same as python's import dependency as alias.
 
 	"google.golang.org/api/option"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 )
 
 //Database contains a firestore client and a context
@@ -99,7 +100,7 @@ func (db *Database) UpdateUser(user *models.User) error {
 func (db *Database) GetUser(id string) (*models.User, error) {
 	doc, err := db.Collection(userCol).Doc(id).Get(db.ctx)
 	if err != nil {
-		if strings.Contains(err.Error(), "code = NotFound") {
+		if grpc.Code(err) != codes.NotFound {
 			err = fmt.Errorf("NotFound")
 		}
 		return nil, err
