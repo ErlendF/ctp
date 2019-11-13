@@ -12,6 +12,7 @@ import (
 	firebase "firebase.google.com/go" // Same as python's import dependency as alias.
 
 	"google.golang.org/api/option"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -47,7 +48,10 @@ func New(key string) (*Database, error) {
 //CreateUser creates a user
 func (db *Database) CreateUser(user *models.User) error {
 	_, err := db.Collection(userCol).Doc(user.ID).Create(db.ctx, user)
-	return err
+	if err != nil && grpc.Code(err) != codes.AlreadyExists {
+		return err
+	}
+	return nil
 }
 
 //SetUser updates a given user, or adds it if it doesn't exist already
