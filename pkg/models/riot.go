@@ -2,7 +2,7 @@ package models
 
 //Riot interface defines all methods which should be provided by riot
 type Riot interface {
-	GetRiotPlaytime(SummonerRegistration) (*Game, error)
+	GetRiotPlaytime(reg *SummonerRegistration) (*Game, error)
 	ValidateSummoner(reg *SummonerRegistration) (*SummonerRegistration, error)
 }
 

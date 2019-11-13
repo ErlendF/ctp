@@ -31,11 +31,12 @@ func (m *Manager) GetUser(id string) (*models.User, error) {
 
 //SetUser updates a given user
 func (m *Manager) SetUser(user *models.User) error {
-	reg, err := m.ValidateSummoner(&user.Lol)
-	if err != nil {
-		user.Lol = *reg
-	} else {
-		user.Lol = models.SummonerRegistration{}
+	var err error
+	if user.Lol != nil {
+		user.Lol, err = m.ValidateSummoner(user.Lol)
+		if err != nil {
+			return err
+		}
 	}
 
 	//TODO: validate steam and other ids or registrations
@@ -85,9 +86,7 @@ func (m *Manager) RegisterLeague(id string, reg *models.SummonerRegistration) er
 		return err
 	}
 
-	user := &models.User{ID: id}
-
-	user.Lol = *reg
+	user := &models.User{ID: id, Lol: reg}
 
 	return m.db.UpdateUser(user)
 }
