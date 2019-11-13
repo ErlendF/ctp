@@ -3,6 +3,8 @@ package riot
 import (
 	"ctp/pkg/models"
 	"fmt"
+	"net/http"
+	"net/url"
 
 	"github.com/sirupsen/logrus"
 )
@@ -47,17 +49,27 @@ func (r *Riot) ValidateSummoner(regInfo *models.SummonerRegistration) error {
 		return fmt.Errorf("invalid region")
 	}
 
-	// URL := fmt.Sprintf("https://%s.api.riotgames.com/lol/summoner/v4/summoners/by-name/%s", regInfo.SummonerRegion, regInfo.SummonerName)
+	//Validating name
+	URL := fmt.Sprintf("https://%s.api.riotgames.com/lol/summoner/v4/summoners/by-name/%s", regInfo.SummonerRegion, regInfo.SummonerName)
 
-	// formatedURL, err := url.Parse(URL)
-	// if err != nil {
-	// 	return err
-	// }
-	// req, err := http.NewRequest(http.MethodGet, formatedURL, nil)
-	// if err != nil {
-	// 	return err
-	// }
-	// req.Header.Set("X-Riot-Token", r.apiKey)
+	formatURL, err := url.Parse(URL)
+	if err != nil {
+		return err
+	}
+	req, err := http.NewRequest(http.MethodGet, formatURL.String(), nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("X-Riot-Token", r.apiKey)
+
+	resp, err := r.Client.Do(req)
+
+	if err != nil{
+		return err
+	}
+	if resp.StatusCode != http.StatusOK  {
+		return fmt.Errorf(string(resp.StatusCode))
+	}
 
 	return nil
 }

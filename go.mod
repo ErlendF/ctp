@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go/firestore v1.0.0
 	firebase.google.com/go v3.10.0+incompatible
 	github.com/bombsimon/wsl v1.2.7 // indirect
-	github.com/bxcodec/faker v2.0.1+incompatible
+	github.com/bxcodec/faker v2.0.1+incompatible // indirect
 	github.com/coreos/go-oidc v2.1.0+incompatible
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fatih/structs v1.1.0
