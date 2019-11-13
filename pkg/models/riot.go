@@ -28,8 +28,7 @@ type Matches struct {
 
 //SummonerRegistration contains the necessary information to register a summoner (league of legends account)
 type SummonerRegistration struct {
-	SummonerName   string `json:"summonerName"`
-	SummonerRegion string `json:"summonerRegion"`
-	AccountID      string `json:"accountId"`
+	SummonerName   string `json:"summonerName" firestore:"summonerName"`
+	SummonerRegion string `json:"summonerRegion" firestore:"summonerRegion"`
+	AccountID      string `json:"accountId" firestore:"accountId"`
 }
-

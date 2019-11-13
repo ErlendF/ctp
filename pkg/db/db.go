@@ -43,6 +43,12 @@ func New(key string) (*Database, error) {
 	return db, nil
 }
 
+//CreateUser creates a user
+func (db *Database) CreateUser(user *models.User) error {
+	_, err := db.Collection(userCol).Doc(user.ID).Create(db.ctx, user)
+	return err
+}
+
 //SetUser updates a given user, or adds it if it doesn't exist already
 func (db *Database) SetUser(user *models.User) error {
 	_, err := db.Collection(userCol).Doc(user.ID).Set(db.ctx, user)
@@ -75,31 +81,13 @@ func (db *Database) UpdateGame(id string, tmpGame *models.Game) error {
 
 //UpdateUser updates the relevant fields of the user
 //checks for empty values
-//!!Needs to be updated for new types!!
 func (db *Database) UpdateUser(user *models.User) error {
-	m := structs.Map(user)
-	delete(m, "ID")
-	delete(m, "Games")
+	s := structs.New(user)
+	m := make(map[string]interface{})
 
-	for k, v := range m {
-		switch v.(type) {
-		case string:
-			if v == "" {
-				delete(m, k)
-			}
-		case int:
-			if v == 0 {
-				delete(m, k)
-			}
-		case map[string]interface{}:
-			if k != "Lol" {
-				return fmt.Errorf("Unknown type")
-			}
-
-			s := v.(map[string]interface{})
-			if s["SummonerName"].(string) == "" || s["SummonerRegion"].(string) == "" || s["AccountID"].(string) == "" {
-				delete(m, k)
-			}
+	for _, f := range s.Fields() {
+		if !f.IsZero() {
+			m[f.Tag("firestore")] = f.Value()
 		}
 	}
 

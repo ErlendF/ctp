@@ -5,6 +5,8 @@ import (
 	"net/http"
 
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 )
 
 //Manager is a struct which contains everything necessary
@@ -51,9 +53,12 @@ func (m *Manager) Redirect(w http.ResponseWriter, r *http.Request) {
 func (m *Manager) AuthCallback(w http.ResponseWriter, r *http.Request) (string, error) {
 	id, err := m.HandleOAuth2Callback(w, r)
 
-	err = m.SetUser(&models.User{ID: id})
+	err = m.db.CreateUser(&models.User{ID: id})
 	if err != nil {
-		return "", err
+		if grpc.Code(err) != codes.AlreadyExists {
+			return "", err
+		}
+		err = nil
 	}
 
 	token, err := m.GetNewToken(id)
