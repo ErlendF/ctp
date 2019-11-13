@@ -21,7 +21,6 @@ func New(getter models.Getter) *Blizzard {
 	return &Blizzard{getter}
 }
 
-
 //GetBlizzardPlaytime gets playtime for Public Overwatch profiles
 func (b *Blizzard) GetBlizzardPlaytime(payload *models.Overwatch) (*models.Overwatch, error) {
 	logrus.Debugf("GetBlizzardPlaytime")
@@ -36,7 +35,7 @@ func (b *Blizzard) GetBlizzardPlaytime(payload *models.Overwatch) (*models.Overw
 			if strings.Contains(err.Error(), models.NonOK) {
 				return nil, err
 			}
-			continue	// try again....
+			continue // try again....
 		}
 		// if it got time values from api -> continue code
 		return gameStats, nil
@@ -47,7 +46,7 @@ func (b *Blizzard) GetBlizzardPlaytime(payload *models.Overwatch) (*models.Overw
 }
 
 // queryAPI func returns response from the OverwatchAPI
-func (b *Blizzard) queryAPI(payload *models.Overwatch, url string) (*models.Overwatch ,error) {
+func (b *Blizzard) queryAPI(payload *models.Overwatch, url string) (*models.Overwatch, error) {
 	var gameTime models.BlizzardResp
 
 	// Gets statistics from the BATTLE-ID provided
