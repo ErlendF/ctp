@@ -66,7 +66,32 @@ func (h *handler) authCallbackHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) updateUser(w http.ResponseWriter, r *http.Request) {
+	id, err := getID(r)
+	if err != nil {
+		logRespond(w, r, err)
+		return
+	}
 
+	var user models.User
+
+	err = json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		logRespond(w, r, err)
+		return
+	}
+	user.ID = id
+
+	// ignoring fields the user should not be allowed to update manually
+	user.Games = nil
+	user.TotalGameTime = 0
+
+	err = h.SetUser(&user)
+	if err != nil {
+		logRespond(w, r, err)
+		return
+	}
+
+	respondPlain(w, r, "Success")
 }
 
 func (h *handler) getUser(w http.ResponseWriter, r *http.Request) {
@@ -143,7 +168,7 @@ func (h *handler) regLeague(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondPlain(w, r, "Sucess")
+	respondPlain(w, r, "Success")
 }
 
 func (h *handler) notFound(w http.ResponseWriter, r *http.Request) {

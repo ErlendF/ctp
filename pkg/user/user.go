@@ -31,7 +31,16 @@ func (m *Manager) GetUser(id string) (*models.User, error) {
 
 //SetUser updates a given user
 func (m *Manager) SetUser(user *models.User) error {
-	return m.db.SetUser(user)
+	reg, err := m.ValidateSummoner(&user.Lol)
+	if err != nil {
+		user.Lol = *reg
+	} else {
+		user.Lol = models.SummonerRegistration{}
+	}
+
+	//TODO: validate steam and other ids or registrations
+
+	return m.db.UpdateUser(user)
 }
 
 //UpdateGame updates the gametime for the given game
