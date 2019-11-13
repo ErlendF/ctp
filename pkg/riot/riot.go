@@ -25,7 +25,7 @@ func New(client models.Client, apiKey string) *Riot {
 
 //GetRiotPlaytime gets playtime on League of Legends
 func (r *Riot) GetRiotPlaytime(reg *models.SummonerRegistration) (*models.Game, error) {
-	logrus.Debugf("GetLolPlaytime")
+	logrus.Debug("GetLolPlaytime")
 	logrus.Debugf("reg: %+v", reg)
 	if reg == nil || reg.SummonerRegion == "" || reg.AccountID == "" {
 		return nil, fmt.Errorf("missing summonerinfo")
@@ -85,7 +85,7 @@ func (r *Riot) ValidateSummoner(reg *models.SummonerRegistration) (*models.Summo
 	}
 
 	if !validRegion {
-		logrus.WithField("SummonerRegion", reg.SummonerRegion).Warnf("invalid region")
+		logrus.WithField("SummonerRegion", reg.SummonerRegion).Warn("invalid region")
 		return nil, fmt.Errorf("invalid region")
 	}
 
@@ -111,7 +111,7 @@ func (r *Riot) ValidateSummoner(reg *models.SummonerRegistration) (*models.Summo
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		logrus.WithField("SummonerName", reg.SummonerName).Warnf("invalid SummonerName")
+		logrus.WithField("SummonerName", reg.SummonerName).Warn("invalid SummonerName")
 		return nil, fmt.Errorf(string(resp.StatusCode))
 	}
 

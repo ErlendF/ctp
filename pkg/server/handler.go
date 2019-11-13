@@ -27,7 +27,7 @@ func newHandler(um models.UserManager) *handler {
 }
 
 func (h *handler) testHandler(w http.ResponseWriter, r *http.Request) {
-	logrus.Debugf("testHandler!")
+	logrus.Debug("testHandler!")
 	h.JohanTestFunc()
 	fmt.Fprintf(w, "Test handler!")
 }
@@ -151,7 +151,7 @@ func logRespond(w http.ResponseWriter, r *http.Request, err error) {
 }
 
 func (h *handler) notFound(w http.ResponseWriter, r *http.Request) {
-	logrus.WithField("request", r.RequestURI).Debugf("Not found handler")
+	logrus.WithField("request", r.RequestURI).Debug("Not found handler")
 	http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 }
 

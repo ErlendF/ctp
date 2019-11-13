@@ -19,6 +19,6 @@ func New(client models.Client) *Blizzard {
 
 //GetBlizzardPlaytime gets playtime on steam for specified game
 func (b *Blizzard) GetBlizzardPlaytime(game string) (*time.Duration, error) {
-	logrus.Debugf("GetBlizzardPlaytime")
+	logrus.Debug("GetBlizzardPlaytime")
 	return nil, nil
 }

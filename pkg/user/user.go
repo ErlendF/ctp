@@ -124,49 +124,49 @@ func (m *Manager) JohanTestFunc() {
 
 	tmpUser2, err := m.db.GetUser("117575669351657432712")
 	if err != nil {
-		logrus.WithError(err).Debugf("Could not get user!")
+		logrus.WithError(err).Debug("Could not get user!")
 		return
 	}
 	tmpUser.Lol = tmpUser2.Lol
 
 	err = m.db.SetUser(&tmpUser)
 	if err != nil {
-		logrus.WithError(err).Debugf("Test failed!")
+		logrus.WithError(err).Debug("Test failed!")
 	}
 
 	tmpUser3, err := m.db.GetUser("117575669351657432712")
 	if err != nil {
-		logrus.WithError(err).Debugf("Could not get user!")
+		logrus.WithError(err).Debug("Could not get user!")
 		return
 	}
 
-	logrus.Debugf(tmpUser3.Lol.AccountID)
-	logrus.Debugf(tmpUser3.Lol.SummonerRegion)
-	logrus.Debugf(tmpUser3.Lol.SummonerName)
+	logrus.Debug(tmpUser3.Lol.AccountID)
+	logrus.Debug(tmpUser3.Lol.SummonerRegion)
+	logrus.Debug(tmpUser3.Lol.SummonerName)
 
 	game, err := m.GetRiotPlaytime(tmpUser3.Lol)
 	if err != nil {
-		logrus.WithError(err).Debugf("Get riot playtime oopsie!")
+		logrus.WithError(err).Debug("Get riot playtime oopsie!")
 		return
 	}
 
 	err = m.db.UpdateGame("117575669351657432712", game)
 	if err != nil {
-		logrus.WithError(err).Warnf("Update game failed!")
+		logrus.WithError(err).Warn("Update game failed!")
 		return
 	}
 
 	games, err := m.GetValvePlaytime(tmpUser3.Valve)
 	if err != nil {
-		logrus.WithError(err).Warnf("Valve playtime failed!")
+		logrus.WithError(err).Warn("Valve playtime failed!")
 		return
 	}
 
 	for _, game := range games {
-		logrus.Debugf(game.Name)
+		logrus.Debug(game.Name)
 		err = m.db.UpdateGame("117575669351657432712", &game)
 		if err != nil {
-			logrus.WithError(err).Warnf("Update game failed!")
+			logrus.WithError(err).Warn("Update game failed!")
 			return
 		}
 	}
