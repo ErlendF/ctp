@@ -168,14 +168,12 @@ func (m *Manager) JohanTestFunc() {
 		logrus.WithError(err).Warn("Valve playtime failed!")
 		return
 	}
+	tmpUser3.Games = games
 
-	for _, game := range games {
-		logrus.Debug(game.Name)
-		err = m.db.UpdateGame("117575669351657432712", &game)
-		if err != nil {
-			logrus.WithError(err).Warn("Update game failed!")
-			return
-		}
+	err = m.db.UpdateGames(tmpUser3)
+	if err != nil {
+		logrus.WithError(err).Warn("UpdateGames failed!")
+		return
 	}
 }
 

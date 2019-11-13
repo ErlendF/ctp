@@ -103,6 +103,39 @@ func (db *Database) UpdateGame(id string, tmpGame *models.Game) error {
 	return db.SetUser(user)
 }
 
+//UpdateGames updates the games for the given user
+func (db *Database) UpdateGames(user *models.User) error {
+	dbUser, err := db.GetUser(user.ID)
+	if err != nil {
+		return err
+	}
+
+	// checking that each game in the database is still present in the new games array
+	for _, dbGame := range dbUser.Games {
+		len := len(user.Games)
+		gameFound := false
+
+		// looking for the game in user.Games
+		for i := 0; i < len && !gameFound; i++ {
+			if dbGame.Name == user.Games[i].Name && dbGame.ValveID == user.Games[i].ValveID {
+				gameFound = true
+				break
+			}
+		}
+
+		// if the game was not present, adding it
+		if !gameFound {
+			user.Games = append(user.Games, dbGame)
+		}
+	}
+
+	_, err = db.Collection(userCol).Doc(user.ID).Update(db.ctx, []firestore.Update{
+		{Path: "games", Value: user.Games},
+	})
+
+	return err
+}
+
 //UpdateUser updates the relevant fields of the user
 //checks for empty values
 func (db *Database) UpdateUser(user *models.User) error {

@@ -8,5 +8,6 @@ type Database interface {
 	GetUser(id string) (*User, error)
 	GetUserByName(name string) (*User, error)
 	UpdateGame(userID string, game *Game) error
+	UpdateGames(user *User) error
 	UpdateUser(user *User) error
 }

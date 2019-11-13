@@ -48,6 +48,7 @@ func (v *Valve) GetValvePlaytime(ID string) ([]models.Game, error) {
 		var tmpGame models.Game
 		tmpGame.Name = game.Name
 		tmpGame.Time = game.PlaytimeForever
+		tmpGame.ValveID = game.Appid
 
 		if tmpGame.Time != 0 {
 			games = append(games, tmpGame)

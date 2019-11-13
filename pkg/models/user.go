@@ -13,6 +13,7 @@ type User struct {
 
 //Game part of User
 type Game struct {
-	Name string `json:"game" firestore:"name"`
-	Time int    `json:"playTime" firestore:"time"`
+	Name    string `json:"game" firestore:"name"`
+	Time    int    `json:"playTime" firestore:"time"`
+	ValveID int    `json:"-" firestore:"valveID"`
 }
