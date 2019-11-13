@@ -9,6 +9,8 @@ type Valve interface {
 type ValveResp struct {
 	Response ValveResponse `json:"response"`
 }
+
+//ValveGames is used for testing
 type ValveGames struct {
 	Appid                    int    `json:"appid"`
 	Name                     string `json:"name"`
@@ -21,7 +23,9 @@ type ValveGames struct {
 	PlaytimeLinuxForever     int    `json:"playtime_linux_forever"`
 	Playtime2Weeks           int    `json:"playtime_2weeks,omitempty"`
 }
+
+//ValveResponse is used for testing
 type ValveResponse struct {
-	GameCount int     `json:"game_count"`
+	GameCount int          `json:"game_count"`
 	Games     []ValveGames `json:"games"`
 }

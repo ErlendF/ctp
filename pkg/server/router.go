@@ -19,9 +19,6 @@ func newRouter(h *handler, mw *middleware) *mux.Router {
 	get.HandleFunc("/login", h.login).Name("login")
 	get.HandleFunc("/authcallback", h.authCallbackHandler).Name("authCallback")
 
-	// get.HandleFunc("/register/blizz", h.regshit).Name("reg")
-	// get.HandleFunc("/register/valve", h.regshit).Name("reg")
-
 	auth := r.PathPrefix("/api/v1/").Subrouter()
 	auth.HandleFunc("/register/league", h.regLeague).Methods(http.MethodPost).Name("regLeague")
 	auth.HandleFunc("/user", h.updateUser).Methods(http.MethodPost).Name("updateUser")
