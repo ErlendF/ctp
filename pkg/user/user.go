@@ -158,13 +158,14 @@ func (m *Manager) JohanTestFunc() {
 		return
 	}
 
-	games, err := m.GetValvePlaytime("76561198075109466")
+	games, err := m.GetValvePlaytime(tmpUser3.Valve)
 	if err != nil {
 		logrus.WithError(err).Warnf("Valve playtime failed!")
 		return
 	}
 
 	for _, game := range games {
+		logrus.Debugf(game.Name)
 		err = m.db.UpdateGame("117575669351657432712", &game)
 		if err != nil {
 			logrus.WithError(err).Warnf("Update game failed!")
