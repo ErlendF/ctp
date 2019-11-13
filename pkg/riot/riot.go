@@ -24,10 +24,10 @@ func New(client models.Client, apiKey string) *Riot {
 }
 
 //GetRiotPlaytime gets playtime on League of Legends
-func (r *Riot) GetRiotPlaytime(reg models.SummonerRegistration) (*models.Game, error) {
+func (r *Riot) GetRiotPlaytime(reg *models.SummonerRegistration) (*models.Game, error) {
 	logrus.Debugf("GetLolPlaytime")
 	logrus.Debugf("reg: %+v", reg)
-	if reg.SummonerRegion == "" || reg.AccountID == "" {
+	if reg == nil || reg.SummonerRegion == "" || reg.AccountID == "" {
 		return nil, fmt.Errorf("missing summonerinfo")
 	}
 
@@ -69,6 +69,9 @@ func (r *Riot) GetRiotPlaytime(reg models.SummonerRegistration) (*models.Game, e
 
 //ValidateSummoner validates the summoner
 func (r *Riot) ValidateSummoner(reg *models.SummonerRegistration) (*models.SummonerRegistration, error) {
+	if reg == nil {
+		return nil, fmt.Errorf("Nil registration")
+	}
 	var regions = []string{"RU", "KR", "BR1", "OC1", "JP1", "NA1", "EUN1", "EUW1", "TR1", "LA1", "LA2"}
 	// var err error
 
