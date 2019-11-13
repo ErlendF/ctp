@@ -115,3 +115,27 @@ func (db *Database) GetUser(id string) (*models.User, error) {
 
 	return &user, nil
 }
+
+//GetUserByName gets a user by name
+func (db *Database) GetUserByName(name string) (*models.User, error) {
+	docs, err := db.Collection(userCol).Where("name", "==", name).Documents(db.ctx).GetAll()
+	if err != nil {
+		if grpc.Code(err) != codes.NotFound {
+			err = fmt.Errorf("NotFound")
+		}
+		return nil, err
+	}
+
+	if len(docs) > 1 {
+		return nil, fmt.Errorf("Multiple users with same username")
+	}
+
+	data := docs[0].Data()
+	var user models.User
+	err = mapstructure.Decode(data, &user)
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}

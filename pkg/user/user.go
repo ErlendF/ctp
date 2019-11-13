@@ -2,7 +2,9 @@ package user
 
 import (
 	"ctp/pkg/models"
+	"fmt"
 	"net/http"
+	"regexp"
 
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -32,6 +34,13 @@ func (m *Manager) GetUser(id string) (*models.User, error) {
 //SetUser updates a given user
 func (m *Manager) SetUser(user *models.User) error {
 	var err error
+	if user.Name != "" {
+		err = validateUserName(user.Name)
+		if err != nil {
+			return err
+		}
+	}
+
 	if user.Lol != nil {
 		user.Lol, err = m.ValidateSummoner(user.Lol)
 		if err != nil {
@@ -147,4 +156,13 @@ func (m *Manager) JohanTestFunc() {
 		logrus.WithError(err).Warnf("Update game failed!")
 		return
 	}
+}
+
+//validateUserName checks if the name entered is a valid name for a user
+func validateUserName(name string) error {
+	re := regexp.MustCompile("^[a-zA-Z0-9 ]{1,15}$")
+	if !re.MatchString(name) {
+		return fmt.Errorf("Invalid username")
+	}
+	return nil
 }
