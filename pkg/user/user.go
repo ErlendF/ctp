@@ -46,6 +46,13 @@ func (m *Manager) SetUser(user *models.User) error {
 		}
 	}
 
+	if user.Overwatch != nil {
+		user.Overwatch, err = m.GetBlizzardPlaytime(user.Overwatch)
+		if err != nil {
+			return err
+		}
+	}
+
 	//TODO: validate steam and other ids or registrations
 
 	return m.db.UpdateUser(user)
