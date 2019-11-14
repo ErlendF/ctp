@@ -173,6 +173,7 @@ func logRespond(w http.ResponseWriter, r *http.Request, err error) {
 	// invalid request body where input was expected
 	case err == io.EOF:
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+
 	default:
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 	}
