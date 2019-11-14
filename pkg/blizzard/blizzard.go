@@ -21,11 +21,60 @@ func New(getter models.Getter) *Blizzard {
 	return &Blizzard{getter}
 }
 
-//GetBlizzardPlaytime gets playtime for Public Overwatch profiles
+// ValidateBattleUser func validates a battle.net user
+func (b* Blizzard) ValidateBattleUser(payload *models.Overwatch) error {
+	logrus.Debug("ValidateBattleUser()")
+	if payload == nil {
+		return fmt.Errorf("no registration")
+	}
+
+	pass := false
+	var region = []string{"us", "eu", "asia"}
+	var platform = []string{"pc", "etc"} //"switch", "xbox", "ps4"} //TODO: validate platforms against api
+
+	// checks that region is a-ok
+	for _, reg := range region {
+		if payload.Region == reg {
+			pass = true
+		}
+	}
+	if !pass {
+		return fmt.Errorf(models.ClientError)
+	}
+	pass = false
+
+	// checks that platform is okey dokey
+	for _, plat := range platform {
+		if payload.Platform == plat {
+			pass = true
+		}
+	}
+	if !pass {
+		return fmt.Errorf(models.ClientError)
+	}
+
+	// lastly check that battle tag is real TODO: make regex?
+	url := fmt.Sprintf("https://ow-api.com/v1/stats/%s/%s/%s/heroes/complete",
+		payload.Platform, payload.Region, payload.BattleTag)
+	resp, err := b.Get(url)
+	if err != nil {
+		return fmt.Errorf(models.ClientError)
+	}
+	defer resp.Body.Close()
+
+	// Checks status header
+	if err = models.CheckStatusCode(resp.StatusCode); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// GetBlizzardPlaytime gets playtime for Public Overwatch profiles
 func (b *Blizzard) GetBlizzardPlaytime(payload *models.Overwatch) (*models.Game, error) {
 	logrus.Debugf("GetBlizzardPlaytime")
 	url := fmt.Sprintf("https://ow-api.com/v1/stats/%s/%s/%s/heroes/complete",
-		payload.Platform, payload.Region, payload.ID)
+		payload.Platform, payload.Region, payload.BattleTag)
 
 	// Tries to get a response from unreliable api
 	for tries := 0; tries < 10; tries++ {
@@ -34,6 +83,7 @@ func (b *Blizzard) GetBlizzardPlaytime(payload *models.Overwatch) (*models.Game,
 			if strings.Contains(err.Error(), models.NonOK) {
 				return nil, err
 			}
+			logrus.WithError(err).Warn("Trying again")
 			continue // try again....
 		}
 
@@ -78,6 +128,8 @@ func (b *Blizzard) queryAPI(payload *models.Overwatch, url string) (*models.Game
 	if err != nil {
 		return nil, err
 	}
+
+	logrus.Debugf("time: %d", int((quickTime + compTime) / time.Hour))
 
 	// returns Game struct
 	return &models.Game{
