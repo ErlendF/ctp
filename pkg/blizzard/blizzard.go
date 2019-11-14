@@ -178,7 +178,6 @@ func nanoTime(strTime string) (time.Duration, error) {
 		absTime += time.Duration(sec) * time.Second
 	default:
 		// returns error if parts of string exceeds 3 (hr:min:sec)
-		logrus.Errorf("OW API has changed the way time is encoded")
 		return 0, fmt.Errorf("OW API changed the way time is encoded, got |%d| parts", len(parts))
 	}
 
