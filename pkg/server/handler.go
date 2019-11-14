@@ -161,6 +161,8 @@ func logRespond(w http.ResponseWriter, r *http.Request, err error) {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 	case models.CheckNotFound(err):
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+	case err.Error() == models.ClientError:
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 
 	// assuming client errors to external APIs are caused by bad user input
 	case models.GetHTTPErrorClass(err) == models.ClientError:
