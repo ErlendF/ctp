@@ -45,17 +45,17 @@ To login to the application, the user should send a GET request to /api/v1/login
 All enpoints start with "/api/v1/", thus the prefix has been omitted from the listing bellow. For the enpoints requiring authentication, the **Authorization** header needs to contain a valid JWT, as specified in the Authentication (usage) section.
 Requires authentication:
 ```
-	/user         (GET): Returns all information about the user themselves.
-	/user        (POST): Updates information about the user themselves.
-	/updategames (POST): Fetches new data from the servies registered for the user.
+/user         (GET): Returns all information about the user themselves.
+/user        (POST): Updates information about the user themselves.
+/updategames (POST): Fetches new data from the servies registered for the user.
 ```
 
 
 No authentication:
 ```
-	/login                              (GET): Redirects to Googles OAuth consent screen, used for the user to login.
-	/authcallback                       (GET): The redirect URI where the user is returned after loging in. Returnes a JWT used for authentication for the enpoints listed above.
-	/user/{username:[a-zA-Z0-9 ]{1,15}} (GET): Get information about a pulbic user with a username.
+/login                              (GET): Redirects to Googles OAuth consent screen, used for the user to login.
+/authcallback                       (GET): The redirect URI where the user is returned after loging in. Returnes a JWT used for authentication for the enpoints listed above.
+/user/{username:[a-zA-Z0-9 ]{1,15}} (GET): Get information about a pulbic user with a username.
 ```
 
 
