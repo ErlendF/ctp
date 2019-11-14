@@ -8,7 +8,7 @@ import (
 	"ctp/pkg/models"
 )
 
-const writeTimeout, readTimeout, idleTimeout = 15, 30, 30
+const writeTimeout, readTimeout, idleTimeout = 60, 60, 60
 
 // New creates a new http server
 func New(port int, um models.UserManager, val models.TokenValidator) *http.Server {

@@ -62,11 +62,12 @@ func (m *Manager) SetUser(user *models.User) error {
 	}
 
 	if user.Overwatch != nil {
-		user.Overwatch, err = m.GetBlizzardPlaytime(user.Overwatch) //TODO: call validate here after it has been made
+		err = m.ValidateBattleUser(user.Overwatch)
 		if err != nil {
 			return err
 		}
 	}
+
 
 	//TODO: validate steam and other ids or registrations
 
@@ -91,12 +92,13 @@ func (m *Manager) UpdateGames(id string) error {
 	}
 
 	//TODO: overwatch needs to be changed to fit game format
-	// if user.Overwatch != nil {
-	// 	user.Overwatch, err = m.GetBlizzardPlaytime(user.Overwatch)
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// }
+	if user.Overwatch != nil {
+		ow, err := m.GetBlizzardPlaytime(user.Overwatch)
+		if err != nil {
+			return err
+		}
+		updatedGames = append(updatedGames, *ow)
+	}
 
 	if user.Valve != "" {
 		games, err := m.GetValvePlaytime(user.Valve)
