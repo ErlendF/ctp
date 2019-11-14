@@ -62,13 +62,11 @@ func (m *Manager) SetUser(user *models.User) error {
 	}
 
 	if user.Overwatch != nil {
-		err = m.ValidateBattleUser(user.Overwatch) //TODO: call validate here after it has been made
+		err = m.ValidateBattleUser(user.Overwatch)
 		if err != nil {
 			return err
 		}
-		//logrus.Debugf("updated OW")
 	}
-	//logrus.Debugf("or not")
 
 
 	//TODO: validate steam and other ids or registrations

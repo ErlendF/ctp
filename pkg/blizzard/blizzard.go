@@ -21,7 +21,7 @@ func New(getter models.Getter) *Blizzard {
 	return &Blizzard{getter}
 }
 
-// ValidateBattleUser func validates a battle.net user
+// ValidateBattleUser func validates a users input to *Game Overwatch
 func (b* Blizzard) ValidateBattleUser(payload *models.Overwatch) error {
 	logrus.Debug("ValidateBattleUser()")
 	if payload == nil {
