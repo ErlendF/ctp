@@ -41,6 +41,25 @@ To login to the application, the user should send a GET request to /api/v1/login
 
 
 
+#### API endpoints
+All enpoints start with "/api/v1/", thus the prefix has been omitted from the listing bellow. For the enpoints requiring authentication, the **Authorization** header needs to contain a valid JWT, as specified in the Authentication (usage) section.
+Requires authentication:
+```
+	/user         (GET): Returns all information about the user themselves.
+	/user        (POST): Updates information about the user themselves.
+	/updategames (POST): Fetches new data from the servies registered for the user.
+```
+
+
+No authentication:
+```
+	/login                              (GET): Redirects to Googles OAuth consent screen, used for the user to login.
+	/authcallback                       (GET): The redirect URI where the user is returned after loging in. Returnes a JWT used for authentication for the enpoints listed above.
+	/user/{username:[a-zA-Z0-9 ]{1,15}} (GET): Get information about a pulbic user with a username.
+```
+
+
+
 #### Application structure
 The application is split into two main parts: *cmd* and *pkg*. *cmd* serves as the central function of the application. *pkg* contains everything that is either used by *cmd or another package in pkg*. We consider the user to be the central part of the application as all actions and information is related to or belongs to the user. Therefore, the handler only takes a UserManager as a parameter and the **handler struct in pkg/server/handler.go [embedds](https://travix.io/type-embedding-in-go-ba40dd4264df) the UserManager**, allowing the handler to use each of the functions specified in the *UserManager interface*. The handler functions themselves contain a minimum amount of logic, merely calling functions from the UserManager, thus only handling i/o and logging.
 
