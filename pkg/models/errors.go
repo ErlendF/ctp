@@ -18,6 +18,15 @@ const trim = "non 200 statuscode: "
 //InvalidAuthState defines the error returned if the state for the authenticaiton request does not match the state stored in the cookie
 const InvalidAuthState = "Invalid state"
 
+//NotFound defines the error returned if a resource could not be found
+const NotFound = "NotFound"
+
+//ClientError indicates the error was caused by the client
+const ClientError = "Client error"
+
+//ServerError indicates the error was caused by something on the serverside
+const ServerError = "Server error"
+
 //CheckStatusCode checks the status code and returns an error if it is not 200
 func CheckStatusCode(code int) error {
 	if code != http.StatusOK {
@@ -36,8 +45,37 @@ func CheckNotFound(err error) bool {
 	if !strings.Contains(err.Error(), NonOK) {
 		return false
 	}
+	statusCode := strings.TrimPrefix(err.Error(), trim)
+	if statusCode == strconv.Itoa(http.StatusNotFound) { // NOT HARD CODED, YES
+		return true
+	}
+
+	return false
+}
+
+//GetHTTPErrorClass returns the class of the HTTP status code, if applicable
+func GetHTTPErrorClass(err error) string {
+	if err == nil {
+		return ""
+	}
+
+	if !strings.Contains(err.Error(), NonOK) {
+		return ""
+	}
 
 	statusCode := strings.TrimPrefix(err.Error(), trim)
+	if len(statusCode) < 1 {
+		return ""
+	}
 
-	return statusCode == strconv.Itoa(http.StatusNotFound)
+	class := string(statusCode[0])
+
+	switch class {
+	case "4":
+		return ClientError
+	case "5":
+		return ServerError
+	}
+
+	return ""
 }

@@ -3,8 +3,10 @@ package models
 // Database contains all functions a database should provide
 type Database interface {
 	CreateUser(user *User) error
-	SetUser(info *User) error
-	GetUser(id string) (*User, error)
-	UpdateGame(userID string, game *Game) error
+	GetUserByID(id string) (*User, error)
+	GetUserByName(name string) (*User, error)
 	UpdateUser(user *User) error
+	UpdateGames(user *User) error
+	SetUsername(user *User) error
+	OverwriteUser(user *User) error
 }

@@ -44,7 +44,8 @@ var config struct {
 	shutdownTimeout int
 	clientTimeout   int
 	port            int
-	dbkey           string
+	fbkey           string
+	domain          string
 }
 
 // rootCmd represents the base command
@@ -66,16 +67,21 @@ var rootCmd = &cobra.Command{
 			Timeout: timeout,
 		}
 
-		// Initializing each of the packages and passing them to the server
+		// Getting required environment variables (injected by github.com/joho/godotenv/autoload)
 		riotAPIKey := os.Getenv("RIOT_API_KEY")
-		riot := riot.New(client, riotAPIKey)
-
 		valveAPIKey := os.Getenv("VALVE_API_KEY")
+		clientID := os.Getenv("GOOGLE_OAUTH2_CLIENT_ID")
+		clientSecret := os.Getenv("GOOGLE_OAUTH2_CLIENT_SECRET")
+		hmacSecret := os.Getenv("HMAC_SECRET")
+		if clientID == "" || clientSecret == "" || hmacSecret == "" || riotAPIKey == "" || valveAPIKey == "" {
+			logrus.Fatalf("Invalid environment variables")
+		}
+
+		// Initializing each of the packages and passing them to the server
+		riot := riot.New(client, riotAPIKey)
 		valve := valve.New(client, valveAPIKey)
-
 		blizzard := blizzard.New(client)
-		db, err := db.New(config.dbkey)
-
+		db, err := db.New(config.fbkey)
 		if err != nil {
 			logrus.WithError(err).Fatalf("Unable to get new Database:%s", err)
 		}
@@ -84,10 +90,7 @@ var rootCmd = &cobra.Command{
 		ctxC, cancelC := context.WithCancel(ctx)
 		defer cancelC()
 
-		clientID := os.Getenv("GOOGLE_OAUTH2_CLIENT_ID")
-		clientSecret := os.Getenv("GOOGLE_OAUTH2_CLIENT_SECRET")
-		hmacSecret := os.Getenv("HMAC_SECRET")
-		auth, err := auth.New(ctxC, config.port, clientID, clientSecret, hmacSecret)
+		auth, err := auth.New(ctxC, config.port, config.domain, clientID, clientSecret, hmacSecret)
 		if err != nil {
 			logrus.WithError(err).Fatalf("Unable to get new Authenticator:%s", err)
 		}
@@ -153,7 +156,8 @@ func init() {
 	rootCmd.Flags().IntVarP(&config.port, "port", "p", 80, "Sets the port the API should listen to")
 	rootCmd.Flags().BoolVarP(&config.verbose, "verbose", "v", false, "Verbose logging")
 	rootCmd.Flags().BoolVarP(&config.jsonFormatter, "jsonFormatter", "j", false, "JSON logging format")
-	rootCmd.Flags().StringVarP(&config.dbkey, "dbkey", "d", "./fbkey.json", "Path to the firebase key file")
+	rootCmd.Flags().StringVarP(&config.fbkey, "fbkey", "f", "./fbkey.json", "Path to the firebase key file")
+	rootCmd.Flags().StringVarP(&config.domain, "domain", "d", "localhost", "Specifies the domain for the redirect URI used for authentication")
 }
 
 // setupLog initializes logrus logger

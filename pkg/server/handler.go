@@ -3,8 +3,8 @@ package server
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
-	"strings"
 
 	"ctp/pkg/models"
 
@@ -27,14 +27,15 @@ func newHandler(um models.UserManager) *handler {
 
 func (h *handler) testHandler(w http.ResponseWriter, r *http.Request) {
 	logrus.Debugf("testHandler!")
+
 	h.JohanTestFunc()
 	fmt.Fprintf(w, "Test handler!")
 }
 
-func (h *handler) userHandler(w http.ResponseWriter, r *http.Request) {
-	id := mux.Vars(r)["id"]
+func (h *handler) getPublicUser(w http.ResponseWriter, r *http.Request) {
+	username := mux.Vars(r)["username"]
 
-	resp, err := h.GetUser(id)
+	resp, err := h.GetUserByName(username)
 	if err != nil {
 		logRespond(w, r, err)
 		return
@@ -94,6 +95,22 @@ func (h *handler) updateUser(w http.ResponseWriter, r *http.Request) {
 	respondPlain(w, r, "Success")
 }
 
+func (h *handler) updateGames(w http.ResponseWriter, r *http.Request) {
+	id, err := getID(r)
+	if err != nil {
+		logRespond(w, r, err)
+		return
+	}
+
+	err = h.UpdateGames(id)
+	if err != nil {
+		logRespond(w, r, err)
+		return
+	}
+
+	respondPlain(w, r, "Success")
+}
+
 func (h *handler) getUser(w http.ResponseWriter, r *http.Request) {
 	id, err := getID(r)
 	if err != nil {
@@ -101,7 +118,7 @@ func (h *handler) getUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := h.GetUser(id)
+	resp, err := h.GetUserByID(id)
 	if err != nil {
 		logRespond(w, r, err)
 		return
@@ -140,39 +157,27 @@ func logRespond(w http.ResponseWriter, r *http.Request, err error) {
 	switch {
 	case err.Error() == invalidID:
 		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
-	case strings.Contains(err.Error(), models.NonOK):
+	case err.Error() == models.NotFound:
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+	case models.CheckNotFound(err):
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+
+	// assuming client errors to external APIs are caused by bad user input
+	case models.GetHTTPErrorClass(err) == models.ClientError:
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+	case models.GetHTTPErrorClass(err) == models.ServerError:
 		http.Error(w, http.StatusText(http.StatusBadGateway), http.StatusBadGateway)
+
+	// invalid request body where input was expected
+	case err == io.EOF:
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 	default:
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 	}
 }
 
-func (h *handler) regLeague(w http.ResponseWriter, r *http.Request) {
-	id, err := getID(r)
-	if err != nil {
-		logRespond(w, r, err)
-		return
-	}
-
-	var regInfo models.SummonerRegistration
-
-	err = json.NewDecoder(r.Body).Decode(&regInfo)
-	if err != nil {
-		logRespond(w, r, err)
-		return
-	}
-
-	err = h.RegisterLeague(id, &regInfo)
-	if err != nil {
-		logRespond(w, r, err)
-		return
-	}
-
-	respondPlain(w, r, "Success")
-}
-
 func (h *handler) notFound(w http.ResponseWriter, r *http.Request) {
-	logrus.WithField("request", r.RequestURI).Debugf("Not found handler")
+	logrus.WithField("request", r.RequestURI).Debug("Not found handler")
 	http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 }
 
