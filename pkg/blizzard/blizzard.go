@@ -30,7 +30,7 @@ func (b* Blizzard) ValidateBattleUser(payload *models.Overwatch) error {
 
 	pass := false
 	var region = []string{"us", "eu", "asia"}
-	var platform = []string{"pc", "etc"} //"switch", "xbox", "ps4"} //TODO: validate platforms against api
+	var platform = []string{"pc", "etc"} //("switch", "xbox", "ps4")? //TODO: validate platforms against api(?)
 
 	// checks that region is a-ok
 	for _, reg := range region {
@@ -53,7 +53,7 @@ func (b* Blizzard) ValidateBattleUser(payload *models.Overwatch) error {
 		return fmt.Errorf(models.ClientError)
 	}
 
-	// lastly check that battle tag is real TODO: make regex?
+	// check that provided battle tag is correct TODO: make regex (https://us.battle.net/support/en/article/700007)?
 	url := fmt.Sprintf("https://ow-api.com/v1/stats/%s/%s/%s/heroes/complete",
 		payload.Platform, payload.Region, payload.BattleTag)
 	resp, err := b.Get(url)
@@ -70,7 +70,7 @@ func (b* Blizzard) ValidateBattleUser(payload *models.Overwatch) error {
 	return nil
 }
 
-// GetBlizzardPlaytime gets playtime for Public Overwatch profiles
+// GetBlizzardPlaytime gets playtime for PUBLIC Overwatch profiles
 func (b *Blizzard) GetBlizzardPlaytime(payload *models.Overwatch) (*models.Game, error) {
 	logrus.Debugf("GetBlizzardPlaytime")
 	url := fmt.Sprintf("https://ow-api.com/v1/stats/%s/%s/%s/heroes/complete",
@@ -91,7 +91,7 @@ func (b *Blizzard) GetBlizzardPlaytime(payload *models.Overwatch) (*models.Game,
 		return gameStats, nil
 	}
 
-	// returns error
+	// returns error if no request returned valid response
 	return nil, fmt.Errorf("no acceptable response from OW-api")
 }
 
@@ -99,7 +99,7 @@ func (b *Blizzard) GetBlizzardPlaytime(payload *models.Overwatch) (*models.Game,
 func (b *Blizzard) queryAPI(payload *models.Overwatch, url string) (*models.Game, error) {
 	var gameTime models.BlizzardResp
 
-	// Gets statistics from the BATTLE-ID provided
+	// Gets statistics from the battle tag provided
 	resp, err := b.Get(url)
 	if err != nil {
 		logrus.WithError(err).Warn("getter error")
@@ -129,9 +129,7 @@ func (b *Blizzard) queryAPI(payload *models.Overwatch, url string) (*models.Game
 		return nil, err
 	}
 
-	logrus.Debugf("time: %d", int((quickTime + compTime) / time.Hour))
-
-	// returns Game struct
+	// returns *Game struct
 	return &models.Game{
 		Name:    "Overwatch",
 		Time:    int((quickTime + compTime) / time.Hour)}, nil

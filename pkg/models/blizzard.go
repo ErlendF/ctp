@@ -25,7 +25,7 @@ type CareerStats struct {
 	} `json:"allHeroes"`
 }
 
-// Overwatch struct contains users BATTLE-ID and total playtime
+// Overwatch struct contains users battle tag and total playtime
 type Overwatch struct {
 	BattleTag      string        `json:"battleTag" firebase:"battleTag"`
 	Platform       string        `json:"platform" firebase:"platform"`
