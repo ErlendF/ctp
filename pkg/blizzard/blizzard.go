@@ -22,7 +22,7 @@ func New(getter models.Getter) *Blizzard {
 }
 
 //GetBlizzardPlaytime gets playtime for Public Overwatch profiles
-func (b *Blizzard) GetBlizzardPlaytime(payload *models.Overwatch) (*models.Overwatch, error) {
+func (b *Blizzard) GetBlizzardPlaytime(payload *models.Overwatch) (*models.Game, error) {
 	logrus.Debugf("GetBlizzardPlaytime")
 	url := fmt.Sprintf("https://ow-api.com/v1/stats/%s/%s/%s/heroes/complete",
 		payload.Platform, payload.Region, payload.ID)
@@ -38,7 +38,9 @@ func (b *Blizzard) GetBlizzardPlaytime(payload *models.Overwatch) (*models.Overw
 			continue // try again....
 		}
 		// if it got time values from api -> continue code
-		return gameStats, nil
+		return &models.Game{
+			Name:    "Overwatch",
+			Time:    int(gameStats.Playtime)}, nil
 	}
 
 	// returns error
