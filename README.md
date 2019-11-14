@@ -43,12 +43,6 @@ To login to the application, the user should send a GET request to /api/v1/login
 
 #### API endpoints
 All enpoints start with "/api/v1/", thus the prefix has been omitted from the listing bellow. For the enpoints requiring authentication, the **Authorization** header needs to contain a valid JWT, as specified in the Authentication (usage) section.
-Requires authentication:
-```
-/user         (GET): Returns all information about the user themselves.
-/user        (POST): Updates information about the user themselves.
-/updategames (POST): Fetches new data from the servies registered for the user.
-```
 
 
 No authentication:
@@ -58,6 +52,32 @@ No authentication:
 /user/{username:[a-zA-Z0-9 ]{1,15}} (GET): Get information about a pulbic user with a username.
 ```
 
+
+Requires authentication:
+```
+/user         (GET): Returns all information about the user themselves.
+/user        (POST): Updates information about the user themselves.
+/updategames (POST): Fetches new data from the servies registered for the user.
+```
+
+To update the user information, "/user" endpoint expects the following body for the POST request (values may be replaced, although they are required to be valid):
+```
+{
+	"username": "newUsername",
+	"lol": {
+		"summonerName": "LOPER",
+		"summonerRegion": "EUW1"
+	},
+	"valve": "76561197960434622",
+	"overwatch": {
+		"battleTag": "Onijuan-2670",
+		"platform": "pc",
+		"region": "eu"
+	}
+}
+```
+
+For the "/updategames" path, the request body is ignored.
 
 
 #### Application structure
