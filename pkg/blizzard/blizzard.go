@@ -142,6 +142,7 @@ func nanoTime(strTime string) (time.Duration, error) {
 	absTime := time.Duration(0)
 	parts := strings.Split(strTime, ":")
 
+	// expected time format is "ss" or "mm:ss" or "hr:mm:ss" aka max 3 parts
 	switch len(parts) {
 	case 1:
 		sec, err := strconv.Atoi(parts[0])
