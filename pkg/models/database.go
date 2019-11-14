@@ -9,4 +9,5 @@ type Database interface {
 	UpdateGames(user *User) error
 	SetUsername(user *User) error
 	OverwriteUser(user *User) error
+	DeleteUser(id string) error
 }

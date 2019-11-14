@@ -127,6 +127,22 @@ func (h *handler) getUser(w http.ResponseWriter, r *http.Request) {
 	respond(w, r, resp)
 }
 
+func (h *handler) deleteUser(w http.ResponseWriter, r *http.Request) {
+	id, err := getID(r)
+	if err != nil {
+		logRespond(w, r, err)
+		return
+	}
+
+	err = h.DeleteUser(id)
+	if err != nil {
+		logRespond(w, r, err)
+		return
+	}
+
+	respondPlain(w, r, "Success")
+}
+
 func respond(w http.ResponseWriter, r *http.Request, resp interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 

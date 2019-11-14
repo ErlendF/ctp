@@ -182,3 +182,9 @@ func (db *Database) OverwriteUser(user *models.User) error {
 	_, err := db.Collection(userCol).Doc(user.ID).Set(db.ctx, user)
 	return err
 }
+
+//DeleteUser deletes a user from the database
+func (db *Database) DeleteUser(id string) error {
+	_, err := db.Collection(userCol).Doc(id).Delete(db.ctx)
+	return err
+}
