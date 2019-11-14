@@ -31,16 +31,14 @@ func (b *Blizzard) GetBlizzardPlaytime(payload *models.Overwatch) (*models.Game,
 	for tries := 0; tries < 10; tries++ {
 		gameStats, err := b.queryAPI(payload, url)
 		if err != nil {
-			logrus.WithError(err).Warnf("erroror")
 			if strings.Contains(err.Error(), models.NonOK) {
 				return nil, err
 			}
 			continue // try again....
 		}
-		// if it got time values from api -> continue code
-		return &models.Game{
-			Name:    "Overwatch",
-			Time:    int(gameStats.Playtime)}, nil
+
+		// if it got time values from api -> return Game object
+		return gameStats, nil
 	}
 
 	// returns error
@@ -48,7 +46,7 @@ func (b *Blizzard) GetBlizzardPlaytime(payload *models.Overwatch) (*models.Game,
 }
 
 // queryAPI func returns response from the OverwatchAPI
-func (b *Blizzard) queryAPI(payload *models.Overwatch, url string) (*models.Overwatch, error) {
+func (b *Blizzard) queryAPI(payload *models.Overwatch, url string) (*models.Game, error) {
 	var gameTime models.BlizzardResp
 
 	// Gets statistics from the BATTLE-ID provided
@@ -81,13 +79,10 @@ func (b *Blizzard) queryAPI(payload *models.Overwatch, url string) (*models.Over
 		return nil, err
 	}
 
-	// returns overwatch struct
-	return &models.Overwatch{
-		ID:       payload.ID,
-		Platform: payload.Platform,
-		Region:   payload.Region,
-		Playtime: quickTime + compTime,
-	}, nil
+	// returns Game struct
+	return &models.Game{
+		Name:    "Overwatch",
+		Time:    int((quickTime + compTime) / time.Hour)}, nil
 }
 
 // nanoTime gets a formatted time string and returns it in nanoseconds
