@@ -4,6 +4,7 @@ import (
 	"ctp/pkg/models"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -39,7 +40,7 @@ func (b* Blizzard) ValidateBattleUser(payload *models.Overwatch) error {
 		}
 	}
 	if !pass {
-		return fmt.Errorf(models.ClientError)
+		return fmt.Errorf("non 200 statuscode: %d", http.StatusBadRequest)
 	}
 	pass = false
 
@@ -50,7 +51,7 @@ func (b* Blizzard) ValidateBattleUser(payload *models.Overwatch) error {
 		}
 	}
 	if !pass {
-		return fmt.Errorf(models.ClientError)
+		return fmt.Errorf("non 200 statuscode: %d", http.StatusBadRequest)
 	}
 
 	// check that provided battle tag is correct TODO: make regex (https://us.battle.net/support/en/article/700007)?
@@ -58,7 +59,7 @@ func (b* Blizzard) ValidateBattleUser(payload *models.Overwatch) error {
 		payload.Platform, payload.Region, payload.BattleTag)
 	resp, err := b.Get(url)
 	if err != nil {
-		return fmt.Errorf(models.ClientError)
+		return fmt.Errorf("non 200 statuscode: %d", http.StatusBadRequest)
 	}
 	defer resp.Body.Close()
 
