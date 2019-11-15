@@ -46,14 +46,13 @@ func (r *Riot) GetRiotPlaytime(reg *models.SummonerRegistration) (*models.Game, 
 	req.Header.Set("X-Riot-Token", r.apiKey)
 
 	resp, err := r.Client.Do(req)
-
 	if err != nil {
 		return nil, err
 	}
 
-	if resp.StatusCode != http.StatusOK {
-		logrus.WithField("StatusCode", resp.StatusCode).Warn()
-		return nil, fmt.Errorf(string(resp.StatusCode))
+	if err = models.CheckStatusCode(resp.StatusCode); err != nil {
+		logrus.WithField("StatusCode", resp.StatusCode).Warn("Error getting riot playtime")
+		return nil, err
 	}
 
 	var matches models.MatchList
@@ -110,9 +109,9 @@ func (r *Riot) ValidateSummoner(reg *models.SummonerRegistration) (*models.Summo
 		return nil, err
 	}
 
-	if resp.StatusCode != http.StatusOK {
+	if err = models.CheckStatusCode(resp.StatusCode); err != nil {
 		logrus.WithField("SummonerName", reg.SummonerName).Warn("invalid SummonerName")
-		return nil, fmt.Errorf(string(resp.StatusCode))
+		return nil, err
 	}
 
 	var tmpReg models.SummonerRegistration
