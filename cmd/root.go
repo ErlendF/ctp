@@ -90,7 +90,7 @@ var rootCmd = &cobra.Command{
 		ctxC, cancelC := context.WithCancel(ctx)
 		defer cancelC()
 
-		auth, err := auth.New(ctxC, config.port, config.domain, clientID, clientSecret, hmacSecret)
+		auth, err := auth.New(ctxC, config.port, config.domain, clientID, clientSecret, hmacSecret, db)
 		if err != nil {
 			logrus.WithError(err).Fatalf("Unable to get new Authenticator:%s", err)
 		}

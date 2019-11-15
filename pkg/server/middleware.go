@@ -33,6 +33,20 @@ func (m *middleware) auth(next http.Handler) http.Handler {
 			return
 		}
 
+		// Checking whether or not the user exists in the database.
+		// A user can have a valid token, but not exist in the database if they have deleted their account
+		validUser, err := m.IsUser(id)
+		if err != nil {
+			logrus.WithError(err).Warn("error getting user from database")
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+		if !validUser {
+			logrus.Warn("non-existing user with valid token tried to login")
+			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+			return
+		}
+
 		k := ctxKey("id")
 		ctx := context.WithValue(r.Context(), k, id)
 

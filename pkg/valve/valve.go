@@ -47,7 +47,7 @@ func (v *Valve) GetValvePlaytime(ID string) ([]models.Game, error) {
 	for _, game := range valvegames.Response.Games {
 		var tmpGame models.Game
 		tmpGame.Name = game.Name
-		tmpGame.Time = game.PlaytimeForever
+		tmpGame.Time = game.PlaytimeForever / 60
 		tmpGame.ValveID = game.Appid
 
 		if tmpGame.Time != 0 {

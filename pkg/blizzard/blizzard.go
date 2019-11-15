@@ -23,7 +23,7 @@ func New(getter models.Getter) *Blizzard {
 }
 
 // ValidateBattleUser func validates a users input to *Game Overwatch
-func (b* Blizzard) ValidateBattleUser(payload *models.Overwatch) error {
+func (b *Blizzard) ValidateBattleUser(payload *models.Overwatch) error {
 	logrus.Debug("ValidateBattleUser()")
 	if payload == nil {
 		return fmt.Errorf("no registration")
@@ -132,8 +132,8 @@ func (b *Blizzard) queryAPI(payload *models.Overwatch, url string) (*models.Game
 
 	// returns *Game struct
 	return &models.Game{
-		Name:    "Overwatch",
-		Time:    int((quickTime + compTime) / time.Hour)}, nil
+		Name: "Overwatch",
+		Time: int((quickTime + compTime).Hours())}, nil
 }
 
 // nanoTime gets a formatted time string and returns it in nanoseconds

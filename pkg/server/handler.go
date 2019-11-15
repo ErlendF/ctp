@@ -127,6 +127,22 @@ func (h *handler) getUser(w http.ResponseWriter, r *http.Request) {
 	respond(w, r, resp)
 }
 
+func (h *handler) deleteUser(w http.ResponseWriter, r *http.Request) {
+	id, err := getID(r)
+	if err != nil {
+		logRespond(w, r, err)
+		return
+	}
+
+	err = h.DeleteUser(id)
+	if err != nil {
+		logRespond(w, r, err)
+		return
+	}
+
+	respondPlain(w, r, "Success")
+}
+
 func respond(w http.ResponseWriter, r *http.Request, resp interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -161,6 +177,8 @@ func logRespond(w http.ResponseWriter, r *http.Request, err error) {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 	case models.CheckNotFound(err):
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+	case err.Error() == models.ClientError:
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 
 	// assuming client errors to external APIs are caused by bad user input
 	case models.GetHTTPErrorClass(err) == models.ClientError:
@@ -171,6 +189,7 @@ func logRespond(w http.ResponseWriter, r *http.Request, err error) {
 	// invalid request body where input was expected
 	case err == io.EOF:
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+
 	default:
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 	}

@@ -20,6 +20,7 @@ func newRouter(h *handler, mw *middleware) *mux.Router {
 	auth := r.PathPrefix("/api/v1/").Subrouter()
 	auth.HandleFunc("/user", h.getUser).Methods(http.MethodGet).Name("getUser")
 	auth.HandleFunc("/user", h.updateUser).Methods(http.MethodPost).Name("updateUser")
+	auth.HandleFunc("/user", h.deleteUser).Methods(http.MethodDelete).Name("deleteUser")
 	auth.HandleFunc("/updategames", h.updateGames).Methods(http.MethodPost).Name("updateGames")
 
 	get.Use(mw.log)

@@ -18,13 +18,13 @@ const trim = "non 200 statuscode: "
 //InvalidAuthState defines the error returned if the state for the authenticaiton request does not match the state stored in the cookie
 const InvalidAuthState = "Invalid state"
 
-//NotFound defines the error returned if a resource could not be found
+//NotFound (404) defines the error returned if a resource could not be found
 const NotFound = "NotFound"
 
-//ClientError indicates the error was caused by the client
+//ClientError (4xx) indicates the error was caused by the client
 const ClientError = "Client error"
 
-//ServerError indicates the error was caused by something on the serverside
+//ServerError (5xx) indicates the error was caused by something on the serverside
 const ServerError = "Server error"
 
 //CheckStatusCode checks the status code and returns an error if it is not 200

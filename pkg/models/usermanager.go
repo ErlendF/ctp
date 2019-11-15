@@ -7,6 +7,7 @@ type UserManager interface {
 	GetUserByID(id string) (*User, error)
 	GetUserByName(username string) (*User, error)
 	SetUser(user *User) error
+	DeleteUser(id string) error
 	UpdateGames(id string) error
 	Redirect(w http.ResponseWriter, r *http.Request)
 	AuthCallback(w http.ResponseWriter, r *http.Request) (string, error)

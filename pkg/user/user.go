@@ -68,10 +68,14 @@ func (m *Manager) SetUser(user *models.User) error {
 		}
 	}
 
-
 	//TODO: validate steam and other ids or registrations
 
 	return m.db.UpdateUser(user)
+}
+
+//DeleteUser deletes the user with the given id
+func (m *Manager) DeleteUser(id string) error {
+	return m.db.DeleteUser(id)
 }
 
 //UpdateGames updates all games the user has registered
