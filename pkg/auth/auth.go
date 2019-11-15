@@ -20,13 +20,14 @@ type Authenticator struct {
 	config     oauth2.Config
 	verifier   *oidc.IDTokenVerifier
 	hmacSecret []byte
+	uv         models.UserValidator
 }
 
 const stateCookie = "oauthstate"
 
 //New returns a new authenticator
-func New(ctx context.Context, port int, domain string, clientID string, clientSecret string, hmacSecret string) (*Authenticator, error) {
-	authenticator := &Authenticator{ctx: ctx}
+func New(ctx context.Context, port int, domain string, clientID string, clientSecret string, hmacSecret string, uv models.UserValidator) (*Authenticator, error) {
+	authenticator := &Authenticator{ctx: ctx, uv: uv}
 
 	provider, err := oidc.NewProvider(ctx, "https://accounts.google.com")
 	if err != nil {
@@ -97,6 +98,11 @@ func (a *Authenticator) HandleOAuth2Callback(w http.ResponseWriter, r *http.Requ
 		return "", err
 	}
 	return claims.Sub, nil
+}
+
+//IsUser checks wether or not the provided user exisits in the database
+func (a *Authenticator) IsUser(id string) (bool, error) {
+	return a.uv.IsUser(id)
 }
 
 // makes a random

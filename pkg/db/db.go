@@ -188,3 +188,16 @@ func (db *Database) DeleteUser(id string) error {
 	_, err := db.Collection(userCol).Doc(id).Delete(db.ctx)
 	return err
 }
+
+//IsUser checks wether or not the provided user exisits in the database
+func (db *Database) IsUser(id string) (bool, error) {
+	_, err := db.Collection(userCol).Doc(id).Get(db.ctx)
+	if err != nil {
+		if status.Code(err) == codes.NotFound {
+			return false, nil
+		}
+		return false, err
+	}
+
+	return true, nil
+}

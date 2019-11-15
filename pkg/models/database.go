@@ -11,3 +11,9 @@ type Database interface {
 	OverwriteUser(user *User) error
 	DeleteUser(id string) error
 }
+
+// UserValidator defines the function "IsUser", which checks
+// whether or not the given id is a valid user stored in the database
+type UserValidator interface {
+	IsUser(id string) (bool, error)
+}
