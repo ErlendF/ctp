@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"ctp/pkg/models"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -35,7 +36,22 @@ type respSetup struct {
 }
 
 func TestBlizzard_ValidateBattleUser(t *testing.T) {
+	var test = map[models.Overwatch]error{ // TODO: make error messages consts/line up with 1.13
+		models.Overwatch{BattleTag:"Onijuan-2670", Platform:"pc", Region:"eu",}: nil,
+		models.Overwatch{BattleTag:"Onyoo-7567", Platform:"pc", Region:"eu",}: fmt.Errorf("invalid name"),
+		models.Overwatch{BattleTag:"Onijuan-2670", Platform:"pc", Region:"pc",}: fmt.Errorf("invalid region"),
+		models.Overwatch{BattleTag:"Onijuan-2670", Platform:"eu", Region:"eu",}: fmt.Errorf("invalid platform"),
+	}
 
+	getter := &mockBlizzard{}
+	ow := New(getter)
+
+	for k, v := range test {
+		err := ow.ValidateBattleUser(&k)
+		if err != v {
+			t.Errorf("Unexpected error: |%+v| -> |%+v|", &k, err)
+		}
+	}
 }
 
 func TestBlizzard_GetBlizzardPlaytime(t *testing.T) {
@@ -54,7 +70,6 @@ func TestBlizzard_GetBlizzardPlaytime(t *testing.T) {
 	} // TODO: add more test-cases
 
 	getter := &mockBlizzard{}
-
 	ow := New(getter)
 
 	for _, item := range testcase {
