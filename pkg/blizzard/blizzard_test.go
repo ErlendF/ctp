@@ -20,6 +20,9 @@ func (m *mockBlizzard) Get(url string) (*http.Response, error){
 		return nil, m.setup.err
 	}
 	resp := &http.Response{StatusCode:http.StatusOK, Header:make(http.Header, 0)}
+	if !strings.Contains(url, "Onijuan-2670") {
+		resp.StatusCode = http.StatusNotFound
+	}
 	body, err := json.Marshal(m.setup.resp)
 	if err != nil {
 		return nil, err
