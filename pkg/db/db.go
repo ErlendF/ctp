@@ -3,6 +3,7 @@ package db
 import (
 	"ctp/pkg/models"
 	"errors"
+	"github.com/sirupsen/logrus"
 
 	"cloud.google.com/go/firestore"
 	"github.com/fatih/structs"
@@ -153,6 +154,34 @@ func (db *Database) UpdateGames(user *models.User) error {
 		{Path: "games", Value: user.Games},
 	})
 
+	if err != nil{
+		return err
+	}
+
+	err = db.UpdateTotalGameTime(user.ID)
+
+	return err
+}
+
+
+//UpdateGames updates the totalgametime for the given user
+func (db *Database) UpdateTotalGameTime(Id string) error {
+	user, err := db.GetUserByID(Id)
+	if err != nil {
+		return err
+	}
+
+	logrus.Debugf("UpdateTotalGameTime")
+
+	totalGameTime := 0
+
+	for _, game := range user.Games {
+		totalGameTime += game.Time
+	}
+
+	_, err = db.Collection(userCol).Doc(Id).Update(db.ctx, []firestore.Update{
+		{Path: "totalGameTime", Value: totalGameTime},
+	})
 	return err
 }
 
