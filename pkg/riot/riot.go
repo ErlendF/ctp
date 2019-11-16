@@ -69,18 +69,8 @@ func (r *Riot) ValidateSummoner(reg *models.SummonerRegistration) (*models.Summo
 	}
 
 	var regions = []string{"RU", "KR", "BR1", "OC1", "JP1", "NA1", "EUN1", "EUW1", "TR1", "LA1", "LA2"}
-	// var err error
 
-	validRegion := false
-
-	//Validating region
-	for _, r := range regions {
-		if r == reg.SummonerRegion {
-			validRegion = true
-		}
-	}
-
-	if !validRegion {
+	if models.Contains(regions, reg.SummonerRegion) {
 		return nil, models.NewReqErrStr(fmt.Sprintf("invalid summoner region: %s", reg.SummonerRegion), "invalid region for League of Legends")
 	}
 

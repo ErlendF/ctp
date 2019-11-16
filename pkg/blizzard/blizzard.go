@@ -22,6 +22,9 @@ func New(getter models.Getter) *Blizzard {
 	return &Blizzard{getter}
 }
 
+// errInvalidTimePlayed is used to indicate to try the request again
+var errInvalidTimePlayed = errors.New("invalid time played in response")
+
 // ValidateBattleUser func validates a users input to *Game Overwatch
 func (b *Blizzard) ValidateBattleUser(payload *models.Overwatch) error {
 	logrus.Debug("ValidateBattleUser()")
@@ -29,28 +32,14 @@ func (b *Blizzard) ValidateBattleUser(payload *models.Overwatch) error {
 		return errors.New("no payload to ValidateBattleUser")
 	}
 
-	pass := false
-	var region = []string{"us", "eu", "asia"}
-	var platform = []string{"pc", "etc"} //("switch", "xbox", "ps4")? //TODO: validate platforms against api(?)
+	var regions = []string{"us", "eu", "asia"}
+	var platforms = []string{"pc", "switch", "xbox", "ps4"}
 
-	// checks that region is a-ok
-	for _, reg := range region {
-		if payload.Region == reg {
-			pass = true
-		}
-	}
-	if !pass {
+	if !models.Contains(regions, payload.Region) {
 		return models.NewReqErrStr("invalid Overwatch region", "invalid region for Overwatch account")
 	}
-	pass = false
 
-	// checks that platform is okey dokey
-	for _, plat := range platform {
-		if payload.Platform == plat {
-			pass = true
-		}
-	}
-	if !pass {
+	if !models.Contains(platforms, payload.Platform) {
 		return models.NewReqErrStr("invalid Overwatch platform", "invalid platform for Overwatch account")
 	}
 
@@ -81,11 +70,14 @@ func (b *Blizzard) GetBlizzardPlaytime(payload *models.Overwatch) (*models.Game,
 	for tries := 0; tries < 10; tries++ {
 		gameStats, err := b.queryAPI(payload, url)
 		if err != nil {
-			logrus.WithError(err).Warn("trying again")
+			if err != errInvalidTimePlayed {
+				return nil, models.NewAPIErr(err, "Blizzard")
+			}
+
 			continue // try again....
 		}
 
-		// if it got time values from api -> return Game object
+		// got valid time values, thus returning Game object
 		return gameStats, nil
 	}
 
@@ -113,6 +105,9 @@ func (b *Blizzard) queryAPI(payload *models.Overwatch, url string) (*models.Game
 	err = json.NewDecoder(resp.Body).Decode(&gameTime)
 	if err != nil {
 		return nil, models.NewAPIErr(err, "Blizzard")
+	}
+	if gameTime.QuickPlayStats.CareerStats.AllHeroes.Game.TimePlayed == "" || gameTime.CompetitiveStats.CareerStats.AllHeroes.Game.TimePlayed == "" {
+		return nil, errInvalidTimePlayed
 	}
 
 	// Converts the returned strings to int64 (time.Duration)
