@@ -94,7 +94,7 @@ func (r *Riot) ValidateSummoner(reg *models.SummonerRegistration) (*models.Summo
 		return nil, models.NewAPIErr(err, "Riot")
 	}
 
-	if err = models.CheckStatusCode(resp.StatusCode, "Riot", "invalid username for League of Legends"); err != nil {
+	if err = models.AccValStatusCode(resp.StatusCode, "Riot", "invalid username for League of Legends"); err != nil {
 		return nil, err
 	}
 
