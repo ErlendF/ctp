@@ -70,7 +70,7 @@ func (b *Blizzard) GetBlizzardPlaytime(payload *models.Overwatch) (*models.Game,
 	for tries := 0; tries < 10; tries++ {
 		gameStats, err := b.queryAPI(payload, url)
 		if err != nil {
-			if err != errInvalidTimePlayed {
+			if !errors.Is(err, errInvalidTimePlayed) {
 				return nil, models.NewAPIErr(err, "Blizzard")
 			}
 
