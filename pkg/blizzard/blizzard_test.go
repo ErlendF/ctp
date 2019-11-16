@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"ctp/pkg/models"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -36,20 +35,27 @@ type respSetup struct {
 }
 
 func TestBlizzard_ValidateBattleUser(t *testing.T) {
-	var test = map[models.Overwatch]error{ // TODO: make error messages consts/line up with 1.13
-		models.Overwatch{BattleTag:"Onijuan-2670", Platform:"pc", Region:"eu",}: nil,
-		models.Overwatch{BattleTag:"Onyoo-7567", Platform:"pc", Region:"eu",}: fmt.Errorf("invalid name"),
-		models.Overwatch{BattleTag:"Onijuan-2670", Platform:"pc", Region:"pc",}: fmt.Errorf("invalid region"),
-		models.Overwatch{BattleTag:"Onijuan-2670", Platform:"eu", Region:"eu",}: fmt.Errorf("invalid platform"),
+	var test = map[*models.Overwatch]string{ // TODO: make error messages consts/line up with 1.13
+		&models.Overwatch{BattleTag:"Onijuan-2670", Platform:"pc", Region:"eu",}: "",
+		&models.Overwatch{BattleTag:"Onyoooo-7567", Platform:"pc", Region:"eu",}: "invalid Blizzard battle tag, platform or region",
+		&models.Overwatch{BattleTag:"Onijuan-2670", Platform:"pc", Region:"pc",}: "invalid Overwatch region",
+		&models.Overwatch{BattleTag:"Onijuan-2670", Platform:"eu", Region:"eu",}: "invalid Overwatch platform",
+		nil:"no payload to ValidateBattleUser",
 	}
 
 	getter := &mockBlizzard{}
 	ow := New(getter)
 
 	for k, v := range test {
-		err := ow.ValidateBattleUser(&k)
-		if err != v {
-			t.Errorf("Unexpected error: |%+v| -> |%+v|", &k, err)
+		err := ow.ValidateBattleUser(k)
+		if err != nil {
+			if !strings.Contains(err.Error(), v) {
+				t.Errorf("Not correct error: |%+v| -- expected |%s|", err, v)
+			}
+		} else {
+			if len(v) > 0 {
+				t.Errorf("Expected error: |%s|", v)
+			}
 		}
 	}
 }
