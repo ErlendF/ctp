@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"ctp/pkg/models"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strings"
 	"testing"
@@ -26,6 +26,7 @@ func (m *mockBlizzard) Get(url string) (*http.Response, error){
 		return nil, err
 	}
 	resp.Body = ioutil.NopCloser(bytes.NewReader(body))
+	log.Printf("resp.Body: %+v", m.setup.resp)
 	return resp, nil
 }
 
@@ -63,23 +64,41 @@ func TestBlizzard_GetBlizzardPlaytime(t *testing.T) {
 		payload       *models.Overwatch
 		cTime         string
 		qTime         string
+		fullTime      int
 		expectedError error
 	}{
-		{"Test OK",&models.Overwatch{BattleTag: "Onijuan-2670", Platform:  "", Region:    ""}, "","",fmt.Errorf("")},
-		{"Test ",&models.Overwatch{BattleTag: "Onijuan-2670", Platform:  "", Region:    ""}, "","",fmt.Errorf("")},
-		{"Test ",&models.Overwatch{BattleTag: "Onijuan-2670", Platform:  "", Region:    ""}, "","",fmt.Errorf("")},
-		{"Test ",&models.Overwatch{BattleTag: "Onijuan-2670", Platform:  "", Region:    ""}, "","",fmt.Errorf("")},
-	}
+		{"Test OK",&models.Overwatch{BattleTag: "Onijuan-2670", Platform:  "pc", Region:    "eu"}, "0:0:0","0:0:0",0,nil},
+		//{"Test ",&models.Overwatch{BattleTag: "Onijuan-2670", Platform:  "pc", Region:    "eu"}, "","",0,fmt.Errorf("")},
+		//{"Test ",&models.Overwatch{BattleTag: "Onijuan-2670", Platform:  "pc", Region:    "eu"}, "","",0,fmt.Errorf("")},
+		//{"Test ",&models.Overwatch{BattleTag: "Onijuan-2670", Platform:  "pc", Region:    "eu"}, "","",0,fmt.Errorf("")},
+	} // TODO: add more test-cases
 
-	//client := &mockBlizzard{}
-	//ow := New(client)
+	getter := &mockBlizzard{}
+
+	ow := New(getter)
 
 	for _, item := range testcase {
 		t.Run(item.name, func(t *testing.T){
 
-			setup := respSetup{}
+			setup := &respSetup{}
 			setup.resp.CompetitiveStats.CareerStats.AllHeroes.Game.TimePlayed = item.cTime
 			setup.resp.QuickPlayStats.CareerStats.AllHeroes.Game.TimePlayed = item.qTime
+			getter.setup = *setup
+
+			// TODO: add more checks
+			gem, err := ow.GetBlizzardPlaytime(item.payload)
+			if err != item.expectedError {
+				t.Errorf("Big error from test yes... |%v| != |%v|", err, item.expectedError)
+				return
+			}
+
+			if err == nil {
+				if gem.Time != item.fullTime {
+					t.Errorf("Wrong time sum... |%s, %s| -> |%d|", item.cTime, item.qTime, item.fullTime)
+				}
+			}
+
+
 
 
 
