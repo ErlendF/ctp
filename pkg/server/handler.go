@@ -40,6 +40,7 @@ func (h *handler) getPublicUser(w http.ResponseWriter, r *http.Request) {
 		logRespond(w, r, err)
 		return
 	}
+	resp.Public = false // as the user has to be public, this information is not useful
 
 	respond(w, r, resp)
 }

@@ -3,6 +3,7 @@ package db
 import (
 	"ctp/pkg/models"
 	"errors"
+
 	"github.com/sirupsen/logrus"
 
 	"cloud.google.com/go/firestore"
@@ -78,7 +79,7 @@ func (db *Database) GetUserByID(id string) (*models.User, error) {
 
 //GetUserByName gets a user by name
 func (db *Database) GetUserByName(name string) (*models.User, error) {
-	docs, err := db.Collection(userCol).Where("name", "==", name).Documents(db.ctx).GetAll()
+	docs, err := db.Collection(userCol).Where("name", "==", name).Where("public", "==", true).Documents(db.ctx).GetAll()
 	if err != nil {
 		if status.Code(err) != codes.NotFound {
 			return nil, models.ErrNotFound
@@ -154,7 +155,7 @@ func (db *Database) UpdateGames(user *models.User) error {
 		{Path: "games", Value: user.Games},
 	})
 
-	if err != nil{
+	if err != nil {
 		return err
 	}
 
@@ -163,10 +164,9 @@ func (db *Database) UpdateGames(user *models.User) error {
 	return err
 }
 
-
-//UpdateGames updates the totalgametime for the given user
-func (db *Database) UpdateTotalGameTime(Id string) error {
-	user, err := db.GetUserByID(Id)
+//UpdateTotalGameTime updates the totalgametime for the given user
+func (db *Database) UpdateTotalGameTime(id string) error {
+	user, err := db.GetUserByID(id)
 	if err != nil {
 		return err
 	}
@@ -179,7 +179,7 @@ func (db *Database) UpdateTotalGameTime(Id string) error {
 		totalGameTime += game.Time
 	}
 
-	_, err = db.Collection(userCol).Doc(Id).Update(db.ctx, []firestore.Update{
+	_, err = db.Collection(userCol).Doc(id).Update(db.ctx, []firestore.Update{
 		{Path: "totalGameTime", Value: totalGameTime},
 	})
 	return err
