@@ -42,7 +42,9 @@ func (a *Authenticator) ValidateToken(tokenString string) (string, error) {
 	if !ok {
 		return "", errors.New("invalid id for token")
 	}
+
 	id, ok := idClaim.(string)
+
 	if !ok {
 		return "", errors.New("invalid id for token")
 	}

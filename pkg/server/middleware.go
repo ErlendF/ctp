@@ -22,7 +22,7 @@ func newMiddleware(val models.TokenValidator) *middleware {
 	return &middleware{val}
 }
 
-// auth validates recieved token and passes the id to handlers by request context
+// auth validates received token and passes the id to handlers by request context
 func (m *middleware) auth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		token := r.Header.Get("Authorization")
@@ -55,7 +55,7 @@ func (m *middleware) auth(next http.Handler) http.Handler {
 	})
 }
 
-// log logs requests recieved with the routename
+// log logs requests received with the routeName
 func (m *middleware) log(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		logrus.WithFields(logrus.Fields{"route": mux.CurrentRoute(r).GetName()}).Debugf("Request received")

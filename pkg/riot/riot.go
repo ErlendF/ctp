@@ -19,6 +19,7 @@ type Riot struct {
 func New(client models.Client, apiKey string) *Riot {
 	r := &Riot{apiKey: apiKey}
 	r.Client = client
+
 	return r
 }
 
@@ -64,6 +65,7 @@ func (r *Riot) GetRiotPlaytime(reg *models.SummonerRegistration) (*models.Game, 
 	duration := matches.TotalGames * 35 / 60
 
 	game := &models.Game{Name: "LeagueOfLegends", Time: duration}
+
 	return game, nil
 }
 

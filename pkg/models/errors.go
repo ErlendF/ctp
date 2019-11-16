@@ -43,7 +43,7 @@ var ErrNotFound = errors.New("not found")
 // ErrInvalidID indicates the id is invalid and should not be accepted
 var ErrInvalidID = errors.New("invalid id")
 
-// ErrInvalidAuthState defines the error returned if the state for the authenticaiton request does not match the state stored in the cookie
+// ErrInvalidAuthState defines the error returned if the state for the authentication request does not match the state stored in the cookie
 var ErrInvalidAuthState = errors.New("invalid authorization state")
 
 // NewReqErrStr returns a new request error with the given error message and response message

@@ -53,6 +53,7 @@ func (db *Database) CreateUser(user *models.User) error {
 	if err != nil && status.Code(err) != codes.AlreadyExists {
 		return err
 	}
+
 	return nil
 }
 
@@ -86,6 +87,7 @@ func (db *Database) GetUserByName(name string) (*models.User, error) {
 		if status.Code(err) != codes.NotFound {
 			return nil, models.ErrNotFound
 		}
+
 		return nil, err
 	}
 
@@ -98,6 +100,7 @@ func (db *Database) GetUserByName(name string) (*models.User, error) {
 	}
 
 	data := docs[0].Data()
+
 	var user models.User
 
 	err = mapstructure.Decode(data, &user)
@@ -111,7 +114,6 @@ func (db *Database) GetUserByName(name string) (*models.User, error) {
 //UpdateUser updates the relevant fields of the user
 //checks for empty values
 func (db *Database) UpdateUser(user *models.User) error {
-
 	user.Name = "" // username and games are updated by dedicated functions
 	user.Games = nil
 
@@ -125,6 +127,7 @@ func (db *Database) UpdateUser(user *models.User) error {
 	}
 
 	_, err := db.Collection(userCol).Doc(user.ID).Set(db.ctx, m, firestore.MergeAll)
+
 	return err
 }
 
@@ -189,6 +192,7 @@ func (db *Database) UpdateTotalGameTime(id string) error {
 	_, err = db.Collection(userCol).Doc(id).Update(db.ctx, []firestore.Update{
 		{Path: "totalGameTime", Value: totalGameTime},
 	})
+
 	return err
 }
 
@@ -233,6 +237,7 @@ func (db *Database) IsUser(id string) (bool, error) {
 		if status.Code(err) == codes.NotFound {
 			return false, nil
 		}
+
 		return false, err
 	}
 
