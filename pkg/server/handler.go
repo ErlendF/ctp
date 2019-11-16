@@ -18,8 +18,6 @@ type handler struct {
 	models.UserManager
 }
 
-const invalidID = "Invalid id"
-
 //newHandler returns handler
 func newHandler(um models.UserManager) *handler {
 	return &handler{um}
@@ -40,6 +38,7 @@ func (h *handler) getPublicUser(w http.ResponseWriter, r *http.Request) {
 		logRespond(w, r, err)
 		return
 	}
+
 	resp.Public = false // as the user has to be public, this information is not useful
 
 	respond(w, r, resp)
@@ -64,6 +63,7 @@ func (h *handler) authCallbackHandler(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
+
 	respondPlain(w, r, resp)
 }
 
@@ -80,8 +80,10 @@ func (h *handler) updateUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		err = models.NewReqErr(err, "invalid request body")
 		logRespond(w, r, err)
+
 		return
 	}
+
 	user.ID = id
 
 	// ignoring fields the user should not be allowed to update manually
@@ -159,7 +161,7 @@ func respond(w http.ResponseWriter, r *http.Request, resp interface{}) {
 }
 
 func respondPlain(w http.ResponseWriter, r *http.Request, resp string) {
-	_, err := fmt.Fprintf(w, resp)
+	_, err := fmt.Fprint(w, resp)
 	if err != nil {
 		logrus.WithError(err).WithField("route", mux.CurrentRoute(r).GetName()).Warn("Could not encode response")
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -172,7 +174,9 @@ func logRespond(w http.ResponseWriter, r *http.Request, err error) {
 	logrus.WithField("route", mux.CurrentRoute(r).GetName()).Warn(err)
 
 	var reqErr *models.RequestError
+
 	var apiErr *models.ExternalAPIError
+
 	switch {
 	case errors.Is(err, models.ErrInvalidID):
 		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
@@ -195,6 +199,7 @@ func (h *handler) notFound(w http.ResponseWriter, r *http.Request) {
 func getID(r *http.Request) (string, error) {
 	id := r.Context().Value(ctxKey("id"))
 	idStr, ok := id.(string)
+
 	if !ok {
 		return "", models.ErrInvalidID
 	}

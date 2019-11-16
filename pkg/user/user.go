@@ -21,6 +21,7 @@ type Manager struct {
 func New(db models.Database, organizer models.Organizer) *Manager {
 	m := &Manager{db: db}
 	m.Organizer = organizer
+
 	return m
 }
 
@@ -114,6 +115,7 @@ func (m *Manager) UpdateGames(id string) error {
 	}
 
 	var updatedGames []models.Game
+
 	if user.Lol != nil {
 		lolGame, err := m.GetRiotPlaytime(user.Lol)
 		if err != nil {
@@ -129,6 +131,7 @@ func (m *Manager) UpdateGames(id string) error {
 		if err != nil {
 			return err
 		}
+
 		updatedGames = append(updatedGames, *ow)
 	}
 
@@ -137,6 +140,7 @@ func (m *Manager) UpdateGames(id string) error {
 		if err != nil {
 			return err
 		}
+
 		updatedGames = append(games, updatedGames...)
 	}
 
@@ -199,6 +203,7 @@ func (m *Manager) JohanTestFunc() {
 		logrus.WithError(err).Debug("Could not get user!")
 		return
 	}
+
 	tmpUser.Lol = tmpUser2.Lol
 
 	err = m.db.OverwriteUser(&tmpUser)
@@ -227,6 +232,7 @@ func (m *Manager) JohanTestFunc() {
 		logrus.WithError(err).Warn("Valve playtime failed!")
 		return
 	}
+
 	games = append(games, *game)
 	tmpUser3.Games = games
 
@@ -241,7 +247,8 @@ func (m *Manager) JohanTestFunc() {
 func validateUserName(name string) error {
 	re := regexp.MustCompile("^[a-zA-Z0-9 ]{1,15}$")
 	if !re.MatchString(name) {
-		return errors.New("Invalid username")
+		return errors.New("invalid username")
 	}
+
 	return nil
 }

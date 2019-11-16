@@ -23,9 +23,11 @@ func New(getter models.Getter, apiKey string) *Valve {
 }
 
 //GetValvePlaytime gets playtime on steam for specified game
-func (v *Valve) GetValvePlaytime(ID string) ([]models.Game, error) {
+func (v *Valve) GetValvePlaytime(id string) ([]models.Game, error) {
 	logrus.Debug("GetSteamPlaytime")
-	resp, err := v.Get(fmt.Sprintf("http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=%s&format=json&steamid=%s&include_appinfo=true", v.apiKey, ID))
+
+	resp, err := v.Get(fmt.Sprintf("http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=%s&format=json&steamid=%s&include_appinfo=true", v.apiKey, id))
+
 	if err != nil {
 		return nil, err
 	}

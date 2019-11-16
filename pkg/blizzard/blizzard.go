@@ -28,11 +28,13 @@ var errInvalidTimePlayed = errors.New("invalid time played in response")
 // ValidateBattleUser func validates a users input to *Game Overwatch
 func (b *Blizzard) ValidateBattleUser(payload *models.Overwatch) error {
 	logrus.Debug("ValidateBattleUser()")
+
 	if payload == nil {
 		return errors.New("no payload to ValidateBattleUser")
 	}
 
 	var regions = []string{"us", "eu", "asia"}
+
 	var platforms = []string{"pc", "switch", "xbox", "ps4"}
 
 	if !models.Contains(regions, payload.Region) {
@@ -47,6 +49,7 @@ func (b *Blizzard) ValidateBattleUser(payload *models.Overwatch) error {
 	url := fmt.Sprintf("https://ow-api.com/v1/stats/%s/%s/%s/heroes/complete",
 		payload.Platform, payload.Region, payload.BattleTag)
 	resp, err := b.Get(url)
+
 	if err != nil {
 		return models.NewAPIErr(err, "Blizzard")
 	}
@@ -63,12 +66,13 @@ func (b *Blizzard) ValidateBattleUser(payload *models.Overwatch) error {
 // GetBlizzardPlaytime gets playtime for PUBLIC Overwatch profiles
 func (b *Blizzard) GetBlizzardPlaytime(payload *models.Overwatch) (*models.Game, error) {
 	logrus.Debugf("GetBlizzardPlaytime")
+
 	url := fmt.Sprintf("https://ow-api.com/v1/stats/%s/%s/%s/heroes/complete",
 		payload.Platform, payload.Region, payload.BattleTag)
 
 	// Tries to get a response from unreliable api
 	for tries := 0; tries < 10; tries++ {
-		gameStats, err := b.queryAPI(payload, url)
+		gameStats, err := b.queryAPI(url)
 		if err != nil {
 			if !errors.Is(err, errInvalidTimePlayed) {
 				return nil, models.NewAPIErr(err, "Blizzard")
@@ -86,7 +90,7 @@ func (b *Blizzard) GetBlizzardPlaytime(payload *models.Overwatch) (*models.Game,
 }
 
 // queryAPI func returns response from the OverwatchAPI
-func (b *Blizzard) queryAPI(payload *models.Overwatch, url string) (*models.Game, error) {
+func (b *Blizzard) queryAPI(url string) (*models.Game, error) {
 	var gameTime models.BlizzardResp
 
 	// Gets statistics from the battle tag provided
@@ -106,6 +110,7 @@ func (b *Blizzard) queryAPI(payload *models.Overwatch, url string) (*models.Game
 	if err != nil {
 		return nil, models.NewAPIErr(err, "Blizzard")
 	}
+
 	if gameTime.QuickPlayStats.CareerStats.AllHeroes.Game.TimePlayed == "" || gameTime.CompetitiveStats.CareerStats.AllHeroes.Game.TimePlayed == "" {
 		return nil, errInvalidTimePlayed
 	}
@@ -115,7 +120,9 @@ func (b *Blizzard) queryAPI(payload *models.Overwatch, url string) (*models.Game
 	if err != nil {
 		return nil, err
 	}
+
 	compTime, err := nanoTime(gameTime.CompetitiveStats.CareerStats.AllHeroes.Game.TimePlayed)
+
 	if err != nil {
 		return nil, err
 	}
@@ -138,33 +145,42 @@ func nanoTime(strTime string) (time.Duration, error) {
 		if err != nil {
 			return 0, err
 		}
+
 		absTime += time.Duration(sec) * time.Second
 	case 2:
 		min, err := strconv.Atoi(parts[0])
 		if err != nil {
 			return 0, err
 		}
+
 		absTime += time.Duration(min) * time.Minute
 		sec, err := strconv.Atoi(parts[1])
+
 		if err != nil {
 			return 0, err
 		}
+
 		absTime += time.Duration(sec) * time.Second
 	case 3:
 		hour, err := strconv.Atoi(parts[0])
 		if err != nil {
 			return 0, err
 		}
+
 		absTime += time.Duration(hour) * time.Hour
 		min, err := strconv.Atoi(parts[1])
+
 		if err != nil {
 			return 0, err
 		}
+
 		absTime += time.Duration(min) * time.Minute
 		sec, err := strconv.Atoi(parts[2])
+
 		if err != nil {
 			return 0, err
 		}
+
 		absTime += time.Duration(sec) * time.Second
 	default:
 		// returns error if parts of string exceeds 3 (hr:min:sec)
