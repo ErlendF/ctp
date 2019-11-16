@@ -15,7 +15,6 @@ import (
 	firebase "firebase.google.com/go" // Same as python's import dependency as alias.
 
 	"google.golang.org/api/option"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -51,7 +50,7 @@ func New(key string) (*Database, error) {
 //CreateUser creates a user
 func (db *Database) CreateUser(user *models.User) error {
 	_, err := db.Collection(userCol).Doc(user.ID).Create(db.ctx, user)
-	if err != nil && grpc.Code(err) != codes.AlreadyExists {
+	if err != nil && status.Code(err) != codes.AlreadyExists {
 		return err
 	}
 	return nil
@@ -69,7 +68,9 @@ func (db *Database) GetUserByID(id string) (*models.User, error) {
 	}
 
 	data := doc.Data()
+
 	var user models.User
+
 	err = mapstructure.Decode(data, &user)
 	if err != nil {
 		return nil, err
@@ -88,16 +89,17 @@ func (db *Database) GetUserByName(name string) (*models.User, error) {
 		return nil, err
 	}
 
-	// checking that only one user was recieved
+	// checking that only one user was received
 	switch {
 	case len(docs) < 1:
 		return nil, models.ErrNotFound
 	case len(docs) > 1:
-		return nil, errors.New("Multiple users with same username")
+		return nil, errors.New("multiple users with same username")
 	}
 
 	data := docs[0].Data()
 	var user models.User
+
 	err = mapstructure.Decode(data, &user)
 	if err != nil {
 		return nil, err
@@ -202,7 +204,7 @@ func (db *Database) SetUsername(user *models.User) error {
 			return nil
 		}
 
-		return errors.New("Name already in use")
+		return errors.New("name already in use")
 	}
 
 	_, err = db.Collection(userCol).Doc(user.ID).Update(db.ctx, []firestore.Update{

@@ -84,7 +84,7 @@ func (a *Authenticator) HandleOAuth2Callback(w http.ResponseWriter, r *http.Requ
 	}
 	rawIDToken, ok := oauth2Token.Extra("id_token").(string)
 	if !ok {
-		return "", errors.New("No id_token field in oauth2 token")
+		return "", errors.New("no id_token field in oauth2 token")
 	}
 	idToken, err := a.verifier.Verify(a.ctx, rawIDToken)
 	if err != nil {

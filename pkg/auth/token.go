@@ -24,7 +24,7 @@ func (a *Authenticator) ValidateToken(tokenString string) (string, error) {
 
 		// Validating signing method (alg)
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 
 		return a.hmacSecret, nil
@@ -35,16 +35,16 @@ func (a *Authenticator) ValidateToken(tokenString string) (string, error) {
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok || !token.Valid {
-		return "", errors.New("Invalid token")
+		return "", errors.New("invalid token")
 	}
 
 	idClaim, ok := claims["id"]
 	if !ok {
-		return "", errors.New("Invalid id for token")
+		return "", errors.New("invalid id for token")
 	}
 	id, ok := idClaim.(string)
 	if !ok {
-		return "", errors.New("Invalid id for token")
+		return "", errors.New("invalid id for token")
 	}
 
 	return id, nil

@@ -68,7 +68,7 @@ func (b *Blizzard) GetBlizzardPlaytime(payload *models.Overwatch) (*models.Game,
 
 	// Tries to get a response from unreliable api
 	for tries := 0; tries < 10; tries++ {
-		gameStats, err := b.queryAPI(payload, url)
+		gameStats, err := b.queryAPI(url)
 		if err != nil {
 			if !errors.Is(err, errInvalidTimePlayed) {
 				return nil, models.NewAPIErr(err, "Blizzard")
@@ -86,7 +86,7 @@ func (b *Blizzard) GetBlizzardPlaytime(payload *models.Overwatch) (*models.Game,
 }
 
 // queryAPI func returns response from the OverwatchAPI
-func (b *Blizzard) queryAPI(payload *models.Overwatch, url string) (*models.Game, error) {
+func (b *Blizzard) queryAPI(url string) (*models.Game, error) {
 	var gameTime models.BlizzardResp
 
 	// Gets statistics from the battle tag provided
