@@ -5,7 +5,6 @@ import (
 	"ctp/pkg/models"
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strings"
 	"testing"
@@ -26,7 +25,6 @@ func (m *mockBlizzard) Get(url string) (*http.Response, error){
 		return nil, err
 	}
 	resp.Body = ioutil.NopCloser(bytes.NewReader(body))
-	log.Printf("resp.Body: %+v", m.setup.resp)
 	return resp, nil
 }
 
@@ -34,6 +32,10 @@ type respSetup struct {
 	resp             models.BlizzardResp
 	status 			 int
 	err              error
+}
+
+func TestBlizzard_ValidateBattleUser(t *testing.T) {
+
 }
 
 func TestBlizzard_GetBlizzardPlaytime(t *testing.T) {
@@ -82,9 +84,5 @@ func TestBlizzard_GetBlizzardPlaytime(t *testing.T) {
 
 		})
 	}
-
-}
-
-func TestBlizzard_ValidateBattleUser(t *testing.T) {
 
 }
