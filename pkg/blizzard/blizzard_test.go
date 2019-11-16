@@ -31,28 +31,6 @@ func (m *mockBlizzard) Get(url string) (*http.Response, error){
 }
 
 type respSetup struct {
-	/*CompetitiveStats struct {
-		CareerStats struct {
-			AllHeroes struct {
-				Game struct {
-					TimePlayed string
-				}
-			}
-		}
-	}
-
-	*/
-	/*QuickPlayStats   struct {
-		CareerStats struct {
-			AllHeroes struct {
-				Game struct {
-					TimePlayed string
-				}
-			}
-		}
-	}
-
-	 */
 	resp             models.BlizzardResp
 	status 			 int
 	err              error
@@ -104,5 +82,9 @@ func TestBlizzard_GetBlizzardPlaytime(t *testing.T) {
 
 		})
 	}
+
+}
+
+func TestBlizzard_ValidateBattleUser(t *testing.T) {
 
 }
