@@ -18,8 +18,6 @@ type handler struct {
 	models.UserManager
 }
 
-const invalidID = "Invalid id"
-
 //newHandler returns handler
 func newHandler(um models.UserManager) *handler {
 	return &handler{um}

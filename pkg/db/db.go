@@ -4,6 +4,7 @@ import (
 	"ctp/pkg/models"
 	"errors"
 	"github.com/sirupsen/logrus"
+	"sort"
 
 	"cloud.google.com/go/firestore"
 	"github.com/fatih/structs"
@@ -149,6 +150,10 @@ func (db *Database) UpdateGames(user *models.User) error {
 			user.Games = append(user.Games, dbGame)
 		}
 	}
+
+	sort.Slice(user.Games, func(i, j int) bool {
+		return user.Games[i].Time > user.Games[j].Time
+	})
 
 	_, err = db.Collection(userCol).Doc(user.ID).Update(db.ctx, []firestore.Update{
 		{Path: "games", Value: user.Games},
