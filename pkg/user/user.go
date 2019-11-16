@@ -2,7 +2,7 @@ package user
 
 import (
 	"ctp/pkg/models"
-	"fmt"
+	"errors"
 	"net/http"
 	"regexp"
 
@@ -210,7 +210,7 @@ func (m *Manager) JohanTestFunc() {
 func validateUserName(name string) error {
 	re := regexp.MustCompile("^[a-zA-Z0-9 ]{1,15}$")
 	if !re.MatchString(name) {
-		return fmt.Errorf("Invalid username")
+		return errors.New("Invalid username")
 	}
 	return nil
 }

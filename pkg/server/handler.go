@@ -2,8 +2,8 @@ package server
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
-	"io"
 	"net/http"
 
 	"ctp/pkg/models"
@@ -51,12 +51,12 @@ func (h *handler) login(w http.ResponseWriter, r *http.Request) {
 func (h *handler) authCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	resp, err := h.AuthCallback(w, r)
 	if err != nil {
-		logrus.WithError(err).WithField("route", mux.CurrentRoute(r).GetName()).Warn("Error getting token")
+		logrus.WithError(err).WithField("route", mux.CurrentRoute(r).GetName()).Warn("error getting token")
 
 		//returning errorcode based on error
 		switch {
-		case err.Error() == models.InvalidAuthState:
-			http.Error(w, fmt.Sprintf("%s: invalid state", http.StatusText(http.StatusBadRequest)), http.StatusBadRequest)
+		case errors.Is(err, models.ErrInvalidAuthState):
+			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		default:
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		}
@@ -77,6 +77,7 @@ func (h *handler) updateUser(w http.ResponseWriter, r *http.Request) {
 
 	err = json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
+		err = models.NewReqErr(err, "invalid request body")
 		logRespond(w, r, err)
 		return
 	}
@@ -167,29 +168,19 @@ func respondPlain(w http.ResponseWriter, r *http.Request, resp string) {
 }
 
 func logRespond(w http.ResponseWriter, r *http.Request, err error) {
-	logrus.WithError(err).WithField("route", mux.CurrentRoute(r).GetName()).Warn("Error")
+	logrus.WithField("route", mux.CurrentRoute(r).GetName()).Warn(err)
 
-	//returning errorcode based on error
+	var reqErr *models.RequestError
+	var apiErr *models.ExternalAPIError
 	switch {
-	case err.Error() == invalidID:
+	case errors.Is(err, models.ErrInvalidID):
 		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
-	case err.Error() == models.NotFound:
+	case errors.Is(err, models.ErrNotFound):
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-	case models.CheckNotFound(err):
-		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-	case err.Error() == models.ClientError:
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-
-	// assuming client errors to external APIs are caused by bad user input
-	case models.GetHTTPErrorClass(err) == models.ClientError:
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-	case models.GetHTTPErrorClass(err) == models.ServerError:
-		http.Error(w, http.StatusText(http.StatusBadGateway), http.StatusBadGateway)
-
-	// invalid request body where input was expected
-	case err == io.EOF:
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-
+	case errors.As(err, &reqErr):
+		http.Error(w, fmt.Sprintf("%s: %s", http.StatusText(http.StatusBadRequest), reqErr.Response), http.StatusBadRequest)
+	case errors.As(err, &apiErr):
+		http.Error(w, fmt.Sprintf("%s: %s", http.StatusText(http.StatusBadGateway), apiErr.Respond()), http.StatusBadGateway)
 	default:
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 	}
@@ -204,7 +195,7 @@ func getID(r *http.Request) (string, error) {
 	id := r.Context().Value(ctxKey("id"))
 	idStr, ok := id.(string)
 	if !ok {
-		return "", fmt.Errorf(invalidID)
+		return "", models.ErrInvalidID
 	}
 
 	return idStr, nil

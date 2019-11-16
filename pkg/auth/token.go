@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -34,16 +35,16 @@ func (a *Authenticator) ValidateToken(tokenString string) (string, error) {
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok || !token.Valid {
-		return "", fmt.Errorf("Invalid token")
+		return "", errors.New("Invalid token")
 	}
 
 	idClaim, ok := claims["id"]
 	if !ok {
-		return "", fmt.Errorf("Invalid id for token")
+		return "", errors.New("Invalid id for token")
 	}
 	id, ok := idClaim.(string)
 	if !ok {
-		return "", fmt.Errorf("Invalid id for token")
+		return "", errors.New("Invalid id for token")
 	}
 
 	return id, nil

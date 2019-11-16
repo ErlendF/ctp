@@ -2,7 +2,7 @@ package db
 
 import (
 	"ctp/pkg/models"
-	"fmt"
+	"errors"
 
 	"cloud.google.com/go/firestore"
 	"github.com/fatih/structs"
@@ -59,8 +59,9 @@ func (db *Database) GetUserByID(id string) (*models.User, error) {
 	doc, err := db.Collection(userCol).Doc(id).Get(db.ctx)
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
-			err = fmt.Errorf(models.NotFound)
+			return nil, models.ErrNotFound
 		}
+
 		return nil, err
 	}
 
@@ -79,7 +80,7 @@ func (db *Database) GetUserByName(name string) (*models.User, error) {
 	docs, err := db.Collection(userCol).Where("name", "==", name).Documents(db.ctx).GetAll()
 	if err != nil {
 		if status.Code(err) != codes.NotFound {
-			err = fmt.Errorf(models.NotFound)
+			return nil, models.ErrNotFound
 		}
 		return nil, err
 	}
@@ -87,9 +88,9 @@ func (db *Database) GetUserByName(name string) (*models.User, error) {
 	// checking that only one user was recieved
 	switch {
 	case len(docs) < 1:
-		return nil, fmt.Errorf(models.NotFound)
+		return nil, models.ErrNotFound
 	case len(docs) > 1:
-		return nil, fmt.Errorf("Multiple users with same username")
+		return nil, errors.New("Multiple users with same username")
 	}
 
 	data := docs[0].Data()
@@ -158,7 +159,7 @@ func (db *Database) UpdateGames(user *models.User) error {
 //SetUsername sets the username for the user, returns error if it is already in use
 func (db *Database) SetUsername(user *models.User) error {
 	dbUser, err := db.GetUserByName(user.Name)
-	if err != nil && err.Error() != models.NotFound {
+	if err != nil && !errors.Is(err, models.ErrNotFound) {
 		return err
 	}
 
@@ -167,7 +168,7 @@ func (db *Database) SetUsername(user *models.User) error {
 			return nil
 		}
 
-		return fmt.Errorf("Name already in use")
+		return errors.New("Name already in use")
 	}
 
 	_, err = db.Collection(userCol).Doc(user.ID).Update(db.ctx, []firestore.Update{
