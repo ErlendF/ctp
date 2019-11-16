@@ -4,6 +4,9 @@ import (
 	"ctp/pkg/models"
 	"errors"
 
+	"github.com/sirupsen/logrus"
+	"sort"
+
 	"cloud.google.com/go/firestore"
 	"github.com/fatih/structs"
 	"github.com/mitchellh/mapstructure"
@@ -12,7 +15,6 @@ import (
 	firebase "firebase.google.com/go" // Same as python's import dependency as alias.
 
 	"google.golang.org/api/option"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -48,9 +50,10 @@ func New(key string) (*Database, error) {
 //CreateUser creates a user
 func (db *Database) CreateUser(user *models.User) error {
 	_, err := db.Collection(userCol).Doc(user.ID).Create(db.ctx, user)
-	if err != nil && grpc.Code(err) != codes.AlreadyExists {
+	if err != nil && status.Code(err) != codes.AlreadyExists {
 		return err
 	}
+
 	return nil
 }
 
@@ -66,7 +69,9 @@ func (db *Database) GetUserByID(id string) (*models.User, error) {
 	}
 
 	data := doc.Data()
+
 	var user models.User
+
 	err = mapstructure.Decode(data, &user)
 	if err != nil {
 		return nil, err
@@ -77,24 +82,27 @@ func (db *Database) GetUserByID(id string) (*models.User, error) {
 
 //GetUserByName gets a user by name
 func (db *Database) GetUserByName(name string) (*models.User, error) {
-	docs, err := db.Collection(userCol).Where("name", "==", name).Documents(db.ctx).GetAll()
+	docs, err := db.Collection(userCol).Where("name", "==", name).Where("public", "==", true).Documents(db.ctx).GetAll()
 	if err != nil {
 		if status.Code(err) != codes.NotFound {
 			return nil, models.ErrNotFound
 		}
+
 		return nil, err
 	}
 
-	// checking that only one user was recieved
+	// checking that only one user was received
 	switch {
 	case len(docs) < 1:
 		return nil, models.ErrNotFound
 	case len(docs) > 1:
-		return nil, errors.New("Multiple users with same username")
+		return nil, errors.New("multiple users with same username")
 	}
 
 	data := docs[0].Data()
+
 	var user models.User
+
 	err = mapstructure.Decode(data, &user)
 	if err != nil {
 		return nil, err
@@ -106,7 +114,6 @@ func (db *Database) GetUserByName(name string) (*models.User, error) {
 //UpdateUser updates the relevant fields of the user
 //checks for empty values
 func (db *Database) UpdateUser(user *models.User) error {
-
 	user.Name = "" // username and games are updated by dedicated functions
 	user.Games = nil
 
@@ -120,6 +127,7 @@ func (db *Database) UpdateUser(user *models.User) error {
 	}
 
 	_, err := db.Collection(userCol).Doc(user.ID).Set(db.ctx, m, firestore.MergeAll)
+
 	return err
 }
 
@@ -149,8 +157,40 @@ func (db *Database) UpdateGames(user *models.User) error {
 		}
 	}
 
+	sort.Slice(user.Games, func(i, j int) bool {
+		return user.Games[i].Time > user.Games[j].Time
+	})
+
 	_, err = db.Collection(userCol).Doc(user.ID).Update(db.ctx, []firestore.Update{
 		{Path: "games", Value: user.Games},
+	})
+
+	if err != nil {
+		return err
+	}
+
+	err = db.UpdateTotalGameTime(user.ID)
+
+	return err
+}
+
+//UpdateTotalGameTime updates the totalgametime for the given user
+func (db *Database) UpdateTotalGameTime(id string) error {
+	user, err := db.GetUserByID(id)
+	if err != nil {
+		return err
+	}
+
+	logrus.Debugf("UpdateTotalGameTime")
+
+	totalGameTime := 0
+
+	for _, game := range user.Games {
+		totalGameTime += game.Time
+	}
+
+	_, err = db.Collection(userCol).Doc(id).Update(db.ctx, []firestore.Update{
+		{Path: "totalGameTime", Value: totalGameTime},
 	})
 
 	return err
@@ -168,7 +208,7 @@ func (db *Database) SetUsername(user *models.User) error {
 			return nil
 		}
 
-		return errors.New("Name already in use")
+		return errors.New("name already in use")
 	}
 
 	_, err = db.Collection(userCol).Doc(user.ID).Update(db.ctx, []firestore.Update{
@@ -197,6 +237,7 @@ func (db *Database) IsUser(id string) (bool, error) {
 		if status.Code(err) == codes.NotFound {
 			return false, nil
 		}
+
 		return false, err
 	}
 

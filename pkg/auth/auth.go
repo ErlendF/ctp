@@ -50,6 +50,7 @@ func New(ctx context.Context, port int, domain string, clientID string, clientSe
 	}
 
 	authenticator.hmacSecret = []byte(hmacSecret)
+
 	return authenticator, nil
 }
 
@@ -62,6 +63,7 @@ func (a *Authenticator) AuthRedirect(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
+
 	http.Redirect(w, r, a.config.AuthCodeURL(state), http.StatusFound)
 }
 
@@ -74,6 +76,7 @@ func (a *Authenticator) HandleOAuth2Callback(w http.ResponseWriter, r *http.Requ
 
 	// removing state cookie as it should not be used again regardless of whether it is valid or not
 	removeStateOauthCookie(w)
+
 	if cookie.Value != r.URL.Query().Get("state") {
 		return "", models.ErrInvalidAuthState
 	}
@@ -82,11 +85,15 @@ func (a *Authenticator) HandleOAuth2Callback(w http.ResponseWriter, r *http.Requ
 	if err != nil {
 		return "", err
 	}
+
 	rawIDToken, ok := oauth2Token.Extra("id_token").(string)
+
 	if !ok {
-		return "", errors.New("No id_token field in oauth2 token")
+		return "", errors.New("no id_token field in oauth2 token")
 	}
+
 	idToken, err := a.verifier.Verify(a.ctx, rawIDToken)
+
 	if err != nil {
 		return "", err
 	}
@@ -94,10 +101,13 @@ func (a *Authenticator) HandleOAuth2Callback(w http.ResponseWriter, r *http.Requ
 	var claims struct {
 		Sub string
 	}
+
 	err = idToken.Claims(&claims)
+
 	if err != nil {
 		return "", err
 	}
+
 	return claims.Sub, nil
 }
 
@@ -111,9 +121,11 @@ func (a *Authenticator) IsUser(id string) (bool, error) {
 func generateStateOauthCookie(w http.ResponseWriter) (string, error) {
 	b := make([]byte, 16)
 	_, err := rand.Read(b)
+
 	if err != nil {
 		return "", err
 	}
+
 	state := base64.URLEncoding.EncodeToString(b)
 	cookie := http.Cookie{Name: stateCookie, Value: state}
 	http.SetCookie(w, &cookie)

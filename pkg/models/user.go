@@ -4,10 +4,11 @@ package models
 type User struct {
 	ID            string                `json:"-" firestore:"id"`
 	Name          string                `json:"username,omitempty" firestore:"name"`
+	Public        bool                  `json:"public,omitempty" firestore:"public"`
 	TotalGameTime int                   `json:"totalPlayTime" firestore:"totalGameTime"`
-	Lol           *SummonerRegistration `json:"lol" firestore:"lol"`
-	Valve         string                `json:"valve" firestore:"valve"`
-	Overwatch     *Overwatch            `json:"overwatch" firestore:"overwatch"`
+	Lol           *SummonerRegistration `json:"lol,omitempty" firestore:"lol"`
+	Valve         string                `json:"valve,omitempty" firestore:"valve"`
+	Overwatch     *Overwatch            `json:"overwatch,omitempty" firestore:"overwatch"`
 	Games         []Game                `json:"games" firestore:"games"`
 }
 
