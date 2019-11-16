@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"ctp/pkg/models"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -74,7 +75,7 @@ func (a *Authenticator) HandleOAuth2Callback(w http.ResponseWriter, r *http.Requ
 	// removing state cookie as it should not be used again regardless of whether it is valid or not
 	removeStateOauthCookie(w)
 	if cookie.Value != r.URL.Query().Get("state") {
-		return "", fmt.Errorf(models.InvalidAuthState)
+		return "", models.ErrInvalidAuthState
 	}
 
 	oauth2Token, err := a.config.Exchange(a.ctx, r.URL.Query().Get("code"))
@@ -83,7 +84,7 @@ func (a *Authenticator) HandleOAuth2Callback(w http.ResponseWriter, r *http.Requ
 	}
 	rawIDToken, ok := oauth2Token.Extra("id_token").(string)
 	if !ok {
-		return "", fmt.Errorf("No id_token field in oauth2 token")
+		return "", errors.New("No id_token field in oauth2 token")
 	}
 	idToken, err := a.verifier.Verify(a.ctx, rawIDToken)
 	if err != nil {

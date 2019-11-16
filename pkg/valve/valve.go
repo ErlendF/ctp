@@ -31,7 +31,7 @@ func (v *Valve) GetValvePlaytime(ID string) ([]models.Game, error) {
 	}
 	defer resp.Body.Close()
 
-	if err = models.CheckStatusCode(resp.StatusCode); err != nil {
+	if err = models.CheckStatusCode(resp.StatusCode, "Valve", "invalid steam id"); err != nil {
 		return nil, err
 	}
 

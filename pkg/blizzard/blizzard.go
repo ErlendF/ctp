@@ -3,6 +3,7 @@ package blizzard
 import (
 	"ctp/pkg/models"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -25,7 +26,7 @@ func New(getter models.Getter) *Blizzard {
 func (b *Blizzard) ValidateBattleUser(payload *models.Overwatch) error {
 	logrus.Debug("ValidateBattleUser()")
 	if payload == nil {
-		return fmt.Errorf("no registration")
+		return errors.New("no payload to ValidateBattleUser")
 	}
 
 	pass := false
@@ -39,7 +40,7 @@ func (b *Blizzard) ValidateBattleUser(payload *models.Overwatch) error {
 		}
 	}
 	if !pass {
-		return fmt.Errorf(models.ClientError)
+		return models.NewReqErrStr("invalid Overwatch region", "invalid region for Overwatch account")
 	}
 	pass = false
 
@@ -50,7 +51,7 @@ func (b *Blizzard) ValidateBattleUser(payload *models.Overwatch) error {
 		}
 	}
 	if !pass {
-		return fmt.Errorf(models.ClientError)
+		return models.NewReqErrStr("invalid Overwatch platform", "invalid platform for Overwatch account")
 	}
 
 	// check that provided battle tag is correct TODO: make regex (https://us.battle.net/support/en/article/700007)?
@@ -58,12 +59,12 @@ func (b *Blizzard) ValidateBattleUser(payload *models.Overwatch) error {
 		payload.Platform, payload.Region, payload.BattleTag)
 	resp, err := b.Get(url)
 	if err != nil {
-		return fmt.Errorf(models.ClientError)
+		return models.NewAPIErr(err, "Blizzard")
 	}
 	defer resp.Body.Close()
 
 	// Checks status header
-	if err = models.CheckStatusCode(resp.StatusCode); err != nil {
+	if err = models.CheckStatusCode(resp.StatusCode, "Blizzard", "invalid Blizzard battle tag, platform or region"); err != nil {
 		return err
 	}
 
@@ -80,10 +81,7 @@ func (b *Blizzard) GetBlizzardPlaytime(payload *models.Overwatch) (*models.Game,
 	for tries := 0; tries < 10; tries++ {
 		gameStats, err := b.queryAPI(payload, url)
 		if err != nil {
-			if strings.Contains(err.Error(), models.NonOK) {
-				return nil, err
-			}
-			logrus.WithError(err).Warn("Trying again")
+			logrus.WithError(err).Warn("trying again")
 			continue // try again....
 		}
 
@@ -92,7 +90,7 @@ func (b *Blizzard) GetBlizzardPlaytime(payload *models.Overwatch) (*models.Game,
 	}
 
 	// returns error if no request returned valid response
-	return nil, fmt.Errorf("no acceptable response from OW-api")
+	return nil, errors.New("no acceptable response from OW-api")
 }
 
 // queryAPI func returns response from the OverwatchAPI
@@ -102,21 +100,19 @@ func (b *Blizzard) queryAPI(payload *models.Overwatch, url string) (*models.Game
 	// Gets statistics from the battle tag provided
 	resp, err := b.Get(url)
 	if err != nil {
-		logrus.WithError(err).Warn("getter error")
-		return nil, err
+		return nil, models.NewAPIErr(err, "Blizzard")
 	}
 	defer resp.Body.Close()
 
-	// Checks status header
-	if err = models.CheckStatusCode(resp.StatusCode); err != nil {
+	// Checks status code
+	if err = models.CheckStatusCode(resp.StatusCode, "Blizzard", "invalid Blizzard battle tag or region"); err != nil {
 		return nil, err
 	}
 
 	// Decodes the response to get playtime
 	err = json.NewDecoder(resp.Body).Decode(&gameTime)
 	if err != nil {
-		logrus.WithError(err).Warn("decoder error")
-		return nil, err
+		return nil, models.NewAPIErr(err, "Blizzard")
 	}
 
 	// Converts the returned strings to int64 (time.Duration)
