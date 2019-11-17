@@ -1,6 +1,6 @@
 package models
 
-//User contains all relevant information about the user
+// User contains all relevant information about the user
 type User struct {
 	ID            string                `json:"-" firestore:"id"`
 	Name          string                `json:"username,omitempty" firestore:"name"`
@@ -12,7 +12,7 @@ type User struct {
 	Games         []Game                `json:"games" firestore:"games"`
 }
 
-//Game part of User
+// Game contains relevant information about a game
 type Game struct {
 	Name    string `json:"game" firestore:"name"`
 	Time    int    `json:"playTime" firestore:"time"`

@@ -2,7 +2,7 @@ package models
 
 import "net/http"
 
-//UserManager contains all functions a usermanager is expected to provide
+// UserManager contains all functions a usermanager is expected to provide
 type UserManager interface {
 	GetUserByID(id string) (*User, error)
 	GetUserByName(username string) (*User, error)

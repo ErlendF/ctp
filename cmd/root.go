@@ -33,7 +33,7 @@ import (
 
 	"ctp/pkg/server"
 
-	_ "github.com/joho/godotenv/autoload" //importing .env to os.env
+	_ "github.com/joho/godotenv/autoload" // importing .env to os.env
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -90,7 +90,7 @@ var rootCmd = &cobra.Command{
 		ctxC, cancelC := context.WithCancel(ctx)
 		defer cancelC()
 
-		auth, err := auth.New(ctxC, config.port, config.domain, clientID, clientSecret, hmacSecret, db)
+		auth, err := auth.New(ctxC, db, config.port, config.domain, clientID, clientSecret, hmacSecret)
 		if err != nil {
 			logrus.WithError(err).Fatalf("Unable to get new Authenticator:%s", err)
 		}
@@ -149,10 +149,14 @@ func Execute() {
 	}
 }
 
+// init is made and used by cobra
 func init() {
 	// Reads commandline arguments into config
 	rootCmd.Flags().IntVarP(&config.shutdownTimeout, "shutdownTimeout", "s", 15, "Sets the timeout (in seconds) for graceful shutdown")
-	rootCmd.Flags().IntVarP(&config.clientTimeout, "clientTimeout", "c", 15, "Sets the timeout (in seconds) for the http client which makes requests to the external APIs")
+
+	rootCmd.Flags().IntVarP(&config.clientTimeout, "clientTimeout", "c", 15,
+		"Sets the timeout (in seconds) for the http client which makes requests to the external APIs")
+
 	rootCmd.Flags().IntVarP(&config.port, "port", "p", 80, "Sets the port the API should listen to")
 	rootCmd.Flags().BoolVarP(&config.verbose, "verbose", "v", false, "Verbose logging")
 	rootCmd.Flags().BoolVarP(&config.jsonFormatter, "jsonFormatter", "j", false, "JSON logging format")

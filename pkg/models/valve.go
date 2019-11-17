@@ -1,16 +1,16 @@
 package models
 
-//Valve interface defines all methods which should be provided by valve
+// Valve interface defines all methods which should be provided by valve
 type Valve interface {
 	GetValvePlaytime(ID string) ([]Game, error)
 }
 
-//ValveResp is used for testing
+// ValveResp is used for testing
 type ValveResp struct {
 	Response ValveResponse `json:"response"`
 }
 
-//ValveGames is used for testing
+// ValveGames is used for testing
 type ValveGames struct {
 	Appid                    int    `json:"appid"`
 	Name                     string `json:"name"`
@@ -24,7 +24,7 @@ type ValveGames struct {
 	Playtime2Weeks           int    `json:"playtime_2weeks,omitempty"`
 }
 
-//ValveResponse is used for testing
+// ValveResponse is used for testing
 type ValveResponse struct {
 	GameCount int          `json:"game_count"`
 	Games     []ValveGames `json:"games"`

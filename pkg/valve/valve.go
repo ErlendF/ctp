@@ -8,13 +8,15 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-//Valve is a struct which contains everything necessary to handle a request related to valve
+const getOwnedGames = "http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=%s&format=json&steamid=%s&include_appinfo=true"
+
+// Valve is a struct which contains everything necessary to handle a request related to valve
 type Valve struct {
 	models.Getter
 	apiKey string
 }
 
-//New returns a new valve instance
+// New returns a new valve instance
 func New(getter models.Getter, apiKey string) *Valve {
 	v := &Valve{apiKey: apiKey}
 	v.Getter = getter
@@ -22,18 +24,19 @@ func New(getter models.Getter, apiKey string) *Valve {
 	return v
 }
 
-//GetValvePlaytime gets playtime on steam for specified game
+// GetValvePlaytime gets playtime on steam for specified game
 func (v *Valve) GetValvePlaytime(id string) ([]models.Game, error) {
 	logrus.Debug("GetSteamPlaytime")
 
-	resp, err := v.Get(fmt.Sprintf("http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=%s&format=json&steamid=%s&include_appinfo=true", v.apiKey, id))
+	resp, err := v.Get(fmt.Sprintf(getOwnedGames, v.apiKey, id))
 
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	if err = models.CheckStatusCode(resp.StatusCode, "Valve", "invalid steam id"); err != nil {
+	err = models.CheckStatusCode(resp.StatusCode, "Valve", "invalid steam id")
+	if err != nil {
 		return nil, err
 	}
 

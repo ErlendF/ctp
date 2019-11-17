@@ -1,3 +1,4 @@
 .idea
 fbkey.json
 .env
+.golangci.yml

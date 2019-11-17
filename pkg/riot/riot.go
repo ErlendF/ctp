@@ -9,13 +9,13 @@ import (
 	"net/url"
 )
 
-//Riot is a struct which contains everything necessary to handle a request related to riot
+// Riot is a struct which contains everything necessary to handle a request related to riot
 type Riot struct {
 	models.Client
 	apiKey string
 }
 
-//New returns a new riot instance
+// New returns a new riot instance
 func New(client models.Client, apiKey string) *Riot {
 	r := &Riot{apiKey: apiKey}
 	r.Client = client
@@ -23,13 +23,14 @@ func New(client models.Client, apiKey string) *Riot {
 	return r
 }
 
-//GetRiotPlaytime gets playtime on League of Legends
+// GetRiotPlaytime gets playtime on League of Legends
 func (r *Riot) GetRiotPlaytime(reg *models.SummonerRegistration) (*models.Game, error) {
 	if reg == nil || reg.SummonerRegion == "" || reg.AccountID == "" {
 		return nil, errors.New("missing summonerinfo")
 	}
 
-	URL := fmt.Sprintf("https://%s.api.riotgames.com/lol/match/v4/matchlists/by-account/%s?beginIndex=99999", reg.SummonerRegion, reg.AccountID)
+	URL := fmt.Sprintf("https://%s.api.riotgames.com/lol/match/v4/matchlists/by-account/%s?beginIndex=99999",
+		reg.SummonerRegion, reg.AccountID)
 
 	formatURL, err := url.Parse(URL)
 	if err != nil {
@@ -50,7 +51,8 @@ func (r *Riot) GetRiotPlaytime(reg *models.SummonerRegistration) (*models.Game, 
 
 	defer resp.Body.Close()
 
-	if err = models.CheckStatusCode(resp.StatusCode, "Riot", "invalid username or region for League of Legends"); err != nil {
+	err = models.CheckStatusCode(resp.StatusCode, "Riot", "invalid username or region for League of Legends")
+	if err != nil {
 		return nil, err
 	}
 
@@ -69,7 +71,7 @@ func (r *Riot) GetRiotPlaytime(reg *models.SummonerRegistration) (*models.Game, 
 	return game, nil
 }
 
-//ValidateSummoner validates the summoner
+// ValidateSummoner validates the summoner
 func (r *Riot) ValidateSummoner(reg *models.SummonerRegistration) (*models.SummonerRegistration, error) {
 	if reg == nil {
 		return nil, errors.New("nil summoner registration")
@@ -81,7 +83,7 @@ func (r *Riot) ValidateSummoner(reg *models.SummonerRegistration) (*models.Summo
 		return nil, models.NewReqErrStr(fmt.Sprintf("invalid summoner region: %s", reg.SummonerRegion), "invalid region for League of Legends")
 	}
 
-	//Validating name
+	// Validating name
 	URL := fmt.Sprintf("https://%s.api.riotgames.com/lol/summoner/v4/summoners/by-name/%s", reg.SummonerRegion, reg.SummonerName)
 
 	formatURL, err := url.Parse(URL)
@@ -102,7 +104,8 @@ func (r *Riot) ValidateSummoner(reg *models.SummonerRegistration) (*models.Summo
 	}
 	defer resp.Body.Close()
 
-	if err = models.AccValStatusCode(resp.StatusCode, "Riot", "invalid username for League of Legends"); err != nil {
+	err = models.AccValStatusCode(resp.StatusCode, "Riot", "invalid username for League of Legends")
+	if err != nil {
 		return nil, err
 	}
 

@@ -18,7 +18,7 @@ type handler struct {
 	models.UserManager
 }
 
-//newHandler returns handler
+// newHandler returns a new handler
 func newHandler(um models.UserManager) *handler {
 	return &handler{um}
 }
@@ -53,7 +53,7 @@ func (h *handler) authCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logrus.WithError(err).WithField("route", mux.CurrentRoute(r).GetName()).Warn("error getting token")
 
-		//returning errorcode based on error
+		// returning errorcode based on error
 		switch {
 		case errors.Is(err, models.ErrInvalidAuthState):
 			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
