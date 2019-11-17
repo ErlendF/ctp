@@ -125,7 +125,6 @@ func (m *Manager) UpdateGames(id string) error {
 		updatedGames = append(updatedGames, *lolGame)
 	}
 
-	//TODO: overwatch needs to be changed to fit game format
 	if user.Overwatch != nil {
 		ow, err := m.GetBlizzardPlaytime(user.Overwatch)
 		if err != nil {
