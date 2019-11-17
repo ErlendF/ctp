@@ -15,8 +15,7 @@ type mockBlizzard struct {
 }
 
 func (m *mockBlizzard) Get(url string) (*http.Response, error){
-	validUrl := strings.Contains(url, "ow-api.com/v1/stats/")
-	if !validUrl {
+	if !strings.Contains(url, "ow-api.com/v1/stats/") {
 		return nil, m.setup.err
 	}
 	resp := &http.Response{StatusCode:http.StatusOK, Header:make(http.Header, 0)}
