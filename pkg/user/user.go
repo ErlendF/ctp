@@ -46,6 +46,7 @@ func (m *Manager) SetUser(user *models.User) error {
 	if err != nil {
 		return err
 	}
+
 	gameChanges := false
 
 	if user.Name != "" && user.Name != dbUser.Name {
@@ -60,10 +61,11 @@ func (m *Manager) SetUser(user *models.User) error {
 		}
 	}
 
-	//checking that league of legends is set and that it's different from what is allready stored
+	//checking that league of legends is set and that it's different from what is already stored
 	if user.Lol != nil {
 		if dbUser.Lol == nil || !(dbUser.Lol.SummonerName == user.Lol.SummonerName && dbUser.Lol.SummonerRegion == user.Lol.SummonerRegion) {
 			gameChanges = true
+
 			user.Lol, err = m.ValidateSummoner(user.Lol)
 			if err != nil {
 				return err
@@ -76,8 +78,10 @@ func (m *Manager) SetUser(user *models.User) error {
 
 	if user.Overwatch != nil {
 		if dbUser.Overwatch != user.Overwatch {
+
 			gameChanges = true
 			err = m.ValidateBattleUser(user.Overwatch)
+
 			if err != nil {
 				return err
 			}

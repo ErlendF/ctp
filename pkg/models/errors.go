@@ -35,7 +35,7 @@ func CheckStatusCode(code int, api string, clientResp string) error {
 	return &ExternalAPIError{Err: errors.New("non 200 statuscode"), API: api, Code: code}
 }
 
-//AccValStatusCode checks the status code when validating an account and returns apropriate error
+//AccValStatusCode checks the status code when validating an account and returns appropriate error
 func AccValStatusCode(code int, api string, clientResp string) error {
 	switch code {
 	case http.StatusOK:
