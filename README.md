@@ -57,6 +57,7 @@ Requires authentication:
 ```
 /user         (GET): Returns all information about the user themselves.
 /user        (POST): Updates information about the user themselves.
+/user      (DELETE): Deletes the user and all information related to them.
 /updategames (POST): Fetches new data from the servies registered for the user.
 ```
 
