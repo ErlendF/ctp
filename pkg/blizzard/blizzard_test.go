@@ -46,8 +46,8 @@ func TestBlizzard_ValidateBattleUser(t *testing.T) {
 		{name:"Test OK", payload:&models.Overwatch{BattleTag: "Onijuan-2670", Platform: "pc", Region: "eu"}, err: ""},
 		{name:"Test invalid BattleTag", payload:&models.Overwatch{BattleTag: "Onyoooo-2670", Platform: "pc", Region: "eu"}, err: "invalid Blizzard battle tag, platform or region"},
 		{name:"Test invalid region", payload:&models.Overwatch{BattleTag: "Onijuan-2670", Platform: "pc", Region: "pc"}, err: "invalid Overwatch region"},
-		{name:"Test invalid platform", payload:&models.Overwatch{BattleTag: "Onijuan-2670", Platform: "pc", Region: "eu"}, err: "invalid Overwatch platform"},
-		{name:"Test no payload", payload:nil, err: ""},
+		{name:"Test invalid platform", payload:&models.Overwatch{BattleTag: "Onijuan-2670", Platform: "eu", Region: "eu"}, err: "invalid Overwatch platform"},
+		{name:"Test no payload", payload:nil, err: "no payload to ValidateBattleUser"},
 		//{name:"", payload:&models.Overwatch{BattleTag: "", Platform: "", Region: ""}, err: ""},
 	}
 	                          // TODO: make error messages consts/line up with 1.13
