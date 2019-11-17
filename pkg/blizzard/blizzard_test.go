@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"ctp/pkg/models"
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -79,8 +80,9 @@ func TestBlizzard_GetBlizzardPlaytime(t *testing.T) {
 		expectedError error
 	}{
 		{"Test OK",&models.Overwatch{BattleTag: "Onijuan-2670", Platform:  "pc", Region:    "eu"}, "0:0:0","0:0:0",0,nil},
-		//{"Test ",&models.Overwatch{BattleTag: "Onijuan-2670", Platform:  "pc", Region:    "eu"}, "","",0,fmt.Errorf("")},
-		//{"Test ",&models.Overwatch{BattleTag: "Onijuan-2670", Platform:  "pc", Region:    "eu"}, "","",0,fmt.Errorf("")},
+		{"Test time [1]",&models.Overwatch{BattleTag: "Onijuan-2670", Platform:  "pc", Region:    "eu"}, "0","0",0,nil},
+		{"Test time [2]",&models.Overwatch{BattleTag: "Onijuan-2670", Platform:  "pc", Region:    "eu"}, "1:0","59:0",1,nil},
+		{"Test time [4]",&models.Overwatch{BattleTag: "Onijuan-2670", Platform:  "pc", Region:    "eu"}, "4:34:3:2","0",0,errors.New("OW API changed the way time is encoded")},
 		//{"Test ",&models.Overwatch{BattleTag: "Onijuan-2670", Platform:  "pc", Region:    "eu"}, "","",0,fmt.Errorf("")},
 	} // TODO: add more test-cases
 
@@ -97,20 +99,22 @@ func TestBlizzard_GetBlizzardPlaytime(t *testing.T) {
 
 			// TODO: add more checks
 			gem, err := ow.GetBlizzardPlaytime(item.payload)
-			if err != item.expectedError {
-				t.Errorf("Big error from test yes... |%v| != |%v|", err, item.expectedError)
-				return
-			}
-
 			if err == nil {
 				if gem.Time != item.fullTime {
 					t.Errorf("Wrong time sum... |%s, %s| -> |%d|", item.cTime, item.qTime, item.fullTime)
 				}
+				if item.expectedError != nil {
+					t.Errorf("Got wrong error... |%v| != |%v|", err, item.expectedError)
+				}
+				return
 			}
-
-
-
-
+			if err != item.expectedError {
+				if strings.Contains(err.Error(), item.expectedError.Error()) {
+					return
+				}
+				t.Errorf("Big error from test yes... |%v| != |%v|", err, item.expectedError)
+				return
+			}
 
 		})
 	}
