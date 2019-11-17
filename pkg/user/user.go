@@ -42,8 +42,14 @@ func (m *Manager) GetUserByName(username string) (*models.User, error) {
 
 //SetUser updates a given user
 func (m *Manager) SetUser(user *models.User) error {
-	var err error
-	if user.Name != "" {
+	dbUser, err := m.db.GetUserByID(user.ID)
+	if err != nil {
+		return err
+	}
+
+	gameChanges := false
+
+	if user.Name != "" && user.Name != dbUser.Name {
 		err = validateUserName(user.Name)
 		if err != nil {
 			return err
@@ -55,23 +61,49 @@ func (m *Manager) SetUser(user *models.User) error {
 		}
 	}
 
+	//checking that league of legends is set and that it's different from what is already stored
 	if user.Lol != nil {
-		user.Lol, err = m.ValidateSummoner(user.Lol)
-		if err != nil {
-			return err
+		if dbUser.Lol == nil || !(dbUser.Lol.SummonerName == user.Lol.SummonerName && dbUser.Lol.SummonerRegion == user.Lol.SummonerRegion) {
+			gameChanges = true
+
+			user.Lol, err = m.ValidateSummoner(user.Lol)
+			if err != nil {
+				return err
+			}
+		} else {
+			// setting it to nil if it should not be updated, such that it doesn't affect what's already stored in the database
+			user.Lol = nil
 		}
 	}
 
 	if user.Overwatch != nil {
-		err = m.ValidateBattleUser(user.Overwatch)
-		if err != nil {
-			return err
+		if dbUser.Overwatch != user.Overwatch {
+
+			gameChanges = true
+			err = m.ValidateBattleUser(user.Overwatch)
+
+			if err != nil {
+				return err
+			}
+		} else {
+			// setting it to nil if it should not be updated, such that it doesn't affect what's already stored in the database
+			user.Overwatch = nil
 		}
 	}
 
 	//TODO: validate steam and other ids or registrations
 
-	return m.db.UpdateUser(user)
+	err = m.db.UpdateUser(user)
+	if err != nil {
+		return err
+	}
+
+	//Updates games if there have been a change in
+	if gameChanges {
+		return m.UpdateGames(user.ID)
+	}
+
+	return nil
 }
 
 //DeleteUser deletes the user with the given id
@@ -129,6 +161,9 @@ func (m *Manager) Redirect(w http.ResponseWriter, r *http.Request) {
 //AuthCallback handles oauth callback
 func (m *Manager) AuthCallback(w http.ResponseWriter, r *http.Request) (string, error) {
 	id, err := m.HandleOAuth2Callback(w, r)
+	if err != nil {
+		return "", err
+	}
 
 	err = m.db.CreateUser(&models.User{ID: id})
 	if err != nil {

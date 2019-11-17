@@ -56,7 +56,7 @@ func (b *Blizzard) ValidateBattleUser(payload *models.Overwatch) error {
 	defer resp.Body.Close()
 
 	// Checks status header
-	if err = models.CheckStatusCode(resp.StatusCode, "Blizzard", "invalid Blizzard battle tag, platform or region"); err != nil {
+	if err = models.AccValStatusCode(resp.StatusCode, "Blizzard", "invalid Blizzard battle tag, platform or region"); err != nil {
 		return err
 	}
 

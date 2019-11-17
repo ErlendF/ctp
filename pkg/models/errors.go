@@ -35,6 +35,18 @@ func CheckStatusCode(code int, api string, clientResp string) error {
 	return &ExternalAPIError{Err: errors.New("non 200 statuscode"), API: api, Code: code}
 }
 
+//AccValStatusCode checks the status code when validating an account and returns appropriate error
+func AccValStatusCode(code int, api string, clientResp string) error {
+	switch code {
+	case http.StatusOK:
+		return nil
+	case http.StatusForbidden:
+		return &ExternalAPIError{Err: errors.New("unautorized request to external API"), API: api, Code: code}
+	}
+
+	return &RequestError{Err: fmt.Errorf("non 200 statuscode from external API: %s (%d)", api, code), Response: clientResp}
+}
+
 // Specific errors:
 
 // ErrNotFound indicates that a requested resource was not found
