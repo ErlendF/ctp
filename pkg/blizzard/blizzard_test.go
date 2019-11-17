@@ -38,28 +38,35 @@ type respSetup struct {
 }
 
 func TestBlizzard_ValidateBattleUser(t *testing.T) {
-	var test = map[*models.Overwatch]string{ // TODO: make error messages consts/line up with 1.13
-		&models.Overwatch{BattleTag:"Onijuan-2670", Platform:"pc", Region:"eu",}: "",
-		&models.Overwatch{BattleTag:"Onyoooo-7567", Platform:"pc", Region:"eu",}: "invalid Blizzard battle tag, platform or region",
-		&models.Overwatch{BattleTag:"Onijuan-2670", Platform:"pc", Region:"pc",}: "invalid Overwatch region",
-		&models.Overwatch{BattleTag:"Onijuan-2670", Platform:"eu", Region:"eu",}: "invalid Overwatch platform",
-		nil:"no payload to ValidateBattleUser",
+	var test = []struct{
+		name    string
+		payload *models.Overwatch
+		err     string
+	}{
+		{name:"Test OK", payload:&models.Overwatch{BattleTag: "Onijuan-2670", Platform: "pc", Region: "eu"}, err: ""},
+		{name:"Test invalid BattleTag", payload:&models.Overwatch{BattleTag: "Onyoooo-2670", Platform: "pc", Region: "eu"}, err: "invalid Blizzard battle tag, platform or region"},
+		{name:"Test invalid region", payload:&models.Overwatch{BattleTag: "Onijuan-2670", Platform: "pc", Region: "pc"}, err: "invalid Overwatch region"},
+		{name:"Test invalid platform", payload:&models.Overwatch{BattleTag: "Onijuan-2670", Platform: "pc", Region: "eu"}, err: "invalid Overwatch platform"},
+		{name:"Test no payload", payload:nil, err: ""},
+		//{name:"", payload:&models.Overwatch{BattleTag: "", Platform: "", Region: ""}, err: ""},
 	}
-
+	                          // TODO: make error messages consts/line up with 1.13
 	getter := &mockBlizzard{}
 	ow := New(getter)
 
-	for k, v := range test {
-		err := ow.ValidateBattleUser(k)
-		if err != nil {
-			if !strings.Contains(err.Error(), v) {
-				t.Errorf("Not correct error: |%+v| -- expected |%s|", err, v)
+	for _, v := range test {
+		t.Run(v.name, func (t *testing.T){
+			err := ow.ValidateBattleUser(v.payload)
+			if err != nil {
+				if !strings.Contains(err.Error(), v.err) {
+					t.Errorf("Not correct error: |%+v| -- expected |%s|", err, v.err)
+				}
+			} else {
+				if len(v.err) > 0 {
+					t.Errorf("Expected error: |%s|", v.err)
+				}
 			}
-		} else {
-			if len(v) > 0 {
-				t.Errorf("Expected error: |%s|", v)
-			}
-		}
+		})
 	}
 }
 
