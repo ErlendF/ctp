@@ -204,7 +204,7 @@ func (h *handler) notFound(w http.ResponseWriter, r *http.Request) {
 }
 
 func getID(r *http.Request) (string, error) {
-	id := r.Context().Value(ctxKey("id"))
+	id := r.Context().Value(models.CtxKey("id"))
 	idStr, ok := id.(string)
 
 	if !ok {

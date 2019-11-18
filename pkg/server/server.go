@@ -11,10 +11,9 @@ import (
 const writeTimeout, readTimeout, idleTimeout = 60, 60, 60
 
 // New creates a new http server
-func New(port int, um models.UserManager, val models.TokenValidator) *http.Server {
+func New(port int, um models.UserManager, auth models.AuthMiddleware) *http.Server {
 	handler := newHandler(um)
-	mw := newMiddleware(val)
-	router := newRouter(handler, mw)
+	router := newRouter(handler, auth)
 
 	return &http.Server{
 		Addr: fmt.Sprintf(":%d", port),

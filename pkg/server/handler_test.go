@@ -83,7 +83,7 @@ func TestHandler(t *testing.T) {
 
 	r := mockRouter(h)
 
-	k := ctxKey("id")
+	k := models.CtxKey("id")
 
 	// tc - test cases
 	for _, tc := range cases {

@@ -18,8 +18,8 @@ func (a *Authenticator) GetNewToken(id string) (string, error) {
 	return token.SignedString(a.hmacSecret)
 }
 
-// ValidateToken validates the token and returns the user ID if it's valid
-func (a *Authenticator) ValidateToken(tokenString string) (string, error) {
+// validateToken validates the token and returns the user ID if it's valid
+func (a *Authenticator) validateToken(tokenString string) (string, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		// Validating signing method (alg)
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
