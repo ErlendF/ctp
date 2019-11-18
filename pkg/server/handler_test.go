@@ -58,7 +58,9 @@ func TestHandler(t *testing.T) {
 				"summonerName": "LOPER",
 				"summonerRegion": "EUW1"
 			},
-			"valve": "76561197960434622",
+			"valve": {
+				"username": "test"
+			},
 			"overwatch": {
 				"battleTag": "Onijuan-2670",
 				"platform": "pc",
@@ -119,7 +121,7 @@ func TestHandler(t *testing.T) {
 			if strings.Contains(tc.url, "/api/v1/user") && tc.method == http.MethodGet {
 				err = json.NewDecoder(resp.Body).Decode(&userResp)
 				assert.Nil(t, err)
-				removeIgnoredOutput(um.user)
+				removeIgnoredOutput(um.user, tc.url)
 				assert.Equal(t, um.user, userResp)
 			} else if tc.url == "/api/v1/authcallback" {
 				body, err := ioutil.ReadAll(resp.Body)
@@ -155,9 +157,11 @@ func mockRouter(h *handler) *mux.Router {
 }
 
 // userID and valveID is not returned to the user. valveID is only used to differentiate the games internaly
-func removeIgnoredOutput(user *models.User) {
+func removeIgnoredOutput(user *models.User, url string) {
 	user.ID = ""
-	user.Public = false
+	if strings.Contains(url, "/api/v1/user/") { //it's a test for /api/v1/user/{username}
+		user.Public = false
+	}
 	for i := range user.Games {
 		user.Games[i].ValveID = 0
 	}
