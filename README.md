@@ -69,7 +69,9 @@ To update the user information, "/user" endpoint expects the following body for 
 		"summonerName": "LOPER",
 		"summonerRegion": "EUW1"
 	},
-	"valve": "76561197960434622",
+	"valve": {
+		"username": "olaroa3"
+	},
 	"overwatch": {
 		"battleTag": "Onijuan-2670",
 		"platform": "pc",
