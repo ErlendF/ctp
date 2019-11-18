@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net"
 	"net/http"
 
 	"ctp/pkg/models"
@@ -173,8 +174,8 @@ func logRespond(w http.ResponseWriter, r *http.Request, err error) {
 	logrus.WithField("route", mux.CurrentRoute(r).GetName()).Warn(err)
 
 	var reqErr *models.RequestError
-
 	var apiErr *models.ExternalAPIError
+	netErr, netErrOK := err.(net.Error)
 
 	switch {
 	case errors.Is(err, models.ErrInvalidID):
@@ -185,6 +186,13 @@ func logRespond(w http.ResponseWriter, r *http.Request, err error) {
 		http.Error(w, fmt.Sprintf("%s: %s", http.StatusText(http.StatusBadRequest), reqErr.Response), http.StatusBadRequest)
 	case errors.As(err, &apiErr):
 		http.Error(w, fmt.Sprintf("%s: %s", http.StatusText(http.StatusBadGateway), apiErr.Respond()), http.StatusBadGateway)
+	case netErrOK:
+		if netErr.Timeout() {
+			http.Error(w, http.StatusText(http.StatusGatewayTimeout), http.StatusGatewayTimeout)
+			return
+		}
+
+		http.Error(w, http.StatusText(http.StatusBadGateway), http.StatusBadGateway)
 	default:
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 	}
