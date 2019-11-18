@@ -80,7 +80,6 @@ func (h *handler) updateUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		err = models.NewReqErr(err, "invalid request body")
 		logRespond(w, r, err)
-
 		return
 	}
 
