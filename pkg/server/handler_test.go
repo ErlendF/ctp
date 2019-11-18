@@ -83,12 +83,12 @@ func TestHandler(t *testing.T) {
 
 	r := mockRouter(h)
 
-	userResp := &models.User{}
 	k := ctxKey("id")
 
 	// tc - test cases
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
+			userResp := &models.User{}
 			// Initializing mock structs with random data
 			err := faker.FakeData(&um.user)
 			require.Nil(t, err)
