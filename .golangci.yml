@@ -95,9 +95,8 @@ issues:
         - gochecknoinits
     # to remove false positives on table driven testing
     # https://github.com/kyoh86/scopelint/issues/4
-    - path: _test\.go
-      exclude:
-      - Using the variable on range scope `tc` in function literal
+  exclude:
+     - Using the variable on range scope `tc` in function literal
 
 
 
