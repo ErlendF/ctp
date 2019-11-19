@@ -17,22 +17,33 @@ type mockBlizzard struct {
 	setup respSetup
 }
 
+// a mock http.Get that complies with the "Getter" interface
+// which allows for customized http responses
 func (m *mockBlizzard) Get(url string) (*http.Response, error){
+	// if a wrong url is sent, return default error
 	if !strings.Contains(url, "ow-api.com/v1/stats/") {
 		return nil, m.setup.err
 	}
+
+	// set http response header
 	resp := &http.Response{StatusCode:http.StatusOK, Header:make(http.Header, 0)}
 	if !strings.Contains(url, "Onijuan-2670") {
+		// ensure that a valid user is made, mock invalid user if not
 		resp.StatusCode = http.StatusNotFound
 	}
+
+	// add preconfigured response body to THIS response
 	body, err := json.Marshal(m.setup.resp)
 	if err != nil {
 		return nil, err
 	}
 	resp.Body = ioutil.NopCloser(bytes.NewReader(body))
+
+	// successful request
 	return resp, nil
 }
 
+// struct for setting response body in get request
 type respSetup struct {
 	resp             models.BlizzardResp
 	err              error
@@ -52,12 +63,15 @@ func TestBlizzard_ValidateBattleUser(t *testing.T) {
 		//{name:"", payload:&models.Overwatch{BattleTag: "", Platform: "", Region: ""}, err: ""},
 	}
 
+	// creating a mockBlizzard item to use the custom "Get" func
 	getter := &mockBlizzard{}
 	ow := New(getter)
 
+	// run a test for each of the test items (array above)
 	for _, v := range test {
 		t.Run(v.name, func (t *testing.T){
 			err := ow.ValidateBattleUser(v.payload)
+			// if the err we got does not correspond with the expected error, fail test
 			if err != nil {
 				if !strings.Contains(err.Error(), v.err) {
 					t.Errorf("Not correct error: |%+v| -- expected |%s|", err, v.err)
@@ -89,6 +103,7 @@ func TestBlizzard_GetBlizzardPlaytime(t *testing.T) {
 		//{"Test ",&models.Overwatch{BattleTag: "Onijuan-2670", Platform:  "pc", Region:    "eu"}, "","",0,errors.New("")},
 	}
 
+	// creating a mockBlizzard item to use the custom "Get" func
 	getter := &mockBlizzard{}
 	ow := New(getter)
 
