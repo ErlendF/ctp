@@ -103,10 +103,10 @@ func TestBlizzard_GetBlizzardPlaytime(t *testing.T) {
 			gem, err := ow.GetBlizzardPlaytime(item.payload)
 			if err == nil {
 				if gem.Time != item.fullTime {
-					t.Errorf("Wrong time sum... |%s, %s| -> |%d|", item.cTime, item.qTime, item.fullTime)
+					t.Errorf("Unexpected total time played: |%s, %s| -> |%d|", item.cTime, item.qTime, item.fullTime)
 				}
 				if item.expectedError != nil {
-					t.Errorf("Got wrong error... |%v| != |%v|", err, item.expectedError)
+					t.Errorf("Got unexpected error: |%v| != |%v|", err, item.expectedError)
 				}
 				return
 			}
@@ -114,7 +114,7 @@ func TestBlizzard_GetBlizzardPlaytime(t *testing.T) {
 				if strings.Contains(err.Error(), item.expectedError.Error()) {
 					return
 				}
-				t.Errorf("Big error from test yes... |%v| != |%v|", err, item.expectedError)
+				t.Errorf("Got unexpected error: |%v| != |%v|", err, item.expectedError)
 				return
 			}
 
