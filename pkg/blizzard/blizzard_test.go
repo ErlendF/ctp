@@ -35,7 +35,6 @@ func (m *mockBlizzard) Get(url string) (*http.Response, error){
 
 type respSetup struct {
 	resp             models.BlizzardResp
-	status 			 int
 	err              error
 }
 
