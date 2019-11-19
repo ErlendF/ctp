@@ -67,12 +67,16 @@ func TestHandler(t *testing.T) {
 				"region": "eu"
 			}
 		}`, http.MethodPost, http.StatusOK},
-		{"Test invalid json request body for POST /user", nil, "/api/v1/user", `{ this is an invalid request body }`, http.MethodPost, http.StatusBadRequest},
-		//{"Test invalid request body for POST /user", nil, "/api/v1/user", `{ "test": "this is valid json, but invalid request body" }`, http.MethodPost, http.StatusBadRequest}, - Requires changes to handler, fields are just ignored
+		{"Test invalid json request body for POST /user", nil, "/api/v1/user", `{ this is an invalid request body }`,
+			http.MethodPost, http.StatusBadRequest},
+		// {"Test invalid request body for POST /user", nil, "/api/v1/user", `{ "test": "this is valid json, but invalid request body" }`,
+		// http.MethodPost, http.StatusBadRequest}, - Requires changes to handler, fields are just ignored
 		{"Test ok return for DELETE /user", nil, "/api/v1/user", "", http.MethodDelete, http.StatusOK},
 		{"Test ok return for POST /updategames", nil, "/api/v1/updategames", "", http.MethodPost, http.StatusOK},
 		{"Test ok return for GET /authcallback", nil, "/api/v1/authcallback", "", http.MethodGet, http.StatusOK},
-		{"Test ok return for GET /login", nil, "/api/v1/login", "", http.MethodGet, http.StatusOK}, // as the redirection is never called (due to mocking), the function returns statusOK
+
+		// as the redirection is never called (due to mocking), the function returns statusOK
+		{"Test ok return for GET /login", nil, "/api/v1/login", "", http.MethodGet, http.StatusOK},
 		{"Test ok return for GET /user/{username}", nil, "/api/v1/user/test", "", http.MethodGet, http.StatusOK},
 		{"Test invalid username GET /user/{username}", nil, "/api/v1/user/012345678901234567890", "", http.MethodGet, http.StatusNotFound},
 	}
@@ -82,20 +86,18 @@ func TestHandler(t *testing.T) {
 	assert.NotNil(t, h)
 
 	r := mockRouter(h)
-
 	k := models.CtxKey("id")
 
 	// tc - test cases
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
+			um.err = tc.err
 			userResp := &models.User{}
 			// Initializing mock structs with random data
 			err := faker.FakeData(&um.user)
 			require.Nil(t, err)
 			err = faker.FakeData(&um.response)
 			require.Nil(t, err)
-
-			um.err = tc.err
 
 			// Making and serving request
 			req, err := http.NewRequest(tc.method, tc.url, strings.NewReader(tc.reqBody))
@@ -159,8 +161,8 @@ func mockRouter(h *handler) *mux.Router {
 // userID and valveID is not returned to the user. valveID is only used to differentiate the games internaly
 func removeIgnoredOutput(user *models.User, url string) {
 	user.ID = ""
-	if strings.Contains(url, "/api/v1/user/") { //it's a test for /api/v1/user/{username}
-		user.Public = false
+	if strings.Contains(url, "/api/v1/user/") { // true means it's a test for /api/v1/user/{username}
+		user.Public = false // public should then be ignored as it is not returned
 	}
 	for i := range user.Games {
 		user.Games[i].ValveID = 0

@@ -15,7 +15,7 @@ import (
 
 type mockHandler struct {
 	t          *testing.T
-	expectedId string
+	expectedID string
 }
 
 func (m *mockHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -26,7 +26,7 @@ func (m *mockHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		assert.Fail(m.t, "invalid id")
 	}
 
-	assert.Equal(m.t, m.expectedId, idStr)
+	assert.Equal(m.t, m.expectedID, idStr)
 }
 
 type mockUserValidator struct {
@@ -61,7 +61,7 @@ func TestAuthMiddleware(t *testing.T) {
 			var id string
 			err = faker.FakeData(&id)
 			require.Nil(t, err)
-			h := &mockHandler{t: t, expectedId: id}
+			h := &mockHandler{t: t, expectedID: id}
 			mw := auth.Auth(h)
 
 			uv.err = tc.err

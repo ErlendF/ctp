@@ -28,7 +28,7 @@ func newRouter(h *handler, amw models.AuthMiddleware) *mux.Router {
 	get.Use(log)
 
 	// users are first authenticated using the authentication middleware (checks the "Authorization" header for valid token).
-	// any successfull requests are logged using the log middleware.
+	// any successful requests are logged using the log middleware.
 	// The AuthMiddleware interface is implemented by the Authenticator in the auth package.
 	auth.Use(amw.Auth, log)
 

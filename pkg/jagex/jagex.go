@@ -38,21 +38,19 @@ func (j *Jagex) GetRSPlaytime(username string) (*models.Game, error) {
 
 	var time int
 	responseString := string(responseData)
-
-	lines := strings.Split(string(responseString), "\n")
-	for i := 0; i < 24; i++ {
+	lines := strings.Split(responseString, "\n")
+	for i := 1; i < 23; i++ {
 		fields := strings.Split(lines[i], ",")
 		if len(fields) != 3 {
 			return nil, errors.New("wrong number of fields in GetRSPlaytime")
 		}
 
-		xp := fields[2]
-		estimate, err := xpToTime(xp, i)
+		xp, err := strconv.Atoi(fields[2])
 		if err != nil {
 			return nil, err
 		}
 
-		time += estimate
+		time += xpToTime(xp, i)
 	}
 
 	game := &models.Game{Time: time, Name: "Runescape"}
@@ -61,84 +59,38 @@ func (j *Jagex) GetRSPlaytime(username string) (*models.Game, error) {
 	return game, nil
 }
 
-func xpToTime(xp string, index int) (int, error) {
-	input, err := strconv.Atoi(xp)
-	if err != nil {
-		return 0, err
+// xpToTime estimates time spent on one skill based on the xp (Experience Points)
+func xpToTime(xp, i int) int {
+	if i < 1 || i > 23 {
+		return 0
 	}
-	var output int
-	switch index {
-	case 1: //Attack
-		output = input / 90000
-		break
-	case 2: //Defence
-		output = input / 90000
-		break
-	case 3: //Strength
-		output = input / 90000
-		break
-	case 4: //Hitpoints
-		output = input / 300000
-		break
-	case 5: //Ranged
-		output = input / 150000
-		break
-	case 6: ///Prayer
-		output = input / 200000
-		break
-	case 7: //Magic
-		output = input / 100000
-		break
-	case 8: //Cooking
-		output = input / 400000
-		break
-	case 9: //Woodcutting
-		output = input / 70000
-		break
-	case 10: //Fletching
-		output = input / 250000
-		break
-	case 11: //Fishing
-		output = input / 70000
-		break
-	case 12: //Firemaking
-		output = input / 200000
-		break
-	case 13: //Crafting
-		output = input / 150000
-		break
-	case 14: //Smithing
-		output = input / 250000
-		break
-	case 15: //Mining
-		output = input / 60000
-		break
-	case 16: //Herblore
-		output = input / 200000
-		break
-	case 17: //Agility
-		output = input / 44000
-		break
-	case 18: //Thieving
-		output = input / 100000
-		break
-	case 19: //Slayer
-		output = input / 50000
-		break
-	case 20: //Farming
-		output = input / 100000
-		break
-	case 21: //Runecraft
-		output = input / 50000
-		break
-	case 22: //Hunter
-		output = input / 120000
-		break
-	case 23: //Construction
-		output = input / 400000
-		break
-	}
+	return xp / xpRates[i]
+}
 
-	fmt.Println("Index: " + strconv.Itoa(index) + "\nOutput: " + xp)
-	return output, nil
+// xpRates for each skill
+var xpRates = [...]int{
+	0,
+	90000,
+	90000,
+	90000,
+	300000,
+	150000,
+	200000,
+	100000,
+	400000,
+	70000,
+	250000,
+	70000,
+	200000,
+	150000,
+	250000,
+	60000,
+	200000,
+	44000,
+	100000,
+	50000,
+	100000,
+	50000,
+	120000,
+	400000,
 }

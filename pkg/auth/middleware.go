@@ -9,7 +9,7 @@ import (
 )
 
 // auth is a middleware that validates received token and passes the id to handlers by request context.
-// If the token was invalid, or some error occured, the request is rejected and no handler is called.
+// If the token was invalid, or some error occurred, the request is rejected and no handler is called.
 func (a *Authenticator) Auth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		token := r.Header.Get("Authorization")
