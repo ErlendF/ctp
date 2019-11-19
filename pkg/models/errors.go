@@ -19,8 +19,8 @@ type ExternalAPIError struct {
 	Err  error
 }
 
-//CheckStatusCode checks the status code and returns an ExternalAPIError if it is not 200
-func CheckStatusCode(code int, api string, clientResp string) error {
+// CheckStatusCode checks the status code and returns an ExternalAPIError if it is not 200
+func CheckStatusCode(code int, api, clientResp string) error {
 	switch code {
 	case http.StatusOK:
 		return nil
@@ -35,8 +35,8 @@ func CheckStatusCode(code int, api string, clientResp string) error {
 	return &ExternalAPIError{Err: errors.New("non 200 statuscode"), API: api, Code: code}
 }
 
-//AccValStatusCode checks the status code when validating an account and returns appropriate error
-func AccValStatusCode(code int, api string, clientResp string) error {
+// AccValStatusCode checks the status code when validating an account and returns appropriate error
+func AccValStatusCode(code int, api, clientResp string) error {
 	switch code {
 	case http.StatusOK:
 		return nil
@@ -59,7 +59,7 @@ var ErrInvalidID = errors.New("invalid id")
 var ErrInvalidAuthState = errors.New("invalid authorization state")
 
 // NewReqErrStr returns a new request error with the given error message and response message
-func NewReqErrStr(errStr string, response string) *RequestError {
+func NewReqErrStr(errStr, response string) *RequestError {
 	return &RequestError{Err: errors.New(errStr), Response: response}
 }
 

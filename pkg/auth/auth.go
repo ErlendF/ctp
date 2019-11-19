@@ -15,7 +15,7 @@ import (
 	"golang.org/x/oauth2"
 )
 
-//Authenticator contains everything used by an authenticator
+// Authenticator contains everything used by an authenticator
 type Authenticator struct {
 	ctx        context.Context
 	config     oauth2.Config
@@ -26,8 +26,9 @@ type Authenticator struct {
 
 const stateCookie = "oauthstate"
 
-//New returns a new authenticator
-func New(ctx context.Context, port int, domain string, clientID string, clientSecret string, hmacSecret string, uv models.UserValidator) (*Authenticator, error) {
+// New returns a new authenticator
+func New(ctx context.Context, uv models.UserValidator, port int,
+	domain, clientID, clientSecret, hmacSecret string) (*Authenticator, error) {
 	authenticator := &Authenticator{ctx: ctx, uv: uv}
 
 	provider, err := oidc.NewProvider(ctx, "https://accounts.google.com")
@@ -54,7 +55,7 @@ func New(ctx context.Context, port int, domain string, clientID string, clientSe
 	return authenticator, nil
 }
 
-//AuthRedirect redirects the user to the oauth providers confirmation page
+// AuthRedirect redirects the user to the oauth providers confirmation page
 func (a *Authenticator) AuthRedirect(w http.ResponseWriter, r *http.Request) {
 	state, err := generateStateOauthCookie(w)
 	if err != nil {
@@ -67,7 +68,7 @@ func (a *Authenticator) AuthRedirect(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, a.config.AuthCodeURL(state), http.StatusFound)
 }
 
-//HandleOAuth2Callback handles callback from oauth2
+// HandleOAuth2Callback handles callback from oauth2
 func (a *Authenticator) HandleOAuth2Callback(w http.ResponseWriter, r *http.Request) (string, error) {
 	cookie, err := r.Cookie(stateCookie)
 	if err != nil {
@@ -109,11 +110,6 @@ func (a *Authenticator) HandleOAuth2Callback(w http.ResponseWriter, r *http.Requ
 	}
 
 	return claims.Sub, nil
-}
-
-//IsUser checks wether or not the provided user exisits in the database
-func (a *Authenticator) IsUser(id string) (bool, error) {
-	return a.uv.IsUser(id)
 }
 
 // makes a random

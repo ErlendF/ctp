@@ -8,7 +8,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-//GetNewToken generates a new token for the given id
+// GetNewToken generates a new token for the given id
 func (a *Authenticator) GetNewToken(id string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS512, jwt.MapClaims{
 		"id":  id,
@@ -18,10 +18,9 @@ func (a *Authenticator) GetNewToken(id string) (string, error) {
 	return token.SignedString(a.hmacSecret)
 }
 
-//ValidateToken validates the token and returns the user ID if it's valid
-func (a *Authenticator) ValidateToken(tokenString string) (string, error) {
+// validateToken validates the token and returns the user ID if it's valid
+func (a *Authenticator) validateToken(tokenString string) (string, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-
 		// Validating signing method (alg)
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])

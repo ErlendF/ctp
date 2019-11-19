@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net"
 	"net/http"
 
 	"ctp/pkg/models"
@@ -18,7 +19,7 @@ type handler struct {
 	models.UserManager
 }
 
-//newHandler returns handler
+// newHandler returns a new handler
 func newHandler(um models.UserManager) *handler {
 	return &handler{um}
 }
@@ -53,7 +54,7 @@ func (h *handler) authCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logrus.WithError(err).WithField("route", mux.CurrentRoute(r).GetName()).Warn("error getting token")
 
-		//returning errorcode based on error
+		// returning errorcode based on error
 		switch {
 		case errors.Is(err, models.ErrInvalidAuthState):
 			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
@@ -80,7 +81,6 @@ func (h *handler) updateUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		err = models.NewReqErr(err, "invalid request body")
 		logRespond(w, r, err)
-
 		return
 	}
 
@@ -174,8 +174,8 @@ func logRespond(w http.ResponseWriter, r *http.Request, err error) {
 	logrus.WithField("route", mux.CurrentRoute(r).GetName()).Warn(err)
 
 	var reqErr *models.RequestError
-
 	var apiErr *models.ExternalAPIError
+	netErr, netErrOK := err.(net.Error)
 
 	switch {
 	case errors.Is(err, models.ErrInvalidID):
@@ -186,6 +186,13 @@ func logRespond(w http.ResponseWriter, r *http.Request, err error) {
 		http.Error(w, fmt.Sprintf("%s: %s", http.StatusText(http.StatusBadRequest), reqErr.Response), http.StatusBadRequest)
 	case errors.As(err, &apiErr):
 		http.Error(w, fmt.Sprintf("%s: %s", http.StatusText(http.StatusBadGateway), apiErr.Respond()), http.StatusBadGateway)
+	case netErrOK:
+		if netErr.Timeout() {
+			http.Error(w, http.StatusText(http.StatusGatewayTimeout), http.StatusGatewayTimeout)
+			return
+		}
+
+		http.Error(w, http.StatusText(http.StatusBadGateway), http.StatusBadGateway)
 	default:
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 	}
@@ -197,7 +204,7 @@ func (h *handler) notFound(w http.ResponseWriter, r *http.Request) {
 }
 
 func getID(r *http.Request) (string, error) {
-	id := r.Context().Value(ctxKey("id"))
+	id := r.Context().Value(models.CtxKey("id"))
 	idStr, ok := id.(string)
 
 	if !ok {

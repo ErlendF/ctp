@@ -9,7 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-//Manager is a struct which contains everything necessary
+// Manager is a struct which contains everything necessary
 type Manager struct {
 	models.Organizer
 	db models.Database
@@ -25,12 +25,12 @@ func New(db models.Database, organizer models.Organizer) *Manager {
 	return m
 }
 
-//GetUserByID gets the relevant info for the given user by id
+// GetUserByID gets the relevant info for the given user by id
 func (m *Manager) GetUserByID(id string) (*models.User, error) {
 	return m.db.GetUserByID(id)
 }
 
-//GetUserByName gets the relevant info for the given user by username
+// GetUserByName gets the relevant info for the given user by username
 func (m *Manager) GetUserByName(username string) (*models.User, error) {
 	user, err := m.db.GetUserByName(username)
 	if err != nil {
@@ -40,65 +40,19 @@ func (m *Manager) GetUserByName(username string) (*models.User, error) {
 	return user, nil
 }
 
-//SetUser updates a given user
+// SetUser updates a given user
 func (m *Manager) SetUser(user *models.User) error {
-	dbUser, err := m.db.GetUserByID(user.ID)
+	gameChanges, err := m.validateUserInfo(user)
 	if err != nil {
 		return err
 	}
-
-	gameChanges := false
-
-	if user.Name != "" && user.Name != dbUser.Name {
-		err = validateUserName(user.Name)
-		if err != nil {
-			return err
-		}
-
-		err = m.db.SetUsername(user)
-		if err != nil {
-			return err
-		}
-	}
-
-	//checking that league of legends is set and that it's different from what is already stored
-	if user.Lol != nil {
-		if dbUser.Lol == nil || !(dbUser.Lol.SummonerName == user.Lol.SummonerName && dbUser.Lol.SummonerRegion == user.Lol.SummonerRegion) {
-			gameChanges = true
-
-			user.Lol, err = m.ValidateSummoner(user.Lol)
-			if err != nil {
-				return err
-			}
-		} else {
-			// setting it to nil if it should not be updated, such that it doesn't affect what's already stored in the database
-			user.Lol = nil
-		}
-	}
-
-	if user.Overwatch != nil {
-		if dbUser.Overwatch != user.Overwatch {
-
-			gameChanges = true
-			err = m.ValidateBattleUser(user.Overwatch)
-
-			if err != nil {
-				return err
-			}
-		} else {
-			// setting it to nil if it should not be updated, such that it doesn't affect what's already stored in the database
-			user.Overwatch = nil
-		}
-	}
-
-	//TODO: validate steam and other ids or registrations
 
 	err = m.db.UpdateUser(user)
 	if err != nil {
 		return err
 	}
 
-	//Updates games if there have been a change in
+	// Updates games if there have been a change in
 	if gameChanges {
 		return m.UpdateGames(user.ID)
 	}
@@ -106,12 +60,12 @@ func (m *Manager) SetUser(user *models.User) error {
 	return nil
 }
 
-//DeleteUser deletes the user with the given id
+// DeleteUser deletes the user with the given id
 func (m *Manager) DeleteUser(id string) error {
 	return m.db.DeleteUser(id)
 }
 
-//UpdateGames updates all games the user has registered
+// UpdateGames updates all games the user has registered
 func (m *Manager) UpdateGames(id string) error {
 	user, err := m.db.GetUserByID(id)
 	if err != nil {
@@ -129,7 +83,6 @@ func (m *Manager) UpdateGames(id string) error {
 		updatedGames = append(updatedGames, *lolGame)
 	}
 
-	//TODO: overwatch needs to be changed to fit game format
 	if user.Overwatch != nil {
 		ow, err := m.GetBlizzardPlaytime(user.Overwatch)
 		if err != nil {
@@ -139,8 +92,8 @@ func (m *Manager) UpdateGames(id string) error {
 		updatedGames = append(updatedGames, *ow)
 	}
 
-	if user.Valve != "" {
-		games, err := m.GetValvePlaytime(user.Valve)
+	if user.Valve != nil {
+		games, err := m.GetValvePlaytime(user.Valve.ID)
 		if err != nil {
 			return err
 		}
@@ -153,12 +106,12 @@ func (m *Manager) UpdateGames(id string) error {
 	return m.db.UpdateGames(user)
 }
 
-//Redirect redirects the user to oauth providers
+// Redirect redirects the user to oauth providers
 func (m *Manager) Redirect(w http.ResponseWriter, r *http.Request) {
 	m.AuthRedirect(w, r)
 }
 
-//AuthCallback handles oauth callback
+// AuthCallback handles oauth callback
 func (m *Manager) AuthCallback(w http.ResponseWriter, r *http.Request) (string, error) {
 	id, err := m.HandleOAuth2Callback(w, r)
 	if err != nil {
@@ -178,7 +131,7 @@ func (m *Manager) AuthCallback(w http.ResponseWriter, r *http.Request) (string, 
 	return token, nil
 }
 
-//JohanTestFunc is just a method for johan to test things :-)
+// JohanTestFunc is just a method for johan to test things :-)
 func (m *Manager) JohanTestFunc() {
 	tmpGame := models.Game{
 		Name: "League",
@@ -195,12 +148,10 @@ func (m *Manager) JohanTestFunc() {
 		Name:          "Johan",
 		TotalGameTime: 12,
 		Games:         nil,
-		Valve:         "76561198075109466",
 	}
 
-	tmpUser.Games = append(tmpUser.Games, tmpGame)
-	tmpUser.Games = append(tmpUser.Games, tmpGame2)
-	//debug end
+	tmpUser.Games = append(tmpUser.Games, tmpGame, tmpGame2)
+	// debug end
 
 	tmpUser2, err := m.db.GetUserByID("117575669351657432712")
 	if err != nil {
@@ -231,14 +182,7 @@ func (m *Manager) JohanTestFunc() {
 		return
 	}
 
-	games, err := m.GetValvePlaytime(tmpUser3.Valve)
-	if err != nil {
-		logrus.WithError(err).Warn("Valve playtime failed!")
-		return
-	}
-
-	games = append(games, *game)
-	tmpUser3.Games = games
+	tmpUser3.Games = append(tmpUser3.Games, *game)
 
 	err = m.db.UpdateGames(tmpUser3)
 	if err != nil {
@@ -247,7 +191,7 @@ func (m *Manager) JohanTestFunc() {
 	}
 }
 
-//validateUserName checks if the name entered is a valid name for a user
+// validateUserName checks if the name entered is a valid name for a user
 func validateUserName(name string) error {
 	re := regexp.MustCompile("^[a-zA-Z0-9 ]{1,15}$")
 	if !re.MatchString(name) {
@@ -255,4 +199,73 @@ func validateUserName(name string) error {
 	}
 
 	return nil
+}
+
+// validateUserInfo checks whether or not any information has been updated,
+// and validates the updated information
+func (m *Manager) validateUserInfo(user *models.User) (bool, error) {
+	dbUser, err := m.db.GetUserByID(user.ID)
+	if err != nil {
+		return false, err
+	}
+
+	gameChanges := false
+
+	if user.Name != "" && user.Name != dbUser.Name {
+		err = validateUserName(user.Name)
+		if err != nil {
+			return false, err
+		}
+
+		err = m.db.SetUsername(user)
+		if err != nil {
+			return false, err
+		}
+	}
+
+	// checking that league of legends is set and that it's different from what is already stored
+	if user.Lol != nil {
+		if dbUser.Lol == nil || !(dbUser.Lol.SummonerName == user.Lol.SummonerName && dbUser.Lol.SummonerRegion == user.Lol.SummonerRegion) {
+			gameChanges = true
+
+			user.Lol, err = m.ValidateSummoner(user.Lol)
+			if err != nil {
+				return false, err
+			}
+		} else {
+			// setting it to nil if it should not be updated, such that it doesn't affect what's already stored in the database
+			user.Lol = nil
+		}
+	}
+
+	if user.Overwatch != nil {
+		if dbUser.Overwatch != user.Overwatch {
+			gameChanges = true
+			err = m.ValidateBattleUser(user.Overwatch)
+
+			if err != nil {
+				return false, err
+			}
+		} else {
+			// setting it to nil if it should not be updated, such that it doesn't affect what's already stored in the database
+			user.Overwatch = nil
+		}
+	}
+
+	if user.Valve != nil {
+		if dbUser.Valve != user.Valve {
+			gameChanges = true
+			user.Valve.ID, err = m.ValidateValveAccount(user.Valve.Username)
+			if err != nil {
+				return false, err
+			}
+		} else {
+			// setting it to nil if it should not be updated, such that it doesn't affect what's already stored in the database
+			user.Valve = nil
+		}
+	}
+
+	//TODO: validate steam and other ids or registrations
+
+	return gameChanges, nil
 }

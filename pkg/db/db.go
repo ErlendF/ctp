@@ -4,8 +4,9 @@ import (
 	"ctp/pkg/models"
 	"errors"
 
-	"github.com/sirupsen/logrus"
 	"sort"
+
+	"github.com/sirupsen/logrus"
 
 	"cloud.google.com/go/firestore"
 	"github.com/fatih/structs"
@@ -19,7 +20,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-//Database contains a firestore client and a context
+// Database contains a firestore client and a context
 type Database struct {
 	*firestore.Client
 	ctx context.Context
@@ -27,7 +28,7 @@ type Database struct {
 
 const userCol = "users"
 
-//New returns a new databse
+// New returns a new databse
 func New(key string) (*Database, error) {
 	db := &Database{ctx: context.Background()}
 
@@ -47,7 +48,7 @@ func New(key string) (*Database, error) {
 	return db, nil
 }
 
-//CreateUser creates a user
+// CreateUser creates a user
 func (db *Database) CreateUser(user *models.User) error {
 	_, err := db.Collection(userCol).Doc(user.ID).Create(db.ctx, user)
 	if err != nil && status.Code(err) != codes.AlreadyExists {
@@ -57,7 +58,7 @@ func (db *Database) CreateUser(user *models.User) error {
 	return nil
 }
 
-//GetUserByID gets a user from the database
+// GetUserByID gets a user from the database
 func (db *Database) GetUserByID(id string) (*models.User, error) {
 	doc, err := db.Collection(userCol).Doc(id).Get(db.ctx)
 	if err != nil {
@@ -80,7 +81,7 @@ func (db *Database) GetUserByID(id string) (*models.User, error) {
 	return &user, nil
 }
 
-//GetUserByName gets a user by name
+// GetUserByName gets a user by name
 func (db *Database) GetUserByName(name string) (*models.User, error) {
 	docs, err := db.Collection(userCol).Where("name", "==", name).Where("public", "==", true).Documents(db.ctx).GetAll()
 	if err != nil {
@@ -111,8 +112,8 @@ func (db *Database) GetUserByName(name string) (*models.User, error) {
 	return &user, nil
 }
 
-//UpdateUser updates the relevant fields of the user
-//checks for empty values
+// UpdateUser updates the relevant fields of the user
+// checks for empty values
 func (db *Database) UpdateUser(user *models.User) error {
 	user.Name = "" // username and games are updated by dedicated functions
 	user.Games = nil
@@ -131,7 +132,7 @@ func (db *Database) UpdateUser(user *models.User) error {
 	return err
 }
 
-//UpdateGames updates the games for the given user
+// UpdateGames updates the games for the given user
 func (db *Database) UpdateGames(user *models.User) error {
 	dbUser, err := db.GetUserByID(user.ID)
 	if err != nil {
@@ -140,11 +141,11 @@ func (db *Database) UpdateGames(user *models.User) error {
 
 	// checking that each game in the database is still present in the new games array
 	for _, dbGame := range dbUser.Games {
-		len := len(user.Games)
+		gamesLen := len(user.Games)
 		gameFound := false
 
 		// looking for the game in user.Games
-		for i := 0; i < len && !gameFound; i++ {
+		for i := 0; i < gamesLen && !gameFound; i++ {
 			if dbGame.Name == user.Games[i].Name && dbGame.ValveID == user.Games[i].ValveID {
 				gameFound = true
 				break
@@ -174,7 +175,7 @@ func (db *Database) UpdateGames(user *models.User) error {
 	return err
 }
 
-//UpdateTotalGameTime updates the totalgametime for the given user
+// UpdateTotalGameTime updates the totalgametime for the given user
 func (db *Database) UpdateTotalGameTime(id string) error {
 	user, err := db.GetUserByID(id)
 	if err != nil {
@@ -196,7 +197,7 @@ func (db *Database) UpdateTotalGameTime(id string) error {
 	return err
 }
 
-//SetUsername sets the username for the user, returns error if it is already in use
+// SetUsername sets the username for the user, returns error if it is already in use
 func (db *Database) SetUsername(user *models.User) error {
 	dbUser, err := db.GetUserByName(user.Name)
 	if err != nil && !errors.Is(err, models.ErrNotFound) {
@@ -218,19 +219,19 @@ func (db *Database) SetUsername(user *models.User) error {
 	return err
 }
 
-//OverwriteUser overwrites the user specified by the user id, or creates it if it didn't exist already
+// OverwriteUser overwrites the user specified by the user id, or creates it if it didn't exist already
 func (db *Database) OverwriteUser(user *models.User) error {
 	_, err := db.Collection(userCol).Doc(user.ID).Set(db.ctx, user)
 	return err
 }
 
-//DeleteUser deletes a user from the database
+// DeleteUser deletes a user from the database
 func (db *Database) DeleteUser(id string) error {
 	_, err := db.Collection(userCol).Doc(id).Delete(db.ctx)
 	return err
 }
 
-//IsUser checks wether or not the provided user exisits in the database
+// IsUser checks wether or not the provided user exisits in the database
 func (db *Database) IsUser(id string) (bool, error) {
 	_, err := db.Collection(userCol).Doc(id).Get(db.ctx)
 	if err != nil {

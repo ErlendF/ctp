@@ -57,6 +57,7 @@ Requires authentication:
 ```
 /user         (GET): Returns all information about the user themselves.
 /user        (POST): Updates information about the user themselves.
+/user      (DELETE): Deletes the user and all information related to them.
 /updategames (POST): Fetches new data from the servies registered for the user.
 ```
 
@@ -68,7 +69,9 @@ To update the user information, "/user" endpoint expects the following body for 
 		"summonerName": "LOPER",
 		"summonerRegion": "EUW1"
 	},
-	"valve": "76561197960434622",
+	"valve": {
+		"username": "olaroa3"
+	},
 	"overwatch": {
 		"battleTag": "Onijuan-2670",
 		"platform": "pc",

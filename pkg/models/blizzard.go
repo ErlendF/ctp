@@ -16,7 +16,7 @@ type BlizzardResp struct {
 	} `json:"quickPlayStats"`
 }
 
-//CareerStats includes time played for all heroes by game
+// CareerStats includes time played for all heroes by game
 type CareerStats struct {
 	AllHeroes struct {
 		Game struct {

@@ -1,12 +1,12 @@
 package models
 
-//Riot interface defines all methods which should be provided by riot
+// Riot interface defines all methods which should be provided by riot
 type Riot interface {
 	GetRiotPlaytime(reg *SummonerRegistration) (*Game, error)
 	ValidateSummoner(reg *SummonerRegistration) (*SummonerRegistration, error)
 }
 
-//MatchList should have a meaningfull comment - TODO
+// MatchList contains a list of matches with relevant information
 type MatchList struct {
 	Matches    []Matches `json:"matches"`
 	EndIndex   int       `json:"endIndex"`
@@ -14,7 +14,7 @@ type MatchList struct {
 	TotalGames int       `json:"totalGames"`
 }
 
-//Matches should have a meaningfull comment - TODO
+// Matches contains information about a specific match
 type Matches struct {
 	Lane       string `json:"lane"`
 	GameID     int64  `json:"gameId"`
@@ -26,7 +26,7 @@ type Matches struct {
 	Season     int    `json:"season"`
 }
 
-//SummonerRegistration contains the necessary information to register a summoner (league of legends account)
+// SummonerRegistration contains the necessary information to register a summoner (league of legends account)
 type SummonerRegistration struct {
 	SummonerName   string `json:"summonerName" firestore:"summonerName"`
 	SummonerRegion string `json:"summonerRegion" firestore:"summonerRegion"`

@@ -12,12 +12,12 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-//Blizzard is a struct which contains everything necessary to handle a request related to blizzard
+// Blizzard is a struct which contains everything necessary to handle a request related to blizzard
 type Blizzard struct {
 	models.Getter
 }
 
-//New returns a new blizzard instance
+// New returns a new blizzard instance
 func New(getter models.Getter) *Blizzard {
 	return &Blizzard{getter}
 }
@@ -56,7 +56,7 @@ func (b *Blizzard) ValidateBattleUser(payload *models.Overwatch) error {
 	defer resp.Body.Close()
 
 	// Checks status header
-	if err = models.AccValStatusCode(resp.StatusCode, "Blizzard", "invalid Blizzard battle tag, platform or region"); err != nil {
+	if err := models.AccValStatusCode(resp.StatusCode, "Blizzard", "invalid Blizzard battle tag, platform or region"); err != nil {
 		return err
 	}
 
@@ -101,7 +101,8 @@ func (b *Blizzard) queryAPI(url string) (*models.Game, error) {
 	defer resp.Body.Close()
 
 	// Checks status code
-	if err = models.CheckStatusCode(resp.StatusCode, "Blizzard", "invalid Blizzard battle tag or region"); err != nil {
+	err = models.CheckStatusCode(resp.StatusCode, "Blizzard", "invalid Blizzard battle tag or region")
+	if err != nil {
 		return nil, err
 	}
 
@@ -111,7 +112,8 @@ func (b *Blizzard) queryAPI(url string) (*models.Game, error) {
 		return nil, models.NewAPIErr(err, "Blizzard")
 	}
 
-	if gameTime.QuickPlayStats.CareerStats.AllHeroes.Game.TimePlayed == "" || gameTime.CompetitiveStats.CareerStats.AllHeroes.Game.TimePlayed == "" {
+	if gameTime.QuickPlayStats.CareerStats.AllHeroes.Game.TimePlayed == "" ||
+		gameTime.CompetitiveStats.CareerStats.AllHeroes.Game.TimePlayed == "" {
 		return nil, errInvalidTimePlayed
 	}
 
