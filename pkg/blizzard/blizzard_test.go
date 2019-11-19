@@ -70,8 +70,10 @@ func TestBlizzard_ValidateBattleUser(t *testing.T) {
 	// run a test for each of the test items (array above)
 	for _, v := range test {
 		t.Run(v.name, func (t *testing.T){
+			// runs the actual function
 			err := ow.ValidateBattleUser(v.payload)
-			// if the err we got does not correspond with the expected error, fail test
+
+			// if the error we got does not correspond with the expected error, fail test
 			if err != nil {
 				if !strings.Contains(err.Error(), v.err) {
 					t.Errorf("Not correct error: |%+v| -- expected |%s|", err, v.err)
@@ -107,32 +109,38 @@ func TestBlizzard_GetBlizzardPlaytime(t *testing.T) {
 	getter := &mockBlizzard{}
 	ow := New(getter)
 
+	// Run one test for each of the test cases in array above
 	for _, item := range testcase {
 		t.Run(item.name, func(t *testing.T){
 
+			// set up expected response body with information from test-item
 			setup := &respSetup{}
 			setup.resp.CompetitiveStats.CareerStats.AllHeroes.Game.TimePlayed = item.cTime
 			setup.resp.QuickPlayStats.CareerStats.AllHeroes.Game.TimePlayed = item.qTime
 			getter.setup = *setup
 
+			// runs the function
 			gem, err := ow.GetBlizzardPlaytime(item.payload)
+
+			// if the error we got does not correspond with the expected error, fail test
 			if err == nil {
-				if gem.Time != item.fullTime {
-					t.Errorf("Unexpected total time played: |%s, %s| -> |%d|", item.cTime, item.qTime, item.fullTime)
-				}
 				if item.expectedError != nil {
 					t.Errorf("Got unexpected error: |%v| != |%v|", err, item.expectedError)
+				}
+				// if the resulting time total does not match the test case -> error out
+				if gem.Time != item.fullTime {
+					t.Errorf("Unexpected total time played: |%s, %s| -> |%d|", item.cTime, item.qTime, item.fullTime)
 				}
 				return
 			}
 			if err != item.expectedError {
 				if strings.Contains(err.Error(), item.expectedError.Error()) {
+					// if the errors contain the expected text -> allow to pass
 					return
 				}
 				t.Errorf("Got unexpected error: |%v| != |%v|", err, item.expectedError)
 				return
 			}
-
 		})
 	}
 
