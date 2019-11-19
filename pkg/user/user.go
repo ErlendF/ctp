@@ -94,8 +94,8 @@ func (m *Manager) UpdateGames(id string) error {
 		updatedGames = append(updatedGames, *ow)
 	}
 
-	if user.Valve != "" {
-		games, err := m.GetValvePlaytime(user.Valve)
+	if user.Valve != nil {
+		games, err := m.GetValvePlaytime(user.Valve.ID)
 		if err != nil {
 			return err
 		}
@@ -160,7 +160,6 @@ func (m *Manager) JohanTestFunc() {
 		Name:          "Johan",
 		TotalGameTime: 12,
 		Games:         nil,
-		Valve:         "76561198075109466",
 	}
 
 	tmpUser.Games = append(tmpUser.Games, tmpGame, tmpGame2)
@@ -195,14 +194,7 @@ func (m *Manager) JohanTestFunc() {
 		return
 	}
 
-	games, err := m.GetValvePlaytime(tmpUser3.Valve)
-	if err != nil {
-		logrus.WithError(err).Warn("Valve playtime failed!")
-		return
-	}
-
-	games = append(games, *game)
-	tmpUser3.Games = games
+	tmpUser3.Games = append(tmpUser3.Games, *game)
 
 	err = m.db.UpdateGames(tmpUser3)
 	if err != nil {
@@ -269,6 +261,19 @@ func (m *Manager) validateUserInfo(user *models.User) (bool, error) {
 		} else {
 			// setting it to nil if it should not be updated, such that it doesn't affect what's already stored in the database
 			user.Overwatch = nil
+		}
+	}
+
+	if user.Valve != nil {
+		if dbUser.Valve != user.Valve {
+			gameChanges = true
+			user.Valve.ID, err = m.ValidateValveAccount(user.Valve.Username)
+			if err != nil {
+				return false, err
+			}
+		} else {
+			// setting it to nil if it should not be updated, such that it doesn't affect what's already stored in the database
+			user.Valve = nil
 		}
 	}
 

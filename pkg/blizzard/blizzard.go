@@ -45,7 +45,7 @@ func (b *Blizzard) ValidateBattleUser(payload *models.Overwatch) error {
 		return models.NewReqErrStr("invalid Overwatch platform", "invalid platform for Overwatch account")
 	}
 
-	// check that provided battle tag is correct TODO: make regex (https://us.battle.net/support/en/article/700007)?
+	// check that provided battle tag is correct
 	url := fmt.Sprintf("https://ow-api.com/v1/stats/%s/%s/%s/heroes/complete",
 		payload.Platform, payload.Region, payload.BattleTag)
 	resp, err := b.Get(url)

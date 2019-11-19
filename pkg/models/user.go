@@ -7,7 +7,7 @@ type User struct {
 	Public        bool                  `json:"public,omitempty" firestore:"public"`
 	TotalGameTime int                   `json:"totalPlayTime" firestore:"totalGameTime"`
 	Lol           *SummonerRegistration `json:"lol,omitempty" firestore:"lol"`
-	Valve         string                `json:"valve,omitempty" firestore:"valve"`
+	Valve         *ValveAccount         `json:"valve,omitempty" firestore:"valve"`
 	Overwatch     *Overwatch            `json:"overwatch,omitempty" firestore:"overwatch"`
 	Jagex         string                `json:"runescape,omitempty" firestore:"runescape"`
 	Games         []Game                `json:"games" firestore:"games"`
