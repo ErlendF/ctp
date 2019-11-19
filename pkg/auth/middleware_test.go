@@ -47,6 +47,7 @@ func TestAuthMiddleware(t *testing.T) {
 		{"Test ok", nil, true, true, http.StatusOK},
 		{"Test no token provided", nil, true, false, http.StatusForbidden},
 		{"Test unexpected error", errors.New("test"), true, false, http.StatusForbidden},
+		{"Test invalid user", nil, true, false, http.StatusForbidden},
 	}
 
 	uv := &mockUserValidator{}
