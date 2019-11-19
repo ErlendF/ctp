@@ -80,6 +80,8 @@ func TestBlizzard_GetBlizzardPlaytime(t *testing.T) {
 		expectedError error
 	}{
 		{"Test OK",&models.Overwatch{BattleTag: "Onijuan-2670", Platform:  "pc", Region:    "eu"}, "0:0:0","0:0:0",0,nil},
+		{"Test 404",&models.Overwatch{BattleTag: "Onijuan2670", Platform:  "pc", Region:    "eu"}, "","",0,errors.New("invalid Blizzard battle tag or region")},
+		{"Test unacceptable response",&models.Overwatch{BattleTag: "Onijuan-2670", Platform:  "pc", Region:    "eu"}, "","",0,errors.New("no acceptable response from OW-api")},
 		{"Test time [1]",&models.Overwatch{BattleTag: "Onijuan-2670", Platform:  "pc", Region:    "eu"}, "0","0",0,nil},
 		{"Test time [2]",&models.Overwatch{BattleTag: "Onijuan-2670", Platform:  "pc", Region:    "eu"}, "1:0","59:0",1,nil},
 		{"Test time [4]",&models.Overwatch{BattleTag: "Onijuan-2670", Platform:  "pc", Region:    "eu"}, "4:34:3:2","0",0,errors.New("OW API changed the way time is encoded")},
