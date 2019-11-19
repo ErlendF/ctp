@@ -9,6 +9,7 @@ type User struct {
 	Lol           *SummonerRegistration `json:"lol,omitempty" firestore:"lol"`
 	Valve         string                `json:"valve,omitempty" firestore:"valve"`
 	Overwatch     *Overwatch            `json:"overwatch,omitempty" firestore:"overwatch"`
+	Jagex         string                `json:"runescape,omitempty" firestore:"runescape"`
 	Games         []Game                `json:"games" firestore:"games"`
 }
 

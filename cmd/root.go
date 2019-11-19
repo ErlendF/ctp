@@ -21,6 +21,7 @@ import (
 	"ctp/pkg/auth"
 	"ctp/pkg/blizzard"
 	"ctp/pkg/db"
+	"ctp/pkg/jagex"
 	"ctp/pkg/models"
 	"ctp/pkg/riot"
 	"ctp/pkg/user"
@@ -81,6 +82,7 @@ var rootCmd = &cobra.Command{
 		riot := riot.New(client, riotAPIKey)
 		valve := valve.New(client, valveAPIKey)
 		blizzard := blizzard.New(client)
+		jagex := jagex.New(client)
 		db, err := db.New(config.fbkey)
 		if err != nil {
 			logrus.WithError(err).Fatalf("Unable to get new Database:%s", err)
@@ -98,8 +100,9 @@ var rootCmd = &cobra.Command{
 			models.Valve
 			models.Riot
 			models.Blizzard
+			models.Jagex
 			models.TokenGenerator
-		}{valve, riot, blizzard, auth}
+		}{valve, riot, blizzard, jagex, auth}
 
 		um := user.New(db, organizer)
 		srv := server.New(config.port, um, auth)
