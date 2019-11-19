@@ -1,7 +1,5 @@
 package blizzard
 
-// TODO: fill this file with documentation
-
 import (
 	"bytes"
 	"ctp/pkg/models"
