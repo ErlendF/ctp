@@ -1,5 +1,7 @@
 package blizzard
 
+// TODO: fill this file with documentation
+
 import (
 	"bytes"
 	"ctp/pkg/models"
@@ -50,7 +52,7 @@ func TestBlizzard_ValidateBattleUser(t *testing.T) {
 		{name:"Test no payload", payload:nil, err: "no payload to ValidateBattleUser"},
 		//{name:"", payload:&models.Overwatch{BattleTag: "", Platform: "", Region: ""}, err: ""},
 	}
-	                          // TODO: make error messages consts/line up with 1.13
+
 	getter := &mockBlizzard{}
 	ow := New(getter)
 
@@ -85,7 +87,7 @@ func TestBlizzard_GetBlizzardPlaytime(t *testing.T) {
 		{"Test time [1]",&models.Overwatch{BattleTag: "Onijuan-2670", Platform:  "pc", Region:    "eu"}, "0","0",0,nil},
 		{"Test time [2]",&models.Overwatch{BattleTag: "Onijuan-2670", Platform:  "pc", Region:    "eu"}, "1:0","59:0",1,nil},
 		{"Test time [4]",&models.Overwatch{BattleTag: "Onijuan-2670", Platform:  "pc", Region:    "eu"}, "4:34:3:2","0",0,errors.New("OW API changed the way time is encoded")},
-		//{"Test ",&models.Overwatch{BattleTag: "Onijuan-2670", Platform:  "pc", Region:    "eu"}, "","",0,fmt.Errorf("")},
+		//{"Test ",&models.Overwatch{BattleTag: "Onijuan-2670", Platform:  "pc", Region:    "eu"}, "","",0,errors.New("")},
 	} // TODO: add more test-cases
 
 	getter := &mockBlizzard{}
