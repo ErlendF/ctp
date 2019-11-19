@@ -87,7 +87,7 @@ func TestBlizzard_GetBlizzardPlaytime(t *testing.T) {
 		{"Test time [2]",&models.Overwatch{BattleTag: "Onijuan-2670", Platform:  "pc", Region:    "eu"}, "1:0","59:0",1,nil},
 		{"Test time [4]",&models.Overwatch{BattleTag: "Onijuan-2670", Platform:  "pc", Region:    "eu"}, "4:34:3:2","0",0,errors.New("OW API changed the way time is encoded")},
 		//{"Test ",&models.Overwatch{BattleTag: "Onijuan-2670", Platform:  "pc", Region:    "eu"}, "","",0,errors.New("")},
-	} // TODO: add more test-cases
+	}
 
 	getter := &mockBlizzard{}
 	ow := New(getter)
@@ -100,7 +100,6 @@ func TestBlizzard_GetBlizzardPlaytime(t *testing.T) {
 			setup.resp.QuickPlayStats.CareerStats.AllHeroes.Game.TimePlayed = item.qTime
 			getter.setup = *setup
 
-			// TODO: add more checks
 			gem, err := ow.GetBlizzardPlaytime(item.payload)
 			if err == nil {
 				if gem.Time != item.fullTime {
