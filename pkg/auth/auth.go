@@ -117,7 +117,6 @@ func (a *Authenticator) HandleOAuth2Callback(w http.ResponseWriter, r *http.Requ
 func generateStateOauthCookie(w http.ResponseWriter) (string, error) {
 	b := make([]byte, 16)
 	_, err := rand.Read(b)
-
 	if err != nil {
 		return "", err
 	}

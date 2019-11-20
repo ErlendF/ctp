@@ -15,7 +15,7 @@ type mockBlizzard struct {
 	setup respSetup
 }
 
-// a mock http.Get that complies with the "Getter" interface
+// a mock http.Get that implements the "Getter" interface
 // which allows for customized http responses
 func (m *mockBlizzard) Get(url string) (*http.Response, error) {
 	// if a wrong url is sent, return default error
