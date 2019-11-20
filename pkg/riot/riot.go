@@ -72,15 +72,15 @@ func (r *Riot) GetRiotPlaytime(reg *models.SummonerRegistration) (*models.Game, 
 }
 
 // ValidateSummoner validates the summoner
-func (r *Riot) ValidateSummoner(reg *models.SummonerRegistration) (*models.SummonerRegistration, error) {
+func (r *Riot) ValidateSummoner(reg *models.SummonerRegistration) error {
 	if reg == nil {
-		return nil, errors.New("nil summoner registration")
+		return errors.New("nil summoner registration")
 	}
 
 	var regions = []string{"RU", "KR", "BR1", "OC1", "JP1", "NA1", "EUN1", "EUW1", "TR1", "LA1", "LA2"}
 
 	if !models.Contains(regions, reg.SummonerRegion) {
-		return nil, models.NewReqErrStr(fmt.Sprintf("invalid summoner region: %s", reg.SummonerRegion), "invalid region for League of Legends")
+		return models.NewReqErrStr(fmt.Sprintf("invalid summoner region: %s", reg.SummonerRegion), "invalid region for League of Legends")
 	}
 
 	// Validating name
@@ -88,35 +88,35 @@ func (r *Riot) ValidateSummoner(reg *models.SummonerRegistration) (*models.Summo
 
 	formatURL, err := url.Parse(URL)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	req, err := http.NewRequest(http.MethodGet, formatURL.String(), nil)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	req.Header.Set("X-Riot-Token", r.apiKey)
 
 	resp, err := r.Client.Do(req)
 	if err != nil {
-		return nil, models.NewAPIErr(err, "Riot")
+		return models.NewAPIErr(err, "Riot")
 	}
 	defer resp.Body.Close()
 
 	err = models.AccValStatusCode(resp.StatusCode, "Riot", "invalid username for League of Legends")
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	var tmpReg models.SummonerRegistration
 
 	err = json.NewDecoder(resp.Body).Decode(&tmpReg)
 	if err != nil {
-		return nil, models.NewAPIErr(err, "Riot")
+		return models.NewAPIErr(err, "Riot")
 	}
 
 	reg.AccountID = tmpReg.AccountID
 
-	return reg, nil
+	return nil
 }

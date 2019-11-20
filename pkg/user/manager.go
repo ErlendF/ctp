@@ -240,7 +240,7 @@ func (m *Manager) validateUserInfo(user *models.User) (bool, error) {
 		if dbUser.Lol == nil || !(dbUser.Lol.SummonerName == user.Lol.SummonerName && dbUser.Lol.SummonerRegion == user.Lol.SummonerRegion) {
 			gameChanges = true
 
-			user.Lol, err = m.ValidateSummoner(user.Lol)
+			err = m.ValidateSummoner(user.Lol)
 			if err != nil {
 				return false, err
 			}
