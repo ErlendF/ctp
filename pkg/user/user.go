@@ -72,7 +72,7 @@ func (m *Manager) UpdateGames(id string) error {
 		return err
 	}
 
-	logrus.Debugf("username: %s, runescape: %s", user.Name, user.Jagex)
+	logrus.Debugf("username: %s, runescape: %s", user.Name, user.Runescape)
 
 	var updatedGames []models.Game
 
@@ -103,9 +103,9 @@ func (m *Manager) UpdateGames(id string) error {
 		updatedGames = append(games, updatedGames...)
 	}
 
-	if user.Jagex != "" {
+	if user.Runescape != "" {
 		logrus.Debug("jagex not empty!")
-		rs, err := m.GetRSPlaytime(user.Jagex)
+		rs, err := m.GetRSPlaytime(user.Runescape)
 		if err != nil {
 			return err
 		}
