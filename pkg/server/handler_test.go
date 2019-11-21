@@ -69,13 +69,11 @@ func TestHandler(t *testing.T) {
 		}`, http.MethodPost, http.StatusOK},
 		{"Test invalid json request body for POST /user", nil, "/api/v1/user", `{ this is an invalid request body }`,
 			http.MethodPost, http.StatusBadRequest},
-		// {"Test invalid request body for POST /user", nil, "/api/v1/user", `{ "test": "this is valid json, but invalid request body" }`,
-		// http.MethodPost, http.StatusBadRequest}, - Requires changes to handler, fields are just ignored
 		{"Test ok return for DELETE /user", nil, "/api/v1/user", "", http.MethodDelete, http.StatusOK},
 		{"Test ok return for POST /updategames", nil, "/api/v1/updategames", "", http.MethodPost, http.StatusOK},
 		{"Test ok return for GET /authcallback", nil, "/api/v1/authcallback", "", http.MethodGet, http.StatusOK},
 
-		// as the redirection is never called (due to mocking), the function returns statusOK
+		// as the redirection is never called (due to mocking), login only returns statusOK
 		{"Test ok return for GET /login", nil, "/api/v1/login", "", http.MethodGet, http.StatusOK},
 		{"Test ok return for GET /user/{username}", nil, "/api/v1/user/test", "", http.MethodGet, http.StatusOK},
 		{"Test invalid username GET /user/{username}", nil, "/api/v1/user/012345678901234567890", "", http.MethodGet, http.StatusNotFound},

@@ -15,7 +15,7 @@ func (m *mockMW) Auth(next http.Handler) http.Handler {
 	})
 }
 
-// This is not a good test. However, it shouldn't be necessary to test a function nearly devoid of actual logic.
+// This is not a good test. It shouldn't be necessary to test a function nearly devoid of actual logic.
 // This test is however added as the only metric used is testcoverage.
 func TestNewRouter(t *testing.T) {
 	um := &mockUserManager{}

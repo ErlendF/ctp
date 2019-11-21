@@ -60,7 +60,8 @@ func TestAccValStatusCode(t *testing.T) {
 	}
 }
 
-// this is a very basic test to get more test coverage, because that is a very good metric!
+// This is not a good test. It shouldn't be necessary to test a function nearly devoid of actual logic.
+// This test is however added as the only metric used is testcoverage.
 func TestNewErrorFuncs(t *testing.T) {
 	testErr := errors.New("test")
 
