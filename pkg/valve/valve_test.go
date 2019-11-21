@@ -5,6 +5,7 @@ import (
 	"ctp/pkg/models"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"testing"
@@ -165,6 +166,8 @@ func TestValve_GetValvePlaytime(t *testing.T) {
 		statusCode    int
 	}{
 		{name: "Test OK", expectedError: nil, statusCode: http.StatusOK},
+		{name: "Test getter error", expectedError: errors.New("Test error"), respError: errors.New("Test error"), statusCode: http.StatusOK},
+		{name: "Test not found", expectedError: &models.RequestError{Err: fmt.Errorf("invalid response from Valve API: %w", models.ErrNotFound), Response: "invalid steam id"}, statusCode: http.StatusNotFound},
 	}
 
 	// creating a mockGetter item to use the custom "Get" func
