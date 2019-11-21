@@ -66,6 +66,26 @@ func (v *Valve) ValidateValveAccount(username string) (string, error) {
 	return steamResp.Response.ID64, nil
 }
 
+// ValidateValveID validates the 64-bit steam account id
+func (v *Valve) ValidateValveID(id string) error {
+	if !strings.HasPrefix(id, "7656119") {
+		return models.NewReqErrStr("invalid steam id", "invalid steam id")
+	}
+
+	resp, err := v.Get(fmt.Sprintf(getOwnedGames, v.apiKey, id))
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	err = models.AccValStatusCode(resp.StatusCode, "Valve", "invalid steam username")
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // GetValvePlaytime gets playtime on steam for specified game
 func (v *Valve) GetValvePlaytime(id string) ([]models.Game, error) {
 	logrus.Debug("GetSteamPlaytime")
