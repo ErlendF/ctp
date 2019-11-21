@@ -8,7 +8,6 @@ type Database interface {
 	UpdateUser(user *User) error
 	UpdateGames(user *User) error
 	SetUsername(user *User) error
-	OverwriteUser(user *User) error
 	DeleteUser(id string) error
 }
 

@@ -23,6 +23,7 @@ func newRouter(h *handler, amw models.AuthMiddleware) *mux.Router {
 	auth.HandleFunc("/user", h.updateUser).Methods(http.MethodPost).Name("updateUser")
 	auth.HandleFunc("/user", h.deleteUser).Methods(http.MethodDelete).Name("deleteUser")
 	auth.HandleFunc("/updategames", h.updateGames).Methods(http.MethodPost).Name("updateGames")
+	auth.HandleFunc("/riotapikey", h.updateKey).Methods(http.MethodPost).Name("updateKey")
 
 	// loggin every request using the log middleware
 	get.Use(log)

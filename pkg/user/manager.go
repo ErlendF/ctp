@@ -140,6 +140,19 @@ func (m *Manager) AuthCallback(w http.ResponseWriter, r *http.Request) (string, 
 	return token, nil
 }
 
+// UpdateRiotAPIKey updates
+func (m *Manager) UpdateRiotAPIKey(key, id string) error {
+	user, err := m.db.GetUserByID(id)
+	if err != nil {
+		return err
+	}
+	if !user.Admin {
+		return models.ErrInvalidID // although, not entirely acurate error, it is still an invalid ID for the given action
+	}
+
+	return m.UpdateKey(key)
+}
+
 // JohanTestFunc is just a method for johan to test things :-)
 func (m *Manager) JohanTestFunc() {
 	tmpGame := models.Game{
@@ -169,11 +182,6 @@ func (m *Manager) JohanTestFunc() {
 	}
 
 	tmpUser.Lol = tmpUser2.Lol
-
-	err = m.db.OverwriteUser(&tmpUser)
-	if err != nil {
-		logrus.WithError(err).Debug("Test failed!")
-	}
 
 	tmpUser3, err := m.db.GetUserByID("117575669351657432712")
 	if err != nil {

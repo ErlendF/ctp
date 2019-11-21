@@ -7,17 +7,20 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
+	"sync"
 )
 
 // Riot is a struct which contains everything necessary to handle a request related to riot
 type Riot struct {
 	models.Client
 	apiKey string
+	mutex  *sync.Mutex // strings are not thread safe
 }
 
 // New returns a new riot instance
 func New(client models.Client, apiKey string) *Riot {
-	riot := &Riot{apiKey: apiKey}
+	riot := &Riot{apiKey: apiKey, mutex: &sync.Mutex{}}
 	riot.Client = client
 
 	return riot
@@ -45,8 +48,10 @@ func (riot *Riot) GetLolPlaytime(reg *models.SummonerRegistration) (*models.Game
 		return nil, err
 	}
 
+	riot.mutex.Lock()
 	// set header token to avoid getting "403 unauthorized" from API
 	req.Header.Set("X-Riot-Token", riot.apiKey)
+	riot.mutex.Unlock()
 
 	// query riot api
 	resp, err := riot.Do(req)
@@ -101,8 +106,10 @@ func (riot *Riot) ValidateSummoner(reg *models.SummonerRegistration) error {
 		return err
 	}
 
+	riot.mutex.Lock()
 	// Set apiKey in header to avoid "403 Unauthorized"
 	req.Header.Set("X-Riot-Token", riot.apiKey)
+	riot.mutex.Unlock()
 
 	// Send get-request to API
 	resp, err := riot.Do(req)
@@ -126,5 +133,18 @@ func (riot *Riot) ValidateSummoner(reg *models.SummonerRegistration) error {
 
 	// Ensure that AccountID is up to date
 	reg.AccountID = tmpReg.AccountID
+	return nil
+}
+
+// UpdateKey updates the riot API key
+func (riot *Riot) UpdateKey(key string) error {
+	// very simple check of the key
+	if !strings.HasPrefix(key, "RGAPI-") || len(key) != 42 {
+		return models.NewReqErrStr("invalid riot API key", "invalid API key")
+	}
+
+	riot.mutex.Lock()
+	riot.apiKey = key
+	riot.mutex.Unlock()
 	return nil
 }

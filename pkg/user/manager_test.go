@@ -46,6 +46,7 @@ func (m *mockOrganizer) GetLolPlaytime(reg *models.SummonerRegistration) (*model
 	return m.lol, m.err
 }
 func (m *mockOrganizer) ValidateSummoner(reg *models.SummonerRegistration) error { return m.err }
+func (m *mockOrganizer) UpdateKey(key string) error                              { return m.err }
 func (m *mockOrganizer) GetRSPlaytime(rsAcc *models.RunescapeAccount) (*models.Game, error) {
 	return m.rs, m.err
 }

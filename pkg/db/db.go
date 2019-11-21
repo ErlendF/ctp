@@ -117,6 +117,7 @@ func (db *Database) GetUserByName(name string) (*models.User, error) {
 func (db *Database) UpdateUser(user *models.User) error {
 	user.Name = "" // username and games are updated by dedicated functions
 	user.Games = nil
+	user.Admin = false // admin has to be set manually
 
 	s := structs.New(user)
 	m := make(map[string]interface{})
@@ -216,12 +217,6 @@ func (db *Database) SetUsername(user *models.User) error {
 		{Path: "name", Value: user.Name},
 	})
 
-	return err
-}
-
-// OverwriteUser overwrites the user specified by the user id, or creates it if it didn't exist already
-func (db *Database) OverwriteUser(user *models.User) error {
-	_, err := db.Collection(userCol).Doc(user.ID).Set(db.ctx, user)
 	return err
 }
 

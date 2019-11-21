@@ -8,6 +8,7 @@ type UserManager interface {
 	GetUserByName(username string) (*User, error)
 	SetUser(user *User) error
 	DeleteUser(id string) error
+	UpdateRiotAPIKey(key, id string) error
 	UpdateGames(id string) error
 	Redirect(w http.ResponseWriter, r *http.Request)
 	AuthCallback(w http.ResponseWriter, r *http.Request) (string, error)

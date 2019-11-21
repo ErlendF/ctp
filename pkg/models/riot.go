@@ -4,6 +4,7 @@ package models
 type Riot interface {
 	GetLolPlaytime(reg *SummonerRegistration) (*Game, error)
 	ValidateSummoner(reg *SummonerRegistration) error
+	UpdateKey(key string) error
 }
 
 // MatchList contains a list of matches with relevant information

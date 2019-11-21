@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net"
 	"net/http"
 
@@ -139,6 +140,29 @@ func (h *handler) deleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = h.DeleteUser(id)
+	if err != nil {
+		logRespond(w, r, err)
+		return
+	}
+
+	respondPlain(w, r, "Success")
+}
+
+func (h *handler) updateKey(w http.ResponseWriter, r *http.Request) {
+	id, err := getID(r)
+	if err != nil {
+		logRespond(w, r, err)
+		return
+	}
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		err = models.NewReqErr(err, "invalid request body")
+		logRespond(w, r, err)
+		return
+	}
+
+	err = h.UpdateRiotAPIKey(string(body), id)
 	if err != nil {
 		logRespond(w, r, err)
 		return

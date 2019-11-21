@@ -29,6 +29,7 @@ func (m *mockUserManager) GetUserByName(username string) (*models.User, error) {
 func (m *mockUserManager) SetUser(user *models.User) error                     { return m.err }
 func (m *mockUserManager) DeleteUser(id string) error                          { return m.err }
 func (m *mockUserManager) UpdateGames(id string) error                         { return m.err }
+func (m *mockUserManager) UpdateRiotAPIKey(key, id string) error               { return m.err }
 func (m *mockUserManager) Redirect(w http.ResponseWriter, r *http.Request)     {}
 func (m *mockUserManager) JohanTestFunc()                                      {}
 func (m *mockUserManager) AuthCallback(w http.ResponseWriter, r *http.Request) (string, error) {
@@ -159,6 +160,7 @@ func mockRouter(h *handler) *mux.Router {
 // userID and valveID is not returned to the user. valveID is only used to differentiate the games internaly
 func removeIgnoredOutput(user *models.User, url string) {
 	user.ID = ""
+	user.Admin = false
 	if strings.Contains(url, "/api/v1/user/") { // true means it's a test for /api/v1/user/{username}
 		user.Public = false // public should then be ignored as it is not returned
 	}
