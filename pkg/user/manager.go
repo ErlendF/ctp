@@ -101,7 +101,7 @@ func (m *Manager) UpdateGames(id string) error {
 		updatedGames = append(games, updatedGames...)
 	}
 
-	if user.Runescape != "" {
+	if user.Runescape != nil {
 		rs, err := m.GetRSPlaytime(user.Runescape)
 		if err != nil {
 			return err
@@ -285,7 +285,7 @@ func (m *Manager) validateUserInfo(user *models.User) (bool, error) {
 		}
 	}
 
-	if user.Runescape != "" {
+	if user.Runescape != nil {
 		if dbUser.Runescape != user.Runescape {
 			gameChanges = true
 			err = m.ValidateRSAccount(user.Runescape)
@@ -293,7 +293,7 @@ func (m *Manager) validateUserInfo(user *models.User) (bool, error) {
 				return false, err
 			}
 		} else {
-			user.Runescape = ""
+			user.Runescape = nil
 		}
 	}
 

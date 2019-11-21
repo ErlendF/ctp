@@ -10,21 +10,34 @@ import (
 	"strings"
 )
 
-// Jagex is a struct which contains everything necessary to handle a request related to valve
+// Jagex is a struct which contains everything necessary to handle a request related to Jagex
 type Jagex struct {
 	models.Getter
 }
 
-// New returns a new valve instance
+// New returns a new Jagex instance
 func New(getter models.Getter) *Jagex {
 	return &Jagex{getter}
 }
 
 const normalHiscores = "http://services.runescape.com/m=hiscore_oldschool/index_lite.ws?player=%s"
 
+var urls = map[string]string{
+	"normal":           "http://services.runescape.com/m=hiscore_oldschool/index_lite.ws?player=%s",
+	"ironman":          "http://services.runescape.com/m=hiscore_oldschool_ironman/index_lite.ws?player=%s",
+	"hardcore ironman": "http://services.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.ws?player=%s",
+	"ultimate ironman": "http://services.runescape.com/m=hiscore_oldschool_ultimate/index_lite.ws?player=%s",
+}
+
 // GetRSPlaytime returns an estimate for time spent playing Runescape
-func (j *Jagex) GetRSPlaytime(username string) (*models.Game, error) {
-	response, err := j.Get(fmt.Sprintf(normalHiscores, username))
+func (j *Jagex) GetRSPlaytime(rsAcc *models.RunescapeAccount) (*models.Game, error) {
+	url, ok := urls[rsAcc.AccountType]
+
+	if !ok {
+		return nil, fmt.Errorf("invalid account type in GetRSPlaytime: %s", rsAcc.AccountType)
+	}
+
+	response, err := j.Get(fmt.Sprintf(url, rsAcc.Username))
 	if err != nil {
 		return nil, err
 	}
@@ -49,14 +62,14 @@ func (j *Jagex) GetRSPlaytime(username string) (*models.Game, error) {
 			return nil, err
 		}
 
-		time += xpToTime(xp, i)
+		time += xpToTime(xp, i, rsAcc.AccountType)
 	}
 
 	return &models.Game{Time: time, Name: "Runescape"}, nil
 }
 
-func (j *Jagex) ValidateRSAccount(username string) error {
-	matched, err := regexp.MatchString("^[A-Za-z0-9_ -]{1,12}$", username)
+func (j *Jagex) ValidateRSAccount(rsAcc *models.RunescapeAccount) error {
+	matched, err := regexp.MatchString("^[A-Za-z0-9_ -]{1,12}$", rsAcc.Username)
 	if err != nil {
 		return err
 	}
@@ -65,7 +78,17 @@ func (j *Jagex) ValidateRSAccount(username string) error {
 		return models.NewReqErrStr("invalid Runescape account name", "invalid Runescape account name")
 	}
 
-	resp, err := j.Get(fmt.Sprintf(normalHiscores, username))
+	if rsAcc.AccountType == "" {
+		rsAcc.AccountType = "normal"
+	}
+
+	url, ok := urls[rsAcc.AccountType]
+
+	if !ok {
+		return models.NewReqErrStr("invalid Runescape account type", "invalid Runescape account type")
+	}
+
+	resp, err := j.Get(fmt.Sprintf(url, rsAcc.Username))
 	if err != nil {
 		return err
 	}
@@ -79,15 +102,83 @@ func (j *Jagex) ValidateRSAccount(username string) error {
 }
 
 // xpToTime estimates time spent on one skill based on the xp (Experience Points)
-func xpToTime(xp, i int) int {
+func xpToTime(xp, i int, accountType string) int {
 	if i < 1 || i > 23 {
 		return 0
 	}
-	return xp / xpRates[i]
+
+	switch accountType {
+	case "normal":
+		return xp / normalXPRates[i]
+	case "ironman":
+		return xp / ironmanXPRates[i]
+	case "hardcore ironman":
+		return xp / ironmanXPRates[i] // identical to ironman
+	case "ultimate ironman":
+		return xp / ultimateXPRates[i]
+	}
+
+	return 0
 }
 
-// xpRates for each skill
-var xpRates = [...]int{
+// normalXPRates for each skill
+var normalXPRates = [...]int{
+	0,
+	90000,
+	90000,
+	90000,
+	300000,
+	150000,
+	200000,
+	100000,
+	400000,
+	70000,
+	250000,
+	70000,
+	200000,
+	150000,
+	250000,
+	60000,
+	200000,
+	44000,
+	100000,
+	50000,
+	100000,
+	50000,
+	120000,
+	400000,
+}
+
+// ironmanXPRates for each skill
+var ironmanXPRates = [...]int{
+	0,
+	90000,
+	90000,
+	90000,
+	300000,
+	150000,
+	200000,
+	100000,
+	400000,
+	70000,
+	250000,
+	70000,
+	200000,
+	150000,
+	250000,
+	60000,
+	200000,
+	44000,
+	100000,
+	50000,
+	100000,
+	50000,
+	120000,
+	400000,
+}
+
+// ultimateXPRates for each skill
+var ultimateXPRates = [...]int{
 	0,
 	90000,
 	90000,
