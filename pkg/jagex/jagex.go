@@ -73,7 +73,7 @@ func (j *Jagex) GetRSPlaytime(rsAcc *models.RunescapeAccount) (*models.Game, err
 	return &models.Game{Time: time, Name: "Runescape"}, nil
 }
 
-//validator for runescape username
+// validator for runescape username
 func (j *Jagex) ValidateRSAccount(rsAcc *models.RunescapeAccount) error {
 	matched, err := regexp.MatchString("^[A-Za-z0-9_ -]{1,12}$", rsAcc.Username)
 	if err != nil {

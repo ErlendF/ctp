@@ -122,6 +122,7 @@ func (v *Valve) GetValvePlaytime(id string) ([]models.Game, error) {
 		return nil, err
 	}
 
+	// decoding response into valvegames
 	var valvegames models.ValveResp
 	err = json.NewDecoder(resp.Body).Decode(&valvegames)
 
