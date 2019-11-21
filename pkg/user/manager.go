@@ -264,9 +264,20 @@ func (m *Manager) validateUserInfo(user *models.User) (bool, error) {
 	if user.Valve != nil {
 		if dbUser.Valve != user.Valve {
 			gameChanges = true
-			user.Valve.ID, err = m.ValidateValveAccount(user.Valve.Username)
-			if err != nil {
-				return false, err
+
+			switch {
+			case user.Valve.ID != "":
+				err = m.ValidateValveID(user.Valve.ID)
+				if err != nil {
+					return false, err
+				}
+			case user.Valve.Username != "":
+				user.Valve.ID, err = m.ValidateValveAccount(user.Valve.Username)
+				if err != nil {
+					return false, err
+				}
+			default:
+				return false, models.NewReqErrStr("invalid steam account", "invalid steam account information")
 			}
 		} else {
 			// setting it to nil if it should not be updated, such that it doesn't affect what's already stored in the database

@@ -59,3 +59,30 @@ func TestAccValStatusCode(t *testing.T) {
 		})
 	}
 }
+
+// this is a very basic test to get more test coverage, because that is a very good metric!
+func TestNewErrorFuncs(t *testing.T) {
+	testErr := errors.New("test")
+
+	reqErr := &RequestError{Err: testErr, Response: "test response"}
+	assert.Equal(t, reqErr, NewReqErrStr("test", "test response"))
+	assert.Equal(t, reqErr, NewReqErr(testErr, "test response"))
+
+	unwrappedReqErr := reqErr.Unwrap()
+	assert.Equal(t, testErr, unwrappedReqErr)
+
+	reqErrStr := reqErr.Error()
+	assert.Equal(t, "test: test response", reqErrStr)
+
+	apiErr := &ExternalAPIError{Err: testErr, API: "test API"}
+	assert.Equal(t, apiErr, NewAPIErr(testErr, "test API"))
+
+	unwrappedAPIErr := reqErr.Unwrap()
+	assert.Equal(t, testErr, unwrappedAPIErr)
+
+	apiErrResp := apiErr.Respond()
+	assert.Equal(t, "Error contacting test API API", apiErrResp)
+
+	apiErrStr := apiErr.Error()
+	assert.Equal(t, "error contacting external API test API: test", apiErrStr)
+}

@@ -3,6 +3,7 @@ package models
 // Valve interface defines all methods which should be provided by valve
 type Valve interface {
 	ValidateValveAccount(username string) (string, error)
+	ValidateValveID(id string) error
 	GetValvePlaytime(ID string) ([]Game, error)
 }
 
