@@ -146,7 +146,7 @@ func (v *Valve) GetValvePlaytime(id string) ([]models.Game, error) {
 }
 
 func (v *Valve) checkPrivateProfile(id string) error {
-	//check if passed in steam account it private or not
+	// Checking whether or not the passed in steam account is private
 	resp, err := v.Get(fmt.Sprintf("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=%s&steamids=%s", v.apiKey, id))
 	if err != nil {
 		return err
