@@ -51,7 +51,7 @@ func (j *Jagex) GetRSPlaytime(rsAcc *models.RunescapeAccount) (*models.Game, err
 	var time int
 	responseString := string(responseData)
 	lines := strings.Split(responseString, "\n")
-	for i := 1; i < 23; i++ {
+	for i := 0; i < 23; i++ {
 		fields := strings.Split(lines[i], ",")
 		if len(fields) != 3 {
 			return nil, errors.New("wrong number of fields in GetRSPlaytime")
@@ -95,6 +95,24 @@ func (j *Jagex) ValidateRSAccount(rsAcc *models.RunescapeAccount) error {
 	defer resp.Body.Close()
 
 	if err := models.AccValStatusCode(resp.StatusCode, "Jagex", "invalid Runescape account name"); err != nil {
+		return err
+	}
+
+	responseData, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	responseString := string(responseData)
+	skills := strings.Split(responseString, "\n")
+	totalFields := strings.Split(skills[0], ",")
+
+	rsAcc.TotalLevel, err = strconv.Atoi(totalFields[1])
+	if err != nil {
+		return err
+	}
+	rsAcc.TotalXP, err = strconv.Atoi(totalFields[2])
+	if err != nil {
 		return err
 	}
 

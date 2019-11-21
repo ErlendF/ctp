@@ -9,4 +9,6 @@ type Jagex interface {
 type RunescapeAccount struct {
 	Username    string `json:"username" firebase:"username"`
 	AccountType string `json:"accountType" firebase:"accountType"`
+	TotalLevel  int    `json:"totalLevel" firebase:"totalLevel"`
+	TotalXP     int    `json:"totalXP" firebase:"totalXP"`
 }
