@@ -77,7 +77,7 @@ func TestNewErrorFuncs(t *testing.T) {
 	apiErr := &ExternalAPIError{Err: testErr, API: "test API"}
 	assert.Equal(t, apiErr, NewAPIErr(testErr, "test API"))
 
-	unwrappedAPIErr := reqErr.Unwrap()
+	unwrappedAPIErr := apiErr.Unwrap()
 	assert.Equal(t, testErr, unwrappedAPIErr)
 
 	apiErrResp := apiErr.Respond()
