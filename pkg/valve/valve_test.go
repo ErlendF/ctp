@@ -50,7 +50,7 @@ func (m *mockGetter) Get(url string) (*http.Response, error) {
 
 	// add preconfigured response body to THIS response
 	var body = []byte{}
-	err := errors.New("no body")
+	var err error
 	if m.setup.resp1 != nil {
 		body, err = json.Marshal(m.setup.resp1)
 		if err != nil {
@@ -79,13 +79,21 @@ func TestValve_ValidateValveAccount(t *testing.T) {
 		statusCode    int
 	}{
 		{name: "Test OK", username: "Onijuan", ID64: "7656119arstarst", vCode: 3, codeResp: 1, expectedError: nil, statusCode: http.StatusOK},
-		{name: "Test no username", username: "", ID64: "7656119", vCode: 3, codeResp: 1, expectedError: &models.RequestError{Response: "invalid steam account", Err: errors.New("invalid steam account")}, statusCode: http.StatusOK},
-		{name: "Test failed Get", username: "Onijuan", ID64: "7656119", vCode: 3, expectedError: errors.New("test error"), respError: errors.New("test error")},
-		{name: "Test 400 not found", username: "Onijuan", ID64: "7656119", vCode: 3, codeResp: 1, expectedError: &models.RequestError{Err: errors.New("non 200 statuscode from external API: Valve (400)"), Response: "invalid steam username"}, statusCode: http.StatusBadRequest},
-		{name: "Test invalid account", username: "Onijuan", ID64: "7656119", vCode: 3, codeResp: 0, expectedError: &models.RequestError{Err: errors.New("invalid steam account"), Response: "invalid steam account"}, statusCode: http.StatusOK},
-		{name: "Test invalid prefix", username: "Onijuan", ID64: "7656f96119", vCode: 3, codeResp: 1, expectedError: &models.RequestError{Response: "invalid steam account", Err: errors.New("invalid steam account")}, statusCode: http.StatusOK},
-		{name: "Test private account", username: "Onijuan", ID64: "7656119", vCode: 0, codeResp: 1, expectedError: &models.RequestError{Err: errors.New("private steam account"), Response: "private steam account"}, statusCode: http.StatusOK},
-		//{name:"Test ",username:"Onijuan",ID64:"7656119",codeResp:1,vCode:0,expectedError:errors.New(""),respError:errors.New(""),statusCode:http.StatusOK},
+		{name: "Test no username", username: "", ID64: "7656119", vCode: 3, codeResp: 1, expectedError: &models.RequestError{
+			Response: "invalid steam account", Err: errors.New("invalid steam account")}, statusCode: http.StatusOK},
+		{name: "Test failed Get", username: "Onijuan", ID64: "7656119", vCode: 3,
+			expectedError: errors.New("test error"), respError: errors.New("test error")},
+		{name: "Test 400 not found", username: "Onijuan", ID64: "7656119", vCode: 3, codeResp: 1, expectedError: &models.RequestError{
+			Err:      errors.New("non 200 statuscode from external API: Valve (400)"),
+			Response: "invalid steam username"}, statusCode: http.StatusBadRequest},
+		{name: "Test invalid account", username: "Onijuan", ID64: "7656119", vCode: 3, codeResp: 0, expectedError: &models.RequestError{
+			Err: errors.New("invalid steam account"), Response: "invalid steam account"}, statusCode: http.StatusOK},
+		{name: "Test invalid prefix", username: "Onijuan", ID64: "7656f96119", vCode: 3, codeResp: 1, expectedError: &models.RequestError{
+			Response: "invalid steam account", Err: errors.New("invalid steam account")}, statusCode: http.StatusOK},
+		{name: "Test private account", username: "Onijuan", ID64: "7656119", vCode: 0, codeResp: 1, expectedError: &models.RequestError{
+			Err: errors.New("private steam account"), Response: "private steam account"}, statusCode: http.StatusOK},
+		// {name:"Test ",username:"Onijuan",ID64:"7656119",codeResp:1,vCode:0,
+		// expectedError:errors.New(""),respError:errors.New(""),statusCode:http.StatusOK},
 	}
 
 	// creating a mockGetter item to use the custom "Get" func
@@ -125,9 +133,12 @@ func TestValve_ValidateValveID(t *testing.T) {
 		statusCode    int
 	}{
 		{name: "Test OK", ID64: "7656119arstarst", vCode: 3, expectedError: nil, statusCode: http.StatusOK},
-		{name: "Test unauthorized", ID64: "7656119arstarst", vCode: 3, expectedError: &models.ExternalAPIError{Err: errors.New("unautorized request to external API"), API: "Valve", Code: http.StatusForbidden}, statusCode: http.StatusForbidden},
-		{name: "Test http err", ID64: "7656119arstarst", vCode: 3, expectedError: errors.New("test error"), respError: errors.New("test error"), statusCode: http.StatusOK},
-		{name: "Test invalid ID", ID64: "765arstars6119arstarst", vCode: 3, expectedError: &models.RequestError{Err: errors.New("invalid steam id"), Response: "invalid steam id"}, statusCode: http.StatusOK},
+		{name: "Test unauthorized", ID64: "7656119arstarst", vCode: 3, expectedError: &models.ExternalAPIError{
+			Err: errors.New("unautorized request to external API"), API: "Valve", Code: http.StatusForbidden}, statusCode: http.StatusForbidden},
+		{name: "Test http err", ID64: "7656119arstarst", vCode: 3, expectedError: errors.New("test error"),
+			respError: errors.New("test error"), statusCode: http.StatusOK},
+		{name: "Test invalid ID", ID64: "765arstars6119arstarst", vCode: 3, expectedError: &models.RequestError{
+			Err: errors.New("invalid steam id"), Response: "invalid steam id"}, statusCode: http.StatusOK},
 	}
 
 	// creating a mockGetter item to use the custom "Get" func
@@ -166,8 +177,9 @@ func TestValve_GetValvePlaytime(t *testing.T) {
 		statusCode    int
 	}{
 		{name: "Test OK", expectedError: nil, statusCode: http.StatusOK},
-		{name: "Test getter error", expectedError: errors.New("Test error"), respError: errors.New("Test error"), statusCode: http.StatusOK},
-		{name: "Test not found", expectedError: &models.RequestError{Err: fmt.Errorf("invalid response from Valve API: %w", models.ErrNotFound), Response: "invalid steam id"}, statusCode: http.StatusNotFound},
+		{name: "Test getter error", expectedError: errors.New("test error"), respError: errors.New("test error"), statusCode: http.StatusOK},
+		{name: "Test not found", expectedError: &models.RequestError{Err: fmt.Errorf("invalid response from Valve API: %w", models.ErrNotFound),
+			Response: "invalid steam id"}, statusCode: http.StatusNotFound},
 	}
 
 	// creating a mockGetter item to use the custom "Get" func
@@ -179,7 +191,6 @@ func TestValve_GetValvePlaytime(t *testing.T) {
 	// run a test for each of the test items (array above)
 	for _, tc := range test {
 		t.Run(tc.name, func(t *testing.T) {
-
 			// creating test data
 			err := faker.FakeData(&games)
 			require.Nil(t, err)
