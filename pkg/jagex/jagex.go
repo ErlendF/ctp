@@ -8,8 +8,6 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-
-	"github.com/sirupsen/logrus"
 )
 
 // Jagex is a struct which contains everything necessary to handle a request related to valve
@@ -26,12 +24,6 @@ const normalHiscores = "http://services.runescape.com/m=hiscore_oldschool/index_
 
 // GetRSPlaytime returns an estimate for time spent playing Runescape
 func (j *Jagex) GetRSPlaytime(username string) (*models.Game, error) {
-	matched, _ := regexp.MatchString("^[A-Za-z0-9_ -]{1,12}$", username)
-
-	if !matched {
-		return nil, errors.New("Username: " + username + " is not a valid runescape name")
-	}
-
 	response, err := j.Get(fmt.Sprintf(normalHiscores, username))
 	if err != nil {
 		return nil, err
@@ -60,10 +52,30 @@ func (j *Jagex) GetRSPlaytime(username string) (*models.Game, error) {
 		time += xpToTime(xp, i)
 	}
 
-	game := &models.Game{Time: time, Name: "Runescape"}
+	return &models.Game{Time: time, Name: "Runescape"}, nil
+}
 
-	logrus.Debugf("rs game: %+v", game)
-	return game, nil
+func (j *Jagex) ValidateRSAccount(username string) error {
+	matched, err := regexp.MatchString("^[A-Za-z0-9_ -]{1,12}$", username)
+	if err != nil {
+		return err
+	}
+
+	if !matched {
+		return models.NewReqErrStr("invalid Runescape account name", "invalid Runescape account name")
+	}
+
+	resp, err := j.Get(fmt.Sprintf(normalHiscores, username))
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if err := models.AccValStatusCode(resp.StatusCode, "Jagex", "invalid Runescape account name"); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // xpToTime estimates time spent on one skill based on the xp (Experience Points)

@@ -87,8 +87,9 @@ func TestGetRSPlaytime(t *testing.T) {
 			game, err := jagex.GetRSPlaytime(username)
 			assert.Equal(t, tc.expectedErr, err)
 			if tc.expectedErr == nil {
-				assert.NotNil(t, game)
-				assert.Equal(t, "Runescape", game.Name)
+				if assert.NotNil(t, game) {
+					assert.Equal(t, "Runescape", game.Name)
+				}
 			}
 		})
 	}

@@ -72,8 +72,6 @@ func (m *Manager) UpdateGames(id string) error {
 		return err
 	}
 
-	logrus.Debugf("username: %s, runescape: %s", user.Name, user.Runescape)
-
 	var updatedGames []models.Game
 
 	if user.Lol != nil {
@@ -104,7 +102,6 @@ func (m *Manager) UpdateGames(id string) error {
 	}
 
 	if user.Runescape != "" {
-		logrus.Debug("jagex not empty!")
 		rs, err := m.GetRSPlaytime(user.Runescape)
 		if err != nil {
 			return err
@@ -277,7 +274,17 @@ func (m *Manager) validateUserInfo(user *models.User) (bool, error) {
 		}
 	}
 
-	//TODO: validate steam and other ids or registrations
+	if user.Runescape != "" {
+		if dbUser.Runescape != user.Runescape {
+			gameChanges = true
+			err = m.ValidateRSAccount(user.Runescape)
+			if err != nil {
+				return false, err
+			}
+		} else {
+			user.Runescape = ""
+		}
+	}
 
 	return gameChanges, nil
 }
