@@ -180,6 +180,7 @@ func TestValve_GetValvePlaytime(t *testing.T) {
 			// creating test data
 			err := faker.FakeData(&games)
 			require.Nil(t, err)
+			games = append(games, models.ValveGames{Name: "Testing Game", PlaytimeForever: 69420, Appid: 1991})
 
 			// setting up the Get() resp according per test_case
 			setup := &respSetup{err: tc.respError, statusCode: tc.statusCode}
