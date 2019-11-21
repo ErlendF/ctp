@@ -26,7 +26,7 @@ type Authenticator struct {
 
 const stateCookie = "oauthstate"
 
-// New returns a new authenticator
+// sets up an authenticaor
 func New(ctx context.Context, uv models.UserValidator, port int,
 	domain, clientID, clientSecret, hmacSecret string) (*Authenticator, error) {
 	authenticator := &Authenticator{ctx: ctx, uv: uv}
@@ -112,7 +112,7 @@ func (a *Authenticator) HandleOAuth2Callback(w http.ResponseWriter, r *http.Requ
 	return claims.Sub, nil
 }
 
-// makes a random
+// random generator
 // based on example from https://dev.to/douglasmakey/oauth2-example-with-go-3n8a
 func generateStateOauthCookie(w http.ResponseWriter) (string, error) {
 	b := make([]byte, 16)
