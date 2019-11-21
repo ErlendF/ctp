@@ -217,8 +217,9 @@ func (m *Manager) validateUserInfo(user *models.User) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-
-	gameChanges := false
+	if dbUser == nil {
+		dbUser = &models.User{} // makes sure that there is no invalid nilpointer dereferense
+	}
 
 	if user.Name != "" && user.Name != dbUser.Name {
 		err = validateUserName(user.Name)
@@ -232,70 +233,94 @@ func (m *Manager) validateUserInfo(user *models.User) (bool, error) {
 		}
 	}
 
+	// validating each property
+	// if the property is nil, or the same as stored in the database, it is considered valid
+	lol, err := m.validateLol(user.Lol, dbUser.Lol)
+	if err != nil {
+		return false, err
+	}
+	ow, err := m.validateOW(user.Overwatch, dbUser.Overwatch)
+	if err != nil {
+		return false, err
+	}
+	valve, err := m.validateValve(user.Valve, dbUser.Valve)
+	if err != nil {
+		return false, err
+	}
+	rs, err := m.validateRS(user.Runescape, dbUser.Runescape)
+	if err != nil {
+		return false, err
+	}
+
+	changes := lol || ow || valve || rs
+	return changes, nil
+}
+
+func (m *Manager) validateLol(reg, dbReg *models.SummonerRegistration) (bool, error) {
 	// checking that league of legends is set and that it's different from what is already stored
-	if user.Lol != nil {
-		if dbUser.Lol == nil || !(dbUser.Lol.SummonerName == user.Lol.SummonerName && dbUser.Lol.SummonerRegion == user.Lol.SummonerRegion) {
-			gameChanges = true
-
-			err = m.ValidateSummoner(user.Lol)
-			if err != nil {
-				return false, err
-			}
-		} else {
-			// setting it to nil if it should not be updated, such that it doesn't affect what's already stored in the database
-			user.Lol = nil
-		}
+	// if there are no changes, it doesn't need to be validated
+	if reg == nil || reg == dbReg {
+		return false, nil
 	}
 
-	if user.Overwatch != nil {
-		if dbUser.Overwatch != user.Overwatch {
-			gameChanges = true
-			err = m.ValidateBattleUser(user.Overwatch)
-
-			if err != nil {
-				return false, err
-			}
-		} else {
-			// setting it to nil if it should not be updated, such that it doesn't affect what's already stored in the database
-			user.Overwatch = nil
-		}
+	err := m.ValidateSummoner(reg)
+	if err != nil {
+		return false, err
 	}
 
-	if user.Valve != nil {
-		if dbUser.Valve != user.Valve {
-			gameChanges = true
+	return true, nil
+}
 
-			switch {
-			case user.Valve.ID != "":
-				err = m.ValidateValveID(user.Valve.ID)
-				if err != nil {
-					return false, err
-				}
-			case user.Valve.Username != "":
-				user.Valve.ID, err = m.ValidateValveAccount(user.Valve.Username)
-				if err != nil {
-					return false, err
-				}
-			default:
-				return false, models.NewReqErrStr("invalid steam account", "invalid steam account information")
-			}
-		} else {
-			// setting it to nil if it should not be updated, such that it doesn't affect what's already stored in the database
-			user.Valve = nil
-		}
+func (m *Manager) validateOW(ow, dbOW *models.Overwatch) (bool, error) {
+	// if there are no changes, it doesn't need to be validated
+	if ow == nil || ow == dbOW {
+		return false, nil
 	}
 
-	if user.Runescape != nil {
-		if dbUser.Runescape != user.Runescape {
-			gameChanges = true
-			err = m.ValidateRSAccount(user.Runescape)
-			if err != nil {
-				return false, err
-			}
-		} else {
-			user.Runescape = nil
-		}
+	err := m.ValidateBattleUser(ow)
+	if err != nil {
+		return false, err
 	}
 
-	return gameChanges, nil
+	return true, nil
+}
+
+func (m *Manager) validateValve(valve, dbValve *models.ValveAccount) (bool, error) {
+	// if there are no changes, it doesn't need to be validated
+	if valve == nil || valve == dbValve {
+		return false, nil
+	}
+
+	var err error
+	switch {
+	case valve.ID != "":
+		err = m.ValidateValveID(valve.ID)
+		if err != nil {
+			return false, err
+		}
+		valve.Username = "" // the username is not validated, nor needed. It is therefor removed
+	case valve.Username != "":
+		valve.ID, err = m.ValidateValveAccount(valve.Username)
+		if err != nil {
+			return false, err
+		}
+	default:
+		return false, models.NewReqErrStr("invalid steam account", "invalid steam account information")
+	}
+
+	return true, nil
+}
+
+func (m *Manager) validateRS(rs, dbRS *models.RunescapeAccount) (bool, error) {
+	// if there are no changes, it doesn't need to be validated
+	if rs == nil || rs == dbRS {
+		return false, nil
+	}
+
+	err := m.ValidateRSAccount(rs)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
