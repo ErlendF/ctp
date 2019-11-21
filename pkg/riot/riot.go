@@ -44,7 +44,7 @@ func (r *Riot) GetRiotPlaytime(reg *models.SummonerRegistration) (*models.Game, 
 
 	req.Header.Set("X-Riot-Token", r.apiKey)
 
-	resp, err := r.Client.Do(req)
+	resp, err := r.Do(req)
 	if err != nil {
 		return nil, models.NewAPIErr(err, "Riot")
 	}
