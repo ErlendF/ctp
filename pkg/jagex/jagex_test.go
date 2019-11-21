@@ -105,7 +105,8 @@ func TestValidateRSAccount(t *testing.T) {
 	}{
 		{"Test ok", "valid user", nil, nil},
 		{"Test getter error", "error", errors.New("test"), errors.New("test")},
-		{"Test getter error", "this name is too long", nil, models.NewReqErrStr("invalid Runescape account name", "invalid Runescape account name")},
+		{"Test getter error", "this name is too long", nil,
+			models.NewReqErrStr("invalid Runescape account name", "invalid Runescape account name")},
 	}
 
 	mg := &mockGetter{}
