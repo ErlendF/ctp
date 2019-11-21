@@ -15,6 +15,7 @@ import (
 // mockClient is used for setting up the test
 type mockClient struct {
 	setup *models.SummonerRegistration
+	code int
 	err error
 }
 
@@ -27,7 +28,7 @@ func (m *mockClient) Do(req *http.Request) (*http.Response, error) {
 	}
 
 	// set http response header
-	resp := &http.Response{StatusCode: http.StatusOK, Header: make(http.Header)}
+	resp := &http.Response{StatusCode: m.code, Header: make(http.Header)}
 
 	// add preconfigured response body to THIS response
 	body, err := json.Marshal(m.setup)
@@ -44,13 +45,17 @@ func TestRiot_ValidateSummoner(t *testing.T) {
 	var test = []struct{
 		name        string
 		payload     *models.SummonerRegistration
+		code        int
 		errExpected error
-		errHttp     error
+		errHTTP     error
 	}{
-		{"Test OK",&models.SummonerRegistration{SummonerName:"Onijuan",SummonerRegion:"EUW1",AccountID:""},nil,nil},
-		{"Test no payload",nil,errors.New("nil summoner registration"),nil},
-		//{"Test OK",&models.SummonerRegistration{SummonerName:"",SummonerRegion:"",AccountID:""},errors.New("")},
-	} // TODO: need more test cases
+		{"Test OK",&models.SummonerRegistration{SummonerName:"Onijuan",SummonerRegion:"EUW1",AccountID:"123"},http.StatusOK,nil,nil},
+		{"Test no payload",nil,http.StatusOK,errors.New("nil summoner registration"),nil},
+		{"Test no response",&models.SummonerRegistration{SummonerName:"Onijuan",SummonerRegion:"EUW1",AccountID:"123"},http.StatusOK,&models.ExternalAPIError{API:"Riot",Code:0,Err:errors.New("123")}, errors.New("123"),},
+		{"Test invalid username",&models.SummonerRegistration{SummonerName:"Onijuan",SummonerRegion:"EUW1",AccountID:"123"},http.StatusNotFound,&models.ExternalAPIError{API:"Riot",Code:0,Err:errors.New("")},errors.New("")},
+		{"Test invalid region",&models.SummonerRegistration{SummonerName:"Onijuan",SummonerRegion:"gottem",AccountID:"123"},http.StatusOK,&models.RequestError{Response:"invalid region for League of Legends",Err:errors.New("invalid summoner region: gottem")},errors.New("")},
+		//{"Test ",&models.SummonerRegistration{SummonerName:"",SummonerRegion:"",AccountID:""},http.StatusOK,errors.New(""),errors.New("")},
+	}
 
 	// creating a mockClient item to use the custom "Do" func
 	client := &mockClient{}
@@ -61,7 +66,8 @@ func TestRiot_ValidateSummoner(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			// sets up the client for Do()
 			setup := &models.SummonerRegistration{SummonerName:"y",SummonerRegion:"e",AccountID:"s"}
-			client.err = tc.errHttp
+			client.err = tc.errHTTP
+			client.code = tc.code
 			client.setup = setup
 
 			// run the function we want to test
