@@ -22,8 +22,6 @@ func New(getter models.Getter) *Jagex {
 	return &Jagex{getter}
 }
 
-//("^[A-Za-z0-9_ -]{1,12}$")
-
 const normalHiscores = "http://services.runescape.com/m=hiscore_oldschool/index_lite.ws?player=%s"
 
 // GetRSPlaytime returns an estimate for time spent playing Runescape
@@ -33,7 +31,6 @@ func (j *Jagex) GetRSPlaytime(username string) (*models.Game, error) {
 	if !matched {
 		return nil, errors.New("Username: " + username + " is not a valid runescape name")
 	}
-	fmt.Println(username + " matcher regex")
 
 	response, err := j.Get(fmt.Sprintf(normalHiscores, username))
 	if err != nil {
