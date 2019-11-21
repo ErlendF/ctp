@@ -2,7 +2,9 @@ package valve
 
 import (
 	"bytes"
+	"ctp/pkg/models"
 	"encoding/json"
+	"errors"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"net/http"
@@ -53,7 +55,11 @@ func TestValve_ValidateValveAccount(t *testing.T) {
 		statusCode int
 	}{
 		{name:"Test OK",username:"Onijuan",ID64:"7656119arstarst",codeResp:1,expectedError:nil,statusCode:http.StatusOK},
-		//{name:"Test ",username:"Onijuan",ID64:"7656119",code:1,respError:errors.New(""),expectedError:errors.New(""),statusCode:http.StatusOK},
+		{name:"Test no username",username:"",ID64:"7656119",codeResp:1,expectedError:&models.RequestError{Response:"invalid steam account",Err:errors.New("invalid steam account")},statusCode:http.StatusOK},
+		{name:"Test failed Get",username:"Onijuan",expectedError:errors.New("test error"),respError:errors.New("test error")},
+		{name:"Test 400 not found",username:"Onijuan",ID64:"7656119",codeResp:1,expectedError:&models.RequestError{Err:errors.New("non 200 statuscode from external API: Valve (400)"),Response:"invalid steam username",},statusCode:http.StatusBadRequest},
+		{name:"Test invalid account",username:"Onijuan",ID64:"7656119afs",codeResp:0,expectedError:&models.RequestError{Err:errors.New("invalid steam account"), Response:"invalid steam account"},statusCode:http.StatusOK},
+		//{name:"Test ",username:"Onijuan",ID64:"7656119",codeResp:1,expectedError:errors.New(""),respError:errors.New(""),statusCode:http.StatusOK},
 	}
 
 	// creating a mockGetter item to use the custom "Get" func
