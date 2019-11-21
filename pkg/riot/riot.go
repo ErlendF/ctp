@@ -110,7 +110,7 @@ func (r *Riot) ValidateSummoner(reg *models.SummonerRegistration) error {
 		return models.NewAPIErr(err, "Riot")
 	}
 	defer resp.Body.Close()
-	
+
 	// Ensure that status code is 200 OK, else validation fails
 	err = models.AccValStatusCode(resp.StatusCode, "Riot", "invalid username for League of Legends")
 	if err != nil {
