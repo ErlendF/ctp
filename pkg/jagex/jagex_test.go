@@ -1,6 +1,7 @@
 package jagex
 
 import (
+	"ctp/pkg/models"
 	"errors"
 	"io/ioutil"
 	"net/http"
@@ -91,6 +92,32 @@ func TestGetRSPlaytime(t *testing.T) {
 					assert.Equal(t, "Runescape", game.Name)
 				}
 			}
+		})
+	}
+}
+
+func TestValidateRSAccount(t *testing.T) {
+	var cases = []struct {
+		name        string
+		username    string
+		getterErr   error
+		expectedErr error
+	}{
+		{"Test ok", "valid user", nil, nil},
+		{"Test getter error", "error", errors.New("test"), errors.New("test")},
+		{"Test getter error", "this name is too long", nil, models.NewReqErrStr("invalid Runescape account name", "invalid Runescape account name")},
+	}
+
+	mg := &mockGetter{}
+	jagex := New(mg)
+
+	// tc - test cases
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			mg.err = tc.getterErr
+
+			err := jagex.ValidateRSAccount(tc.username)
+			assert.Equal(t, tc.expectedErr, err)
 		})
 	}
 }
