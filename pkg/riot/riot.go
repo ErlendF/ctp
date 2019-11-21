@@ -44,7 +44,7 @@ func (r *Riot) GetRiotPlaytime(reg *models.SummonerRegistration) (*models.Game, 
 
 	req.Header.Set("X-Riot-Token", r.apiKey)
 
-	resp, err := r.Client.Do(req)
+	resp, err := r.Do(req)
 	if err != nil {
 		return nil, models.NewAPIErr(err, "Riot")
 	}
@@ -98,11 +98,12 @@ func (r *Riot) ValidateSummoner(reg *models.SummonerRegistration) error {
 
 	req.Header.Set("X-Riot-Token", r.apiKey)
 
-	resp, err := r.Client.Do(req)
+	resp, err := r.Do(req)
 	if err != nil {
 		return models.NewAPIErr(err, "Riot")
 	}
 	defer resp.Body.Close()
+	
 
 	err = models.AccValStatusCode(resp.StatusCode, "Riot", "invalid username for League of Legends")
 	if err != nil {
