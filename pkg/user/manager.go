@@ -264,9 +264,9 @@ func (m *Manager) validateUserInfo(user *models.User) (bool, error) {
 	return changes, nil
 }
 
+// checking that league of legends is set and that it's different from what is already stored
+// if there are no changes, it doesn't need to be validated
 func (m *Manager) validateLol(reg, dbReg *models.SummonerRegistration) (bool, error) {
-	// checking that league of legends is set and that it's different from what is already stored
-	// if there are no changes, it doesn't need to be validated
 	if reg == nil || reg == dbReg {
 		return false, nil
 	}
@@ -279,8 +279,8 @@ func (m *Manager) validateLol(reg, dbReg *models.SummonerRegistration) (bool, er
 	return true, nil
 }
 
+// if there are no changes, it doesn't need to be validated
 func (m *Manager) validateOW(ow, dbOW *models.Overwatch) (bool, error) {
-	// if there are no changes, it doesn't need to be validated
 	if ow == nil || ow == dbOW {
 		return false, nil
 	}
@@ -293,8 +293,8 @@ func (m *Manager) validateOW(ow, dbOW *models.Overwatch) (bool, error) {
 	return true, nil
 }
 
+// if there are no changes, it doesn't need to be validated
 func (m *Manager) validateValve(valve, dbValve *models.ValveAccount) (bool, error) {
-	// if there are no changes, it doesn't need to be validated
 	if valve == nil || valve == dbValve {
 		return false, nil
 	}
@@ -319,8 +319,8 @@ func (m *Manager) validateValve(valve, dbValve *models.ValveAccount) (bool, erro
 	return true, nil
 }
 
+// if there are no changes, it doesn't need to be validated
 func (m *Manager) validateRS(rs, dbRS *models.RunescapeAccount) (bool, error) {
-	// if there are no changes, it doesn't need to be validated
 	if rs == nil || rs == dbRS {
 		return false, nil
 	}
