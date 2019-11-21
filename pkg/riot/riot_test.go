@@ -21,6 +21,11 @@ type mockClient struct {
 
 // Do mocks a httpRequest.Do() for testing
 func (m *mockClient) Do(req *http.Request) (*http.Response, error) {
+	// if an error is expected, return it
+	if m.err != nil {
+		return nil, m.err
+	}
+
 	// set http response header
 	resp := &http.Response{StatusCode: http.StatusOK, Header: make(http.Header)}
 
@@ -39,10 +44,11 @@ func TestRiot_ValidateSummoner(t *testing.T) {
 	var test = []struct{
 		name        string
 		payload     *models.SummonerRegistration
-		err         error
+		errExpected error
+		errHttp     error
 	}{
-		{"Test OK",&models.SummonerRegistration{SummonerName:"Onijuan",SummonerRegion:"EUW1",AccountID:""},nil},
-		{"Test no payload",nil,errors.New("nil summoner registration")},
+		{"Test OK",&models.SummonerRegistration{SummonerName:"Onijuan",SummonerRegion:"EUW1",AccountID:""},nil,nil},
+		{"Test no payload",nil,errors.New("nil summoner registration"),nil},
 		//{"Test OK",&models.SummonerRegistration{SummonerName:"",SummonerRegion:"",AccountID:""},errors.New("")},
 	} // TODO: need more test cases
 
@@ -50,18 +56,19 @@ func TestRiot_ValidateSummoner(t *testing.T) {
 	client := &mockClient{}
 	riot := New(client, "bigAPIkey")
 
-	// run a test for each of the test items (array above) TODO: find out why panic
+	// run a test for each of the test items (array above)
 	for _, tc := range test {
 		t.Run(tc.name, func(t *testing.T) {
 			// sets up the client for Do()
 			setup := &models.SummonerRegistration{SummonerName:"y",SummonerRegion:"e",AccountID:"s"}
+			client.err = tc.errHttp
 			client.setup = setup
 
 			// run the function we want to test
 			err := riot.ValidateSummoner(tc.payload)
 
 			// if the error we got does not correspond with the expected error, fail test
-			assert.Equal(t, tc.err, err)
+			assert.Equal(t, tc.errExpected, err)
 		})
 	}
 }
