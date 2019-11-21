@@ -42,6 +42,7 @@ func (m *mockOrganizer) GetRiotPlaytime(reg *models.SummonerRegistration) (*mode
 }
 func (m *mockOrganizer) ValidateSummoner(reg *models.SummonerRegistration) error { return m.err }
 func (m *mockOrganizer) GetRSPlaytime(username string) (*models.Game, error)     { return m.rs, m.err }
+func (m *mockOrganizer) ValidateRSAccount(username string) error                 { return m.err }
 func (m *mockOrganizer) GetBlizzardPlaytime(*models.Overwatch) (*models.Game, error) {
 	return m.ow, m.err
 }
