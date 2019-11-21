@@ -17,14 +17,14 @@ type Riot struct {
 
 // New returns a new riot instance
 func New(client models.Client, apiKey string) *Riot {
-	r := &Riot{apiKey: apiKey}
-	r.Client = client
+	riot := &Riot{apiKey: apiKey}
+	riot.Client = client
 
-	return r
+	return riot
 }
 
-// GetRiotPlaytime gets playtime on League of Legends
-func (r *Riot) GetRiotPlaytime(reg *models.SummonerRegistration) (*models.Game, error) {
+// GetLolPlaytime gets playtime on League of Legends
+func (riot *Riot) GetLolPlaytime(reg *models.SummonerRegistration) (*models.Game, error) {
 	if reg == nil || reg.SummonerRegion == "" || reg.AccountID == "" {
 		return nil, errors.New("missing summonerinfo")
 	}
@@ -46,10 +46,10 @@ func (r *Riot) GetRiotPlaytime(reg *models.SummonerRegistration) (*models.Game, 
 	}
 
 	// set header token to avoid getting "403 unauthorized" from API
-	req.Header.Set("X-Riot-Token", r.apiKey)
+	req.Header.Set("X-Riot-Token", riot.apiKey)
 
 	// query riot api
-	resp, err := r.Do(req)
+	resp, err := riot.Do(req)
 	if err != nil {
 		return nil, models.NewAPIErr(err, "Riot")
 	}
@@ -77,7 +77,7 @@ func (r *Riot) GetRiotPlaytime(reg *models.SummonerRegistration) (*models.Game, 
 }
 
 // ValidateSummoner validates the summoner
-func (r *Riot) ValidateSummoner(reg *models.SummonerRegistration) error {
+func (riot *Riot) ValidateSummoner(reg *models.SummonerRegistration) error {
 	if reg == nil {
 		return errors.New("nil summoner registration")
 	}
@@ -102,10 +102,10 @@ func (r *Riot) ValidateSummoner(reg *models.SummonerRegistration) error {
 	}
 
 	// Set apiKey in header to avoid "403 Unauthorized"
-	req.Header.Set("X-Riot-Token", r.apiKey)
+	req.Header.Set("X-Riot-Token", riot.apiKey)
 
 	// Send get-request to API
-	resp, err := r.Do(req)
+	resp, err := riot.Do(req)
 	if err != nil {
 		return models.NewAPIErr(err, "Riot")
 	}
