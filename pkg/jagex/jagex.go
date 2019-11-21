@@ -20,13 +20,18 @@ func New(getter models.Getter) *Jagex {
 	return &Jagex{getter}
 }
 
-const normalHiscores = "http://services.runescape.com/m=hiscore_oldschool/index_lite.ws?player=%s"
+const (
+	normal  = "normal"
+	ironman = "ironman"
+	hcim    = "hardcore ironman"
+	uim     = "ultimate ironman"
+)
 
 var urls = map[string]string{
-	"normal":           "http://services.runescape.com/m=hiscore_oldschool/index_lite.ws?player=%s",
-	"ironman":          "http://services.runescape.com/m=hiscore_oldschool_ironman/index_lite.ws?player=%s",
-	"hardcore ironman": "http://services.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.ws?player=%s",
-	"ultimate ironman": "http://services.runescape.com/m=hiscore_oldschool_ultimate/index_lite.ws?player=%s",
+	normal:  "http://services.runescape.com/m=hiscore_oldschool/index_lite.ws?player=%s",
+	ironman: "http://services.runescape.com/m=hiscore_oldschool_ironman/index_lite.ws?player=%s",
+	hcim:    "http://services.runescape.com/m=hiscore_oldschool_hardcore_ironman/index_lite.ws?player=%s",
+	uim:     "http://services.runescape.com/m=hiscore_oldschool_ultimate/index_lite.ws?player=%s",
 }
 
 // GetRSPlaytime returns an estimate for time spent playing Runescape
@@ -79,7 +84,7 @@ func (j *Jagex) ValidateRSAccount(rsAcc *models.RunescapeAccount) error {
 	}
 
 	if rsAcc.AccountType == "" {
-		rsAcc.AccountType = "normal"
+		rsAcc.AccountType = normal
 	}
 
 	url, ok := urls[rsAcc.AccountType]
@@ -94,7 +99,8 @@ func (j *Jagex) ValidateRSAccount(rsAcc *models.RunescapeAccount) error {
 	}
 	defer resp.Body.Close()
 
-	if err := models.AccValStatusCode(resp.StatusCode, "Jagex", "invalid Runescape account name"); err != nil {
+	err = models.AccValStatusCode(resp.StatusCode, "Jagex", "invalid Runescape account name")
+	if err != nil {
 		return err
 	}
 
@@ -126,13 +132,13 @@ func xpToTime(xp, i int, accountType string) int {
 	}
 
 	switch accountType {
-	case "normal":
+	case normal:
 		return xp / normalXPRates[i]
-	case "ironman":
+	case ironman:
 		return xp / ironmanXPRates[i]
-	case "hardcore ironman":
+	case hcim:
 		return xp / ironmanXPRates[i] // identical to ironman
-	case "ultimate ironman":
+	case uim:
 		return xp / ultimateXPRates[i]
 	}
 

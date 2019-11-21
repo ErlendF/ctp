@@ -36,5 +36,5 @@ type ValveResponse struct {
 type ValveAccount struct {
 	ID       string `json:"id,omitempty" firestore:"id"`
 	Username string `json:"username,omitempty" firestore:"username"`
-	ApiKey   string `json:"apiKey,omitempty" firestore:"apiKey"`
+	APIKey   string `json:"apiKey,omitempty" firestore:"apiKey"`
 }

@@ -37,7 +37,6 @@ type resp1 struct {
 }
 
 func (m *mockGetter) Get(url string) (*http.Response, error) {
-
 	// if an error is set, return it
 	if m.setup.err != nil {
 		return nil, m.setup.err
@@ -92,7 +91,6 @@ func TestValve_ValidateValveAccount(t *testing.T) {
 	// run a test for each of the test items (array above)
 	for _, tc := range test {
 		t.Run(tc.name, func(t *testing.T) {
-
 			// setting up the Get() resp according per test_case
 			setup := &respSetup{err: tc.respError, statusCode: tc.statusCode, resp1: &resp1{}}
 			setup.resp1.Response.ID64 = tc.ID64
@@ -135,7 +133,6 @@ func TestValve_ValidateValveID(t *testing.T) {
 	// run a test for each of the test items (array above)
 	for _, tc := range test {
 		t.Run(tc.name, func(t *testing.T) {
-
 			// setting up the Get() resp according per test_case
 			setup := &respSetup{err: tc.respError, statusCode: tc.statusCode, resp1: &resp1{}}
 			setup.resp1.Response.ID64 = tc.ID64
