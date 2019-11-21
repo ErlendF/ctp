@@ -101,6 +101,15 @@ func (m *Manager) UpdateGames(id string) error {
 		updatedGames = append(games, updatedGames...)
 	}
 
+	if user.Runescape != "" {
+		rs, err := m.GetRSPlaytime(user.Runescape)
+		if err != nil {
+			return err
+		}
+
+		updatedGames = append(updatedGames, *rs)
+	}
+
 	user.Games = updatedGames
 
 	return m.db.UpdateGames(user)
@@ -228,7 +237,7 @@ func (m *Manager) validateUserInfo(user *models.User) (bool, error) {
 		if dbUser.Lol == nil || !(dbUser.Lol.SummonerName == user.Lol.SummonerName && dbUser.Lol.SummonerRegion == user.Lol.SummonerRegion) {
 			gameChanges = true
 
-			user.Lol, err = m.ValidateSummoner(user.Lol)
+			err = m.ValidateSummoner(user.Lol)
 			if err != nil {
 				return false, err
 			}
@@ -276,7 +285,17 @@ func (m *Manager) validateUserInfo(user *models.User) (bool, error) {
 		}
 	}
 
-	//TODO: validate steam and other ids or registrations
+	if user.Runescape != "" {
+		if dbUser.Runescape != user.Runescape {
+			gameChanges = true
+			err = m.ValidateRSAccount(user.Runescape)
+			if err != nil {
+				return false, err
+			}
+		} else {
+			user.Runescape = ""
+		}
+	}
 
 	return gameChanges, nil
 }

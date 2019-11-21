@@ -112,17 +112,11 @@ func (a *Authenticator) HandleOAuth2Callback(w http.ResponseWriter, r *http.Requ
 	return claims.Sub, nil
 }
 
-// IsUser checks wether or not the provided user exisits in the database
-func (a *Authenticator) IsUser(id string) (bool, error) {
-	return a.uv.IsUser(id)
-}
-
 // makes a random
 // based on example from https://dev.to/douglasmakey/oauth2-example-with-go-3n8a
 func generateStateOauthCookie(w http.ResponseWriter) (string, error) {
 	b := make([]byte, 16)
 	_, err := rand.Read(b)
-
 	if err != nil {
 		return "", err
 	}

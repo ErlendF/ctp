@@ -21,6 +21,7 @@ import (
 	"ctp/pkg/auth"
 	"ctp/pkg/blizzard"
 	"ctp/pkg/db"
+	"ctp/pkg/jagex"
 	"ctp/pkg/models"
 	"ctp/pkg/riot"
 	"ctp/pkg/user"
@@ -77,10 +78,13 @@ var rootCmd = &cobra.Command{
 			logrus.Fatalf("Invalid environment variables")
 		}
 
-		// Initializing each of the packages and passing them to the server
+		// Initializing each of the provider packages
 		riot := riot.New(client, riotAPIKey)
 		valve := valve.New(client, valveAPIKey)
 		blizzard := blizzard.New(client)
+		jagex := jagex.New(client)
+
+		// Getting a database instance
 		db, err := db.New(config.fbkey)
 		if err != nil {
 			logrus.WithError(err).Fatalf("Unable to get new Database:%s", err)
@@ -98,8 +102,9 @@ var rootCmd = &cobra.Command{
 			models.Valve
 			models.Riot
 			models.Blizzard
+			models.Jagex
 			models.TokenGenerator
-		}{valve, riot, blizzard, auth}
+		}{valve, riot, blizzard, jagex, auth}
 
 		um := user.New(db, organizer)
 		srv := server.New(config.port, um, auth)
@@ -107,7 +112,7 @@ var rootCmd = &cobra.Command{
 		// Making an channel to listen for errors (later blocking until either error or signal is received)
 		errChan := make(chan error)
 
-		// Starting server in a go routine to allow for graceful shutdown and potentially additional services
+		// Starting server in a go routine to allow for graceful shutdown
 		go func() {
 			logrus.Infof("Starting server on port %d", config.port)
 			if err := srv.ListenAndServe(); err != nil {

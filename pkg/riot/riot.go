@@ -29,94 +29,102 @@ func (r *Riot) GetRiotPlaytime(reg *models.SummonerRegistration) (*models.Game, 
 		return nil, errors.New("missing summonerinfo")
 	}
 
+	// create an URL with needed params
 	URL := fmt.Sprintf("https://%s.api.riotgames.com/lol/match/v4/matchlists/by-account/%s?beginIndex=99999",
 		reg.SummonerRegion, reg.AccountID)
 
+	// ensure that the URL is correctly formatted
 	formatURL, err := url.Parse(URL)
 	if err != nil {
 		return nil, err
 	}
 
+	// create http request
 	req, err := http.NewRequest(http.MethodGet, formatURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
 
+	// set header token to avoid getting "403 unauthorized" from API
 	req.Header.Set("X-Riot-Token", r.apiKey)
 
-	resp, err := r.Client.Do(req)
+	// query riot api
+	resp, err := r.Do(req)
 	if err != nil {
 		return nil, models.NewAPIErr(err, "Riot")
 	}
-
 	defer resp.Body.Close()
 
+	// checks the response status code and returns appropriate error
 	err = models.CheckStatusCode(resp.StatusCode, "Riot", "invalid username or region for League of Legends")
 	if err != nil {
 		return nil, err
 	}
 
+	// decode list of matches retrieved from API
 	var matches models.MatchList
-
 	err = json.NewDecoder(resp.Body).Decode(&matches)
-
 	if err != nil {
 		return nil, models.NewAPIErr(err, "Riot")
 	}
 
+	// calculate total game time, assuming average match time is 35 minutes
 	duration := matches.TotalGames * 35 / 60
 
+	// create and return expected struct
 	game := &models.Game{Name: "LeagueOfLegends", Time: duration}
-
 	return game, nil
 }
 
 // ValidateSummoner validates the summoner
-func (r *Riot) ValidateSummoner(reg *models.SummonerRegistration) (*models.SummonerRegistration, error) {
+func (r *Riot) ValidateSummoner(reg *models.SummonerRegistration) error {
 	if reg == nil {
-		return nil, errors.New("nil summoner registration")
+		return errors.New("nil summoner registration")
 	}
 
+	// Checks that the payload (reg) contains a valid region
 	var regions = []string{"RU", "KR", "BR1", "OC1", "JP1", "NA1", "EUN1", "EUW1", "TR1", "LA1", "LA2"}
-
 	if !models.Contains(regions, reg.SummonerRegion) {
-		return nil, models.NewReqErrStr(fmt.Sprintf("invalid summoner region: %s", reg.SummonerRegion), "invalid region for League of Legends")
+		return models.NewReqErrStr(fmt.Sprintf("invalid summoner region: %s", reg.SummonerRegion), "invalid region for League of Legends")
 	}
 
-	// Validating name
+	// Create an URL and ensure it is formatted correctly
 	URL := fmt.Sprintf("https://%s.api.riotgames.com/lol/summoner/v4/summoners/by-name/%s", reg.SummonerRegion, reg.SummonerName)
-
 	formatURL, err := url.Parse(URL)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
+	// Use the URL to validate SummonerName against API
 	req, err := http.NewRequest(http.MethodGet, formatURL.String(), nil)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
+	// Set apiKey in header to avoid "403 Unauthorized"
 	req.Header.Set("X-Riot-Token", r.apiKey)
 
-	resp, err := r.Client.Do(req)
+	// Send get-request to API
+	resp, err := r.Do(req)
 	if err != nil {
-		return nil, models.NewAPIErr(err, "Riot")
+		return models.NewAPIErr(err, "Riot")
 	}
 	defer resp.Body.Close()
 
+	// Ensure that status code is 200 OK, else validation fails
 	err = models.AccValStatusCode(resp.StatusCode, "Riot", "invalid username for League of Legends")
 	if err != nil {
-		return nil, err
+		return err
 	}
 
+	// Decode the response body to get AccountID
 	var tmpReg models.SummonerRegistration
-
 	err = json.NewDecoder(resp.Body).Decode(&tmpReg)
 	if err != nil {
-		return nil, models.NewAPIErr(err, "Riot")
+		return models.NewAPIErr(err, "Riot")
 	}
 
+	// Ensure that AccountID is up to date
 	reg.AccountID = tmpReg.AccountID
-
-	return reg, nil
+	return nil
 }

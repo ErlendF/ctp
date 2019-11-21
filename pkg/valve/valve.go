@@ -49,21 +49,21 @@ func (v *Valve) ValidateValveAccount(username string) (string, error) {
 		return "", err
 	}
 
-	var steamResp steamResp
-	err = json.NewDecoder(resp.Body).Decode(&steamResp)
+	var sResp steamResp
+	err = json.NewDecoder(resp.Body).Decode(&sResp)
 	if err != nil {
 		return "", err
 	}
 
-	if steamResp.Response.Code != 1 {
+	if sResp.Response.Code != 1 {
 		return "", models.NewReqErrStr("invalid steam account", "invalid steam account")
 	}
 
-	if !strings.HasPrefix(steamResp.Response.ID64, "7656119") {
+	if !strings.HasPrefix(sResp.Response.ID64, "7656119") {
 		return "", models.NewReqErrStr("invalid steam account", "invalid steam account")
 	}
 
-	return steamResp.Response.ID64, nil
+	return sResp.Response.ID64, nil
 }
 
 // ValidateValveID validates the 64-bit steam account id

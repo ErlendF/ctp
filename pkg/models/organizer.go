@@ -8,5 +8,6 @@ type Organizer interface {
 	Valve
 	Riot
 	Blizzard
+	Jagex
 	TokenGenerator
 }
