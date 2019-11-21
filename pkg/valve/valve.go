@@ -10,6 +10,8 @@ import (
 )
 
 const getOwnedGames = "http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=%s&format=json&steamid=%s&include_appinfo=true"
+const privateSteamAccount = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=%s&steamids=%s"
+const validateValveAccount = "http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=%s&vanityurl=%s"
 
 // Valve is a struct which contains everything necessary to handle a request related to valve
 type Valve struct {
@@ -18,6 +20,7 @@ type Valve struct {
 }
 
 // steamResp is used for decoding the response from steam
+// this json reply is an reponce struct, containing an players array containing the relevant information
 type steamPrivateCheck struct {
 	Response struct {
 		Players []struct {
@@ -48,7 +51,7 @@ func (v *Valve) ValidateValveAccount(username string) (string, error) {
 	if username == "" {
 		return "", models.NewReqErrStr("invalid steam account", "invalid steam account")
 	}
-	resp, err := v.Get(fmt.Sprintf("http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=%s&vanityurl=%s", v.apiKey, username))
+	resp, err := v.Get(fmt.Sprintf(validateValveAccount, v.apiKey, username))
 	if err != nil {
 		return "", err
 	}
@@ -83,6 +86,7 @@ func (v *Valve) ValidateValveAccount(username string) (string, error) {
 
 // ValidateValveID validates the 64-bit steam account id
 func (v *Valve) ValidateValveID(id string) error {
+	// all steam 64id starts with this number
 	if !strings.HasPrefix(id, "7656119") {
 		return models.NewReqErrStr("invalid steam id", "invalid steam id")
 	}
@@ -131,7 +135,7 @@ func (v *Valve) GetValvePlaytime(id string) ([]models.Game, error) {
 	}
 
 	var games []models.Game
-
+	// iterates over all games an user has played, takes out playtime and appid and appends it to the player's game array
 	for _, game := range valvegames.Response.Games {
 		var tmpGame models.Game
 		tmpGame.Name = game.Name
@@ -148,20 +152,27 @@ func (v *Valve) GetValvePlaytime(id string) ([]models.Game, error) {
 
 func (v *Valve) checkPrivateProfile(id string) error {
 	// Checking whether or not the passed in steam account is private
-	resp, err := v.Get(fmt.Sprintf("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=%s&steamids=%s", v.apiKey, id))
+
+	// uses the steam api key comined with the vertfied id to check the account state,
+	// if the acount state if anything but public, we are unable to display any infomaiton about this user
+
+	resp, err := v.Get(fmt.Sprintf(privateSteamAccount, v.apiKey, id))
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
 
 	var sResp steamPrivateCheck
+
+	// decodes the response into rRep, and struct of that json variant
 	err = json.NewDecoder(resp.Body).Decode(&sResp)
 	if err != nil {
 		return err
 	}
+	// if the visibility code is anything but 3 the account is not public
 	if sResp.Response.Players[0].VisibilityCode != 3 {
 		return models.NewReqErrStr("private steam account", "private steam account")
 	}
-
+	// returns nil if no errors detected
 	return nil
 }
