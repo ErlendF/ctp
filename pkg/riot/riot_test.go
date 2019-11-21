@@ -82,7 +82,7 @@ func TestRiot_ValidateSummoner(t *testing.T) {
 	}
 }
 
-func TestRiot_GetRiotPlaytime(t *testing.T) {
+func TestRiot_GetLolPlaytime(t *testing.T) {
 	var test = []struct {
 		name        string
 		payload     *models.SummonerRegistration
