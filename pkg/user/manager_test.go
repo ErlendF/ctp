@@ -42,7 +42,7 @@ type mockOrganizer struct {
 func (m *mockOrganizer) ValidateValveAccount(username string) (string, error) { return m.valveID, m.err }
 func (m *mockOrganizer) ValidateValveID(id string) error                      { return m.err }
 func (m *mockOrganizer) GetValvePlaytime(id string) ([]models.Game, error)    { return m.valve, m.err }
-func (m *mockOrganizer) GetRiotPlaytime(reg *models.SummonerRegistration) (*models.Game, error) {
+func (m *mockOrganizer) GetLolPlaytime(reg *models.SummonerRegistration) (*models.Game, error) {
 	return m.lol, m.err
 }
 func (m *mockOrganizer) ValidateSummoner(reg *models.SummonerRegistration) error { return m.err }

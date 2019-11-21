@@ -75,7 +75,7 @@ func (m *Manager) UpdateGames(id string) error {
 	var updatedGames []models.Game
 
 	if user.Lol != nil {
-		lolGame, err := m.GetRiotPlaytime(user.Lol)
+		lolGame, err := m.GetLolPlaytime(user.Lol)
 		if err != nil {
 			return err
 		}
@@ -185,7 +185,7 @@ func (m *Manager) JohanTestFunc() {
 	logrus.Debug(tmpUser3.Lol.SummonerRegion)
 	logrus.Debug(tmpUser3.Lol.SummonerName)
 
-	game, err := m.GetRiotPlaytime(tmpUser3.Lol)
+	game, err := m.GetLolPlaytime(tmpUser3.Lol)
 	if err != nil {
 		logrus.WithError(err).Debug("Get riot playtime oopsie!")
 		return

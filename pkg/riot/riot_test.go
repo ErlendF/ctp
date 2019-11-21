@@ -111,7 +111,7 @@ func TestRiot_GetRiotPlaytime(t *testing.T) {
 			client.setup = setup
 
 			// run the function we want to test
-			_, err := riot.GetRiotPlaytime(tc.payload)
+			_, err := riot.GetLolPlaytime(tc.payload)
 
 			// if the error we got does not correspond with the expected error, fail test
 			assert.Equal(t, tc.errExpected, err)
