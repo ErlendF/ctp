@@ -1,0 +1,40 @@
+stages:
+  - build
+  - deploy
+
+build:
+  tags:
+    - docker
+  image: golang:latest
+  stage: build
+  before_script:
+    - export GOPATH="$(pwd)/GOPATH"
+    - mkdir -p ./GOPATH
+  script:
+    - go build ./main.go
+  cache:
+    key: build
+    paths:
+      - ./GOPATH
+
+deploy:
+  tags:
+    - docker
+  stage: deploy
+  image: ubuntu:bionic
+  before_script:
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\tForwardAgent yes\n" > ~/.ssh/config'
+  script:
+    # cleanup old deployment
+    - ssh root@10.212.139.113 "cd ctp; docker-compose down --rmi all; git clean -df; git reset --hard;"
+    # update git repository
+    - ssh root@10.212.139.113 "cd ctp; git pull;"
+    - ssh root@10.212.139.113 "cd ctp; cp ~/files/.env ./"
+    - ssh root@10.212.139.113 "cd ctp; cp ~/files/fbkey.json ./"
+    - ssh root@10.212.139.113 "cd ctp; docker-compose build; docker-compose up -d; docker system prune -f;"
+    - echo "Finished"

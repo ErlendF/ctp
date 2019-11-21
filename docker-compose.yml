@@ -1,0 +1,10 @@
+version: "3.6"
+services:
+  main:
+    restart: always
+    build:
+      context: .
+    image: ctp
+    ports:
+      - 8080:80
+    env_file: .env
