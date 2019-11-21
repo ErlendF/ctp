@@ -33,6 +33,7 @@ type mockOrganizer struct {
 	lol     *models.Game
 	rs      *models.Game
 	ow      *models.Game
+	rsAcc   *models.RunescapeAccount
 	id      string
 	token   string
 	err     error
@@ -45,8 +46,10 @@ func (m *mockOrganizer) GetRiotPlaytime(reg *models.SummonerRegistration) (*mode
 	return m.lol, m.err
 }
 func (m *mockOrganizer) ValidateSummoner(reg *models.SummonerRegistration) error { return m.err }
-func (m *mockOrganizer) GetRSPlaytime(username string) (*models.Game, error)     { return m.rs, m.err }
-func (m *mockOrganizer) ValidateRSAccount(username string) error                 { return m.err }
+func (m *mockOrganizer) GetRSPlaytime(rsAcc *models.RunescapeAccount) (*models.Game, error) {
+	return m.rs, m.err
+}
+func (m *mockOrganizer) ValidateRSAccount(rsAcc *models.RunescapeAccount) error { return m.err }
 func (m *mockOrganizer) GetBlizzardPlaytime(*models.Overwatch) (*models.Game, error) {
 	return m.ow, m.err
 }
@@ -149,4 +152,5 @@ func fakeOrg(t *testing.T, org *mockOrganizer, orgErr error) {
 	err = faker.FakeData(&org.token)
 	assert.NoError(t, err)
 	org.err = orgErr
+	org.rsAcc = &models.RunescapeAccount{Username: "test user", AccountType: "normal"}
 }
