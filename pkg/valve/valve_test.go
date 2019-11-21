@@ -9,7 +9,9 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/bxcodec/faker"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // used to mock get request
@@ -20,7 +22,7 @@ type mockGetter struct {
 // struct for setting response body in get request
 type respSetup struct {
 	resp1      *resp1
-	resp2      *models.ValveResp
+	resp2      *[]byte
 	statusCode int
 	err        error
 }
@@ -50,13 +52,14 @@ func (m *mockGetter) Get(url string) (*http.Response, error) {
 	err := errors.New("no body")
 	if m.setup.resp1 != nil {
 		body, err = json.Marshal(m.setup.resp1)
+		if err != nil {
+			return nil, err
+		}
 	}
 	if m.setup.resp2 != nil {
-		body, err = json.Marshal(m.setup.resp2)
+		body = *m.setup.resp2
 	}
-	if err != nil {
-		return nil, err
-	}
+
 	resp.Body = ioutil.NopCloser(bytes.NewReader(body))
 
 	// successful request
@@ -168,17 +171,26 @@ func TestValve_GetValvePlaytime(t *testing.T) {
 	getter := &mockGetter{}
 	valve := New(getter, "123")
 
+	var games []models.ValveGames
+
 	// run a test for each of the test items (array above)
 	for _, tc := range test {
 		t.Run(tc.name, func(t *testing.T) {
 
+			// creating test data
+			err := faker.FakeData(&games)
+			require.Nil(t, err)
+
 			// setting up the Get() resp according per test_case
 			setup := &respSetup{err: tc.respError, statusCode: tc.statusCode}
-			setup.resp2 = &models.ValveResp{}
+			tmpGameObj := &models.ValveResp{Response: models.ValveResponse{GameCount: len(games), Games: games}}
+			body, err := json.Marshal(&tmpGameObj)
+			require.Nil(t, err)
+			setup.resp2 = &body
 			getter.setup = *setup
 
 			// runs the actual function
-			_, err := valve.GetValvePlaytime(tc.ID)
+			_, err = valve.GetValvePlaytime(tc.ID)
 
 			// if the error we got does not correspond with the expected error, fail test
 			assert.Equal(t, tc.expectedError, err)
