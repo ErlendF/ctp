@@ -1,8 +1,8 @@
 # IMT2681 Cloud Technologies Project
-###Authors
+### Authors
 Erlend Fonnes, Johan Selnes, Aksel Baardsen, Knut Jørgen Totland, Benjamin Skinstad
 
-##Project report
+## Project report
 ### Project description and ambitions
 The original plan of this project was to create a RESTful web application that allowed users to register accounts where the information about the playtime on games they play is calculated from official API's. This application should then return the total time spent playing games. 
 We also planned to have automatic deployment of the application in Docker on Openstack via the CI/CD feature in Gitlab.
@@ -22,7 +22,7 @@ During the run of this project the group members have learned how to work with a
 The total work hours spent on this project is a little over 100 hours.
 To track the group's work hours we used https://toggl.com/app/timer.
 
-##Application information and setup
+## Application information and setup
 #### Setup
 The application uses firebase and requires a credential file called **FBKEY.json**, unless other name is passed as a command line argument.
 The following environment variables are required to be specified:
