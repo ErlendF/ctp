@@ -3,6 +3,7 @@ package db
 import (
 	"ctp/pkg/models"
 	"errors"
+	"strings"
 
 	"sort"
 
@@ -201,6 +202,7 @@ func (db *Database) UpdateTotalGameTime(id string) error {
 
 // SetUsername sets the username for the user, returns error if it is already in use
 func (db *Database) SetUsername(user *models.User) error {
+	user.Name = strings.ToLower(user.Name)
 	dbUser, err := db.GetUserByName(user.Name)
 	if err != nil && !errors.Is(err, models.ErrNotFound) {
 		return err
