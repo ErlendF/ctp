@@ -12,10 +12,11 @@ Most has been achieved, but we did not have time to expand the functionality as 
 
 
 ### Reflection
+The workload of this project was a bit more than we expected (reflected in total work hours), but we pulled through. 
 
 
 ### Learning outcome
-
+During the run of this project the group members have learned how to work with authentication, cobra file-structure, go testing using mocks and interfaces, OAuth2 and authentication using Google, and that proper documentation makes many hassles go away.
 
 ### Total work hours
 The total work hours spent on this project is a little over 100 hours.
