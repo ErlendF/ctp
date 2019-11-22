@@ -19,8 +19,10 @@ All goals in our original plan has been achieved, except for the fact that we di
 
 ### Reflection 
 #### What went well 
-<!--Denne sectionen trenger innvoller -->
-We managed to implement wanted core functionality. Tests run beautifully. In the end we used CI/CD for both deploying and linting. Use of 'cobra' and gorilla/mux worked splendidly.
+<!--Denne sectionen trenger innvoller & peer review-->
+We managed to implement wanted core functionality. Tests run without issues. 
+
+In the end we used CI/CD for both deploying and linting. Use of [spf13/cobra](https://github.com/spf13/cobra) and [gorilla/mux](https://github.com/gorilla/mux) worked splendidly.
 
 
 #### What went wrong
@@ -32,7 +34,7 @@ Riot did not have time to process our application for a permanent API key, so we
  - Managing time.
  - Prioritizing important aspects
  - Distributing workload
- - Implementing enough MEANINGFUL tests to reach 75% coverage
+ - Implementing enough meaningful tests to reach 75% coverage (see testing section)
 
 ### Learning outcome
 During the run of this project the group members have learned how to work with authentication, cobra file-structure, go testing using mocks and interfaces, OAuth2 and authentication using Google, Gitlab CI/CD, and that proper documentation makes many hassles go away. The group also discovered problems with local deployment concerning Google's *Authorized redirect URIs* (see Authentication OAuth workaround). 
@@ -150,12 +152,21 @@ The repository has the following main components:
  - **cmd**: Lists all possible commands for the application. Currently, there are none other than root. Main.go serves merely to start the *Run* function of cmd/root.go. Was created by Cobra during project initialization.
  - **pkg**: Contains all packages used in the application. See Application structure.
  - **.gitignore**: Specifies what files should be ignored by git.
+ - **.gitlab-ci.yml**: Runs tests, linting, checks that the project compiles and deploys it to Openstack.
+ - **.golangci.yml**: Golangci-lint configuration file.
+ - **Dockerfile**: Barebones Dockerization. See [documentation](https://docs.docker.com/engine/reference/builder/).
+ - **docker-compose.yml**: Barebones compose with "restart: always" and importing of environment variables from .env.
  - **go.mod** and **go.sum**: Go modules.
  - **LICENSE**: Apache license, created by Cobra during project initialization.
  - **main.go**: Starts the application.
  - **README.md**: The file you are currently reading.
+ - **sample.env**: Shows which variables are expected to be present in the .env file.
 
 #### Testing
+As the project contains multiple packages, to run the tests (and get code coverage), use  ```go test ./... -cover```.
+
+All the tests are unit tests where each of the required interfaces are mocked. This is to prevent the tests from testing other packages or external APIs which should **not** be part of a unit test. To mock responses from external sources, I used [bxcodec/faker](https://github.com/bxcodec/faker) (ecxept for the jagex test) to generate test data. To perform the actual checks throughout the tests, I used [stretchr/testify](https://github.com/stretchr/testify). All of the tests are **[table driven](https://github.com/golang/go/wiki/TableDrivenTests)**. No integration nor acceptance tests were made for the project. There is therefore no test for the database package.
+
 We were dismayed that the only metric for tests were *code coverage*. This meant that the usefullness of the test, and what they are actually testing is utterly irrelevant, as long as enough of the code is executed. In our opinion, [test coverage alone is not a good metric](https://hackernoon.com/is-test-coverage-a-good-metric-for-test-or-code-quality-92fef332c871). As such, some of the tests contain very little actual testing. Specifically the tests *pkg/server/router_test.go*, *pkg/server/server_test.go* and the tests in *pkg/models* contain very little actual testing, as there is very little to test. The functions are nearly devoid of actual logic. It is possible to performe some more extensive tests on for example the router (checking that it contains each route as expected, and only allows certain methods), but this is very impractical and time consuming. This is also the reason *pkg/db* contain no test and *pkg/auth* contain few tests (these would also be unit tests as they would involve the database and OAuth provider respectively).
 
 
