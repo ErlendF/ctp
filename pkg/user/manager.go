@@ -52,7 +52,7 @@ func (m *Manager) SetUser(user *models.User) error {
 		return err
 	}
 
-	// Updates games if there have been a change in
+	// Updates games if there have been a change in game providers
 	if gameChanges {
 		return m.UpdateGames(user.ID)
 	}
@@ -66,7 +66,12 @@ func (m *Manager) DeleteUser(id string, fields []string) error {
 		return m.db.DeleteUser(id)
 	}
 
-	return m.db.DeleteFieldsFromUser(id, fields)
+	err := m.db.DeleteFieldsFromUser(id, fields)
+	if err != nil {
+		return err
+	}
+
+	return m.UpdateGames(id) // Updates the games for the user, as some game providers may have been deleted
 }
 
 // UpdateGames updates all games the user has registered

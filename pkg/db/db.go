@@ -7,8 +7,6 @@ import (
 
 	"sort"
 
-	"github.com/sirupsen/logrus"
-
 	"cloud.google.com/go/firestore"
 	"github.com/fatih/structs"
 	"github.com/mitchellh/mapstructure"
@@ -137,63 +135,19 @@ func (db *Database) UpdateUser(user *models.User) error {
 
 // UpdateGames updates the games for the given user
 func (db *Database) UpdateGames(user *models.User) error {
-	dbUser, err := db.GetUserByID(user.ID)
-	if err != nil {
-		return err
-	}
-
-	// checking that each game in the database is still present in the new games array
-	for _, dbGame := range dbUser.Games {
-		gamesLen := len(user.Games)
-		gameFound := false
-
-		// looking for the game in user.Games
-		for i := 0; i < gamesLen && !gameFound; i++ {
-			if dbGame.Name == user.Games[i].Name && dbGame.ValveID == user.Games[i].ValveID {
-				gameFound = true
-				break
-			}
-		}
-
-		// if the game was not present, adding it
-		if !gameFound {
-			user.Games = append(user.Games, dbGame)
-		}
-	}
-
+	// sorting the games, such that they are sorted when the user retrieves them
 	sort.Slice(user.Games, func(i, j int) bool {
 		return user.Games[i].Time > user.Games[j].Time
 	})
 
-	_, err = db.Collection(userCol).Doc(user.ID).Update(db.ctx, []firestore.Update{
-		{Path: "games", Value: user.Games},
-	})
-
-	if err != nil {
-		return err
-	}
-
-	err = db.UpdateTotalGameTime(user.ID)
-
-	return err
-}
-
-// UpdateTotalGameTime updates the totalgametime for the given user
-func (db *Database) UpdateTotalGameTime(id string) error {
-	user, err := db.GetUserByID(id)
-	if err != nil {
-		return err
-	}
-
-	logrus.Debugf("UpdateTotalGameTime")
-
-	totalGameTime := 0
-
+	// calculating total game time
+	var totalGameTime int
 	for _, game := range user.Games {
 		totalGameTime += game.Time
 	}
 
-	_, err = db.Collection(userCol).Doc(id).Update(db.ctx, []firestore.Update{
+	_, err := db.Collection(userCol).Doc(user.ID).Update(db.ctx, []firestore.Update{
+		{Path: "games", Value: user.Games},
 		{Path: "totalGameTime", Value: totalGameTime},
 	})
 
