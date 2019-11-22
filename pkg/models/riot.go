@@ -9,22 +9,7 @@ type Riot interface {
 
 // MatchList contains a list of matches with relevant information
 type MatchList struct {
-	Matches    []Matches `json:"matches"`
-	EndIndex   int       `json:"endIndex"`
-	StartIndex int       `json:"startIndex"`
-	TotalGames int       `json:"totalGames"`
-}
-
-// Matches contains information about a specific match
-type Matches struct {
-	Lane       string `json:"lane"`
-	GameID     int64  `json:"gameId"`
-	Champion   int    `json:"champion"`
-	PlatformID string `json:"platformId"`
-	Timestamp  int64  `json:"timestamp"`
-	Queue      int    `json:"queue"`
-	Role       string `json:"role"`
-	Season     int    `json:"season"`
+	TotalGames int `json:"totalGames"`
 }
 
 // SummonerRegistration contains the necessary information to register a summoner (league of legends account)

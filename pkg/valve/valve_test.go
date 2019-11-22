@@ -22,13 +22,13 @@ type mockGetter struct {
 
 // struct for setting response body in get request
 type respSetup struct {
-	resp1      *resp1
+	testRes    *testResp
 	resp2      *[]byte
 	statusCode int
 	err        error
 }
 
-type resp1 struct {
+type testResp struct {
 	Response struct {
 		ID64    string `json:"steamid"`
 		Code    int    `json:"success"`
@@ -51,8 +51,8 @@ func (m *mockGetter) Get(url string) (*http.Response, error) {
 	// add preconfigured response body to THIS response
 	var body = []byte{}
 	var err error
-	if m.setup.resp1 != nil {
-		body, err = json.Marshal(m.setup.resp1)
+	if m.setup.testRes != nil {
+		body, err = json.Marshal(m.setup.testRes)
 		if err != nil {
 			return nil, err
 		}
@@ -104,14 +104,14 @@ func TestValve_ValidateValveAccount(t *testing.T) {
 	for _, tc := range test {
 		t.Run(tc.name, func(t *testing.T) {
 			// setting up the Get() resp according per test_case
-			setup := &respSetup{err: tc.respError, statusCode: tc.statusCode, resp1: &resp1{}}
-			setup.resp1.Response.ID64 = tc.ID64
-			setup.resp1.Response.Code = tc.codeResp
+			setup := &respSetup{err: tc.respError, statusCode: tc.statusCode, testRes: &testResp{}}
+			setup.testRes.Response.ID64 = tc.ID64
+			setup.testRes.Response.Code = tc.codeResp
 			var tmpPlayer = struct {
 				ID64           string `json:"steamid"`
 				VisibilityCode int    `json:"communityvisibilitystate"`
 			}{ID64: tc.ID64, VisibilityCode: tc.vCode}
-			setup.resp1.Response.Players = append(setup.resp1.Response.Players, tmpPlayer)
+			setup.testRes.Response.Players = append(setup.testRes.Response.Players, tmpPlayer)
 			getter.setup = *setup
 
 			// runs the actual function
@@ -149,13 +149,13 @@ func TestValve_ValidateValveID(t *testing.T) {
 	for _, tc := range test {
 		t.Run(tc.name, func(t *testing.T) {
 			// setting up the Get() resp according per test_case
-			setup := &respSetup{err: tc.respError, statusCode: tc.statusCode, resp1: &resp1{}}
-			setup.resp1.Response.ID64 = tc.ID64
+			setup := &respSetup{err: tc.respError, statusCode: tc.statusCode, testRes: &testResp{}}
+			setup.testRes.Response.ID64 = tc.ID64
 			var tmpPlayer = struct {
 				ID64           string `json:"steamid"`
 				VisibilityCode int    `json:"communityvisibilitystate"`
 			}{ID64: tc.ID64, VisibilityCode: tc.vCode}
-			setup.resp1.Response.Players = append(setup.resp1.Response.Players, tmpPlayer)
+			setup.testRes.Response.Players = append(setup.testRes.Response.Players, tmpPlayer)
 			getter.setup = *setup
 
 			// runs the actual function
@@ -194,7 +194,7 @@ func TestValve_GetValvePlaytime(t *testing.T) {
 			// creating test data
 			err := faker.FakeData(&games)
 			require.Nil(t, err)
-			games = append(games, models.ValveGames{Name: "Testing Game", PlaytimeForever: 69420, Appid: 1991})
+			games = append(games, models.ValveGames{Name: "Testing Game", PlaytimeForever: 69420})
 
 			// setting up the Get() resp according per test_case
 			setup := &respSetup{err: tc.respError, statusCode: tc.statusCode}

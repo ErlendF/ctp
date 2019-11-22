@@ -14,16 +14,8 @@ type ValveResp struct {
 
 // ValveGames is used for testing
 type ValveGames struct {
-	Appid                    int    `json:"appid"`
-	Name                     string `json:"name"`
-	PlaytimeForever          int    `json:"playtime_forever"`
-	ImgIconURL               string `json:"img_icon_url"`
-	ImgLogoURL               string `json:"img_logo_url"`
-	HasCommunityVisibleStats bool   `json:"has_community_visible_stats"`
-	PlaytimeWindowsForever   int    `json:"playtime_windows_forever"`
-	PlaytimeMacForever       int    `json:"playtime_mac_forever"`
-	PlaytimeLinuxForever     int    `json:"playtime_linux_forever"`
-	Playtime2Weeks           int    `json:"playtime_2weeks,omitempty"`
+	Name            string `json:"name"`
+	PlaytimeForever int    `json:"playtime_forever"`
 }
 
 // ValveResponse is used for testing
@@ -36,5 +28,4 @@ type ValveResponse struct {
 type ValveAccount struct {
 	ID       string `json:"id,omitempty" firestore:"id"`
 	Username string `json:"username,omitempty" firestore:"username"`
-	APIKey   string `json:"apiKey,omitempty" firestore:"apiKey"`
 }

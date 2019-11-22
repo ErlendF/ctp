@@ -17,7 +17,25 @@ type Blizzard struct {
 	models.Getter
 }
 
-// New returns a new blizzard instance
+// blizzardResp struct retrieves only time played in Overwatch
+type blizzardResp struct {
+	CompetitiveStats struct {
+		CareerStats careerStats `json:"careerStats"`
+	} `json:"competitiveStats"`
+	QuickPlayStats struct {
+		CareerStats careerStats `json:"careerStats"`
+	} `json:"quickPlayStats"`
+}
+
+// careerStats includes time played for all heroes by game
+type careerStats struct {
+	AllHeroes struct {
+		Game struct {
+			TimePlayed string `json:"timePlayed"`
+		} `json:"game"`
+	} `json:"allHeroes"`
+}
+
 func New(getter models.Getter) *Blizzard {
 	return &Blizzard{getter}
 }
@@ -91,7 +109,7 @@ func (b *Blizzard) GetBlizzardPlaytime(payload *models.Overwatch) (*models.Game,
 
 // queryAPI func returns response from the OverwatchAPI
 func (b *Blizzard) queryAPI(url string) (*models.Game, error) {
-	var gameTime models.BlizzardResp
+	var gameTime blizzardResp
 
 	// Gets statistics from the battle tag provided
 	resp, err := b.Get(url)

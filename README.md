@@ -20,8 +20,7 @@ All goals in our original plan has been achieved, except for the fact that we di
 ### Reflection
 #### What went well
 <!--Denne sectionen trenger innvoller & peer review-->
-We managed to implement wanted core functionality. Tests run without issues.
-
+We managed to implement wanted core functionality. Tests run without issues. Time tracking worked as expected.
 In the end we used CI/CD for both deploying and linting. Use of [spf13/cobra](https://github.com/spf13/cobra) and [gorilla/mux](https://github.com/gorilla/mux) worked splendidly.
 
 
@@ -45,13 +44,13 @@ RGAPI-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 During the run of this project the group members have learned how to work with authentication, cobra file-structure, go testing using mocks and interfaces, OAuth2 and authentication using Google, Gitlab CI/CD, and that proper documentation makes many hassles go away. The group also discovered problems with local deployment concerning Google's *Authorized redirect URIs* (see Authentication OAuth workaround).
 
 ### Total work hours
-The total work hours spent on this project is a little over 110 hours.
+The total work hours spent on this project is a little over 120 hours.
 To track the group's work hours we used https://toggl.com/app/timer.
 
 
 
 ## Application information and setup
-#### Setup
+### Setup
 The application uses firebase and requires a credential file called **FBKEY.json**, unless other name is passed as a command line argument.
 The following environment variables are required to be specified:
 
@@ -79,7 +78,7 @@ The application accepts the following commandline arguments:
 ```
 
 
-#### Authentication
+### Authentication
 ###### Configuration
 OpenID Connect with Google as the provider is used to authenticate users of the application. Therefore, valid Google OAUTH2 credentials are required, like shown in the Setup section. In addition, the [Google APIs Project](https://console.developers.google.com/) needs to be configured with scope as *email*, *profile* and *openid*, although only the **openid** scope is actually used (neither email nor profile are stored in the application). To our knowledge, it is currently not possible to reduce the scope further. The project also needs "http://%s:%d/api/v1/authcallback" to be set as a **Authorised rediredt URI**, where "%s" replaced with applicable domain and "%d" with the desired port.
 
@@ -93,7 +92,7 @@ For OAuth2, it is recommended to pass a *state* parameter with the request to pr
 However, to deploy the project, we ended up using SkyHigh. We then received a *floating IP*, which only accessible on the internal NTNU network. However, when setting **Authorised redirect URI** in Google Developer Console, this is not a valid **public top-level domain**. Thus, as a workaround for the project deployment, we use [xip.io](http://xip.io/) as a custom DNS server. The *redirect URI* is thus set to **http://\<floating ip\>.xip.io:\<port\>/api/v1/authcallback**, which will redirect to xip.io. This means that everything essentially functions as intended **ecxept for the state cookie**. Thus, for this deployment, we have commented out the code validating the state in *pkg/auth/auth.go*. It has been commented out, not removed, to show what it would have looked like. All other paths than */login* will function as intended with the current deployment.
 
 
-#### API endpoints
+### API endpoints
 All enpoints start with "/api/v1/", thus the prefix has been omitted from the listing bellow. For the enpoints requiring authentication, the **Authorization** header needs to contain a valid JWT, as specified in the Authentication (usage) section.
 
 
@@ -111,9 +110,10 @@ Requires authentication:
 /user        (POST): Updates information about the user themselves.
 /user      (DELETE): Deletes specified fields from the user. If none are specified, the entire user and all related information is deleted.
 /updategames (POST): Fetches new data from the servies registered for the user.
+/riotapikey  (POST): Updates the API key used for making requests to Riot (this is a hack).
 ```
 
-To update the user information, "/user" endpoint expects the following body for the POST request (values may be replaced, although they are required to be valid):
+ - To update the user information, "/user" endpoint expects the following body for the POST request (values may be replaced, although they are required to be valid):
 ```
 {
 	"name": "newUsername",
@@ -128,20 +128,29 @@ To update the user information, "/user" endpoint expects the following body for 
 		"battleTag": "Onijuan-2670",
 		"platform": "pc",
 		"region": "eu"
+	},
+	"runescape": {
+		"username": "dids",
+		"accountType": "ironman"
 	}
 }
 ```
 
-To delete specific fields, "/user" endpoint expects the following body for the DELETE request (all other values are ignored):
+ - To delete specific fields, "/user" endpoint expects the following body for the DELETE request (all other values are ignored):
 ```
 ["name", "games", "lol", "valve", "overwatch", "runescape", "games"]
 ```
 If no fields are specified in the DELETE request, the entire user and all their data is deleted.
 
+ - The API key should be sent in the body as shown bellow:
+```
+RGAPI-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+```
+
 For all other paths, the request body is ignored.
 
 
-#### Application structure
+### Application structure
 The application is split into two main parts: *cmd* and *pkg*. *cmd* serves as the central function of the application. *pkg* contains everything that is either used by *cmd or another package in pkg*. We consider the user to be the central part of the application as all actions and information is related to or belongs to the user. Therefore, the handler only takes a UserManager as a parameter and the **handler struct in pkg/server/handler.go [embedds](https://travix.io/type-embedding-in-go-ba40dd4264df) the UserManager**, allowing the handler to use each of the functions specified in the *UserManager interface*. The handler functions themselves contain a minimum amount of logic, merely calling functions from the UserManager, thus only handling i/o and logging.
 
 
@@ -152,7 +161,7 @@ Interfaces are widely used throughout the application to facilitate testing. Thi
 
 
 
-#### Repository structure
+### Repository structure
 The repository has the following main components:
  - **cmd**: Lists all possible commands for the application. Currently, there are none other than root. Main.go serves merely to start the *Run* function of cmd/root.go. Was created by Cobra during project initialization.
  - **pkg**: Contains all packages used in the application. See Application structure.
@@ -167,7 +176,7 @@ The repository has the following main components:
  - **README.md**: The file you are currently reading.
  - **sample.env**: Shows which variables are expected to be present in the .env file.
 
-#### Testing
+### Testing
 As the project contains multiple packages, to run the tests (and get code coverage), use  ```go test ./... -cover```.
 
 All the tests are unit tests where each of the required interfaces are mocked. This is to prevent the tests from testing other packages or external APIs which should **not** be part of a unit test. To mock responses from external sources, I used [bxcodec/faker](https://github.com/bxcodec/faker) (ecxept for the jagex test) to generate test data. To perform the actual checks throughout the tests, I used [stretchr/testify](https://github.com/stretchr/testify). All of the tests are **[table driven](https://github.com/golang/go/wiki/TableDrivenTests)**. No integration nor acceptance tests were made for the project. There is therefore no test for the database package.

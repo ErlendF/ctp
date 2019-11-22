@@ -43,7 +43,7 @@ func (m *mockBlizzard) Get(url string) (*http.Response, error) {
 
 // struct for setting response body in get request
 type respSetup struct {
-	resp models.BlizzardResp
+	resp blizzardResp
 	err  error
 }
 
