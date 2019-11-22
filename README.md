@@ -3,7 +3,10 @@
 Erlend Fonnes, Johan Selnes, Aksel Baardsen, Knut Jørgen Totland, Benjamin Skinstad
 
 ##Project report
-### Brief description
+### Project description and ambitions
+The original plan of this project was to create a RESTful web application that allowed users to register accounts where the information about the playtime on games they play is calculated from official API's. This application should then return the total time spent playing games. 
+
+Most has been achieved, but we did not have time to expand the application as per our ambitions.
 
 ### Reflection
 
