@@ -77,14 +77,14 @@ Requires authentication:
 ```
 /user         (GET): Returns all information about the user themselves.
 /user        (POST): Updates information about the user themselves.
-/user      (DELETE): Deletes the user and all information related to them.
+/user      (DELETE): Deletes specified fields from the user. If none are specified, the entire user and all related information is deleted.
 /updategames (POST): Fetches new data from the servies registered for the user.
 ```
 
 To update the user information, "/user" endpoint expects the following body for the POST request (values may be replaced, although they are required to be valid):
 ```
 {
-	"username": "newUsername",
+	"name": "newUsername",
 	"lol": {
 		"summonerName": "LOPER",
 		"summonerRegion": "EUW1"
@@ -100,7 +100,13 @@ To update the user information, "/user" endpoint expects the following body for 
 }
 ```
 
-For the "/updategames" path, the request body is ignored.
+To delete specific fields, "/user" endpoint expects the following body for the DELETE request (all other values are ignored):
+```
+["name", "games", "lol", "valve", "overwatch", "runescape", "games"]
+```
+If no fields are specified in the DELETE request, the entire user and all their data is deleted.
+
+For all other paths, the request body is ignored.
 
 
 #### Application structure
