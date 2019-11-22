@@ -13,7 +13,6 @@ func newRouter(h *handler, amw models.AuthMiddleware) *mux.Router {
 	r.NotFoundHandler = http.HandlerFunc(h.notFound)
 
 	get := r.PathPrefix("/api/v1").Methods(http.MethodGet).Subrouter()
-	get.HandleFunc("/", h.testHandler).Name("root")
 	get.HandleFunc("/login", h.login).Name("login")
 	get.HandleFunc("/authcallback", h.authCallbackHandler).Name("authCallback")
 	get.HandleFunc("/user/{username:[a-zA-Z0-9 ]{1,15}}", h.getPublicUser).Name("getPublicUser")

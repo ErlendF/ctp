@@ -31,7 +31,6 @@ func (m *mockUserManager) DeleteUser(id string, fields []string) error         {
 func (m *mockUserManager) UpdateGames(id string) error                         { return m.err }
 func (m *mockUserManager) UpdateRiotAPIKey(key, id string) error               { return m.err }
 func (m *mockUserManager) Redirect(w http.ResponseWriter, r *http.Request)     {}
-func (m *mockUserManager) JohanTestFunc()                                      {}
 func (m *mockUserManager) AuthCallback(w http.ResponseWriter, r *http.Request) (string, error) {
 	return m.response, m.err
 }
@@ -143,7 +142,6 @@ func mockRouter(h *handler) *mux.Router {
 	r.NotFoundHandler = http.HandlerFunc(h.notFound)
 
 	get := r.PathPrefix("/api/v1").Methods(http.MethodGet).Subrouter()
-	get.HandleFunc("/", h.testHandler).Name("root")
 	get.HandleFunc("/login", h.login).Name("login")
 	get.HandleFunc("/authcallback", h.authCallbackHandler).Name("authCallback")
 	get.HandleFunc("/user/{username:[a-zA-Z0-9 ]{1,15}}", h.getPublicUser).Name("getPublicUser")

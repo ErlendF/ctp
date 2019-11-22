@@ -133,7 +133,7 @@ func (db *Database) UpdateUser(user *models.User) error {
 	return err
 }
 
-// UpdateGames updates the games for the given user
+// UpdateGames updates the games and total game time for the given user
 func (db *Database) UpdateGames(user *models.User) error {
 	// sorting the games, such that they are sorted when the user retrieves them
 	sort.Slice(user.Games, func(i, j int) bool {

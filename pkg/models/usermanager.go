@@ -12,5 +12,4 @@ type UserManager interface {
 	UpdateGames(id string) error
 	Redirect(w http.ResponseWriter, r *http.Request)
 	AuthCallback(w http.ResponseWriter, r *http.Request) (string, error)
-	JohanTestFunc()
 }

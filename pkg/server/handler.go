@@ -27,13 +27,6 @@ func newHandler(um models.UserManager) *handler {
 	return &handler{um}
 }
 
-func (h *handler) testHandler(w http.ResponseWriter, r *http.Request) {
-	logrus.Debugf("testHandler!")
-
-	h.JohanTestFunc()
-	fmt.Fprintf(w, "Test handler!")
-}
-
 // Gets a user by their username. The user has to be public.
 func (h *handler) getPublicUser(w http.ResponseWriter, r *http.Request) {
 	username := strings.ToLower(mux.Vars(r)["username"])
