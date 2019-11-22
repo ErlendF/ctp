@@ -1,8 +1,19 @@
 # IMT2681 Cloud Technologies Project
+###Authors
+Erlend Fonnes, Johan Selnes, Aksel Baardsen, Knut Jørgen Totland, Benjamin Skinstad
 
-### Erlend Fonnes, Johan Selnes, Aksel Baardsen, Knut Jørgen Totland, Benjamin Skinstad
+##Project report
+### Brief description
 
+### Reflection
 
+### Learning outcome
+
+### Total work hours
+The total work hours spent on this project is a little over 100 hours.
+To track the group's work hours we used https://toggl.com/app/timer.
+
+##Application information and setup
 #### Setup
 The application uses firebase and requires a credential file called **FBKEY.json**, unless other name is passed as a command line argument.
 The following environment variables are required to be specified:
