@@ -20,14 +20,14 @@ type Riot struct {
 
 // New returns a new riot instance
 func New(client models.Client, apiKey string) *Riot {
-	riot := &Riot{apiKey: apiKey, mutex: &sync.Mutex{}}
-	riot.Client = client
+	r := &Riot{apiKey: apiKey, mutex: &sync.Mutex{}}
+	r.Client = client
 
-	return riot
+	return r
 }
 
 // GetLolPlaytime gets playtime on League of Legends
-func (riot *Riot) GetLolPlaytime(reg *models.SummonerRegistration) (*models.Game, error) {
+func (r *Riot) GetLolPlaytime(reg *models.SummonerRegistration) (*models.Game, error) {
 	if reg == nil || reg.SummonerRegion == "" || reg.AccountID == "" {
 		return nil, errors.New("missing summonerinfo")
 	}
@@ -48,13 +48,13 @@ func (riot *Riot) GetLolPlaytime(reg *models.SummonerRegistration) (*models.Game
 		return nil, err
 	}
 
-	riot.mutex.Lock()
+	r.mutex.Lock()
 	// set header token to avoid getting "403 unauthorized" from API
-	req.Header.Set("X-Riot-Token", riot.apiKey)
-	riot.mutex.Unlock()
+	req.Header.Set("X-Riot-Token", r.apiKey)
+	r.mutex.Unlock()
 
 	// query riot api
-	resp, err := riot.Do(req)
+	resp, err := r.Do(req)
 	if err != nil {
 		return nil, models.NewAPIErr(err, "Riot")
 	}
@@ -82,7 +82,7 @@ func (riot *Riot) GetLolPlaytime(reg *models.SummonerRegistration) (*models.Game
 }
 
 // ValidateSummoner validates the summoner
-func (riot *Riot) ValidateSummoner(reg *models.SummonerRegistration) error {
+func (r *Riot) ValidateSummoner(reg *models.SummonerRegistration) error {
 	if reg == nil {
 		return errors.New("nil summoner registration")
 	}
@@ -106,13 +106,13 @@ func (riot *Riot) ValidateSummoner(reg *models.SummonerRegistration) error {
 		return err
 	}
 
-	riot.mutex.Lock()
+	r.mutex.Lock()
 	// Set apiKey in header to avoid "403 Unauthorized"
-	req.Header.Set("X-Riot-Token", riot.apiKey)
-	riot.mutex.Unlock()
+	req.Header.Set("X-Riot-Token", r.apiKey)
+	r.mutex.Unlock()
 
 	// Send get-request to API
-	resp, err := riot.Do(req)
+	resp, err := r.Do(req)
 	if err != nil {
 		return models.NewAPIErr(err, "Riot")
 	}
@@ -137,14 +137,14 @@ func (riot *Riot) ValidateSummoner(reg *models.SummonerRegistration) error {
 }
 
 // UpdateKey updates the riot API key
-func (riot *Riot) UpdateKey(key string) error {
+func (r *Riot) UpdateKey(key string) error {
 	// very simple check of the key
 	if !strings.HasPrefix(key, "RGAPI-") || len(key) != 42 {
 		return models.NewReqErrStr("invalid riot API key", "invalid API key")
 	}
 
-	riot.mutex.Lock()
-	riot.apiKey = key
-	riot.mutex.Unlock()
+	r.mutex.Lock()
+	r.apiKey = key
+	r.mutex.Unlock()
 	return nil
 }
