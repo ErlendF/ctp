@@ -15,11 +15,10 @@ Lastly, if we had time, we would expand the core functionality of the applicatio
 #### Achievements (what has and has not been achieved/changed in the final product)
 We managed to let users create accounts, and save games to that account, using OpenID Connect for authentication. All useful data is saved in Firebase for persistent storage. Nearing the end of the assignment we implemented all wanted CI/CD functionality.
 
-All goals in our original plan has been achieved, except for the fact that we did not have time to expand the core functionality outside of playtime (as per our ambitions). <!---(we managed to add some extra functionality to the jagex account display)  <-- må skrive hva/referere til det hvis vi skal ha med dette
+All goals in our original plan has been achieved, except for the fact that we did not have time to expand the core functionality outside of playtime (as per our ambitions).
 
 ### Reflection
 #### What went well
-<!--Denne sectionen trenger innvoller & peer review-->
 We managed to implement wanted core functionality. Tests run without issues. Time tracking worked as expected.
 In the end we used CI/CD for both deploying and linting. Use of [spf13/cobra](https://github.com/spf13/cobra) and [gorilla/mux](https://github.com/gorilla/mux) worked splendidly.
 
@@ -28,10 +27,13 @@ In the end we used CI/CD for both deploying and linting. Use of [spf13/cobra](ht
 We underestimated the workload needed to complete this project.
 We used ~110 hours on this project, while 75 hours was expected.
 Riot did not have time to process our application for a permanent API key, so we were only able to use a 24-hour personal API key (application process time was longer than the project timeperiod).
+
+###### Riot API key
 This Riot API key problem was fixed with a hack to allow a new and valid Riot API key to be injected into the running application. To do this a POST request should be sent to the "/riotapikey" endpoint. The API key should be sent in the body as shown bellow:
 ```
 RGAPI-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 ```
+If an error is returned about contacting the Riot API, the API key has likely expired. If the key has expired and are unable to update it yourself, you can contact one of the group members to update it for you.
 
 
 #### Hard aspects
