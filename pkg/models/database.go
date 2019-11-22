@@ -9,6 +9,7 @@ type Database interface {
 	UpdateGames(user *User) error
 	SetUsername(user *User) error
 	DeleteUser(id string) error
+	DeleteFieldsFromUser(id string, fields []string) error
 }
 
 // UserValidator defines the function "IsUser", which checks

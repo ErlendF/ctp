@@ -28,6 +28,8 @@ type Database struct {
 
 const userCol = "users"
 
+var deletableFields = [...]string{"name", "games", "lol", "valve", "overwatch", "runescape", "games"}
+
 // New returns a new databse containing context and a firestore client
 func New(key string) (*Database, error) {
 	db := &Database{ctx: context.Background()}
@@ -222,6 +224,22 @@ func (db *Database) SetUsername(user *models.User) error {
 // DeleteUser deletes a user from the database
 func (db *Database) DeleteUser(id string) error {
 	_, err := db.Collection(userCol).Doc(id).Delete(db.ctx)
+	return err
+}
+
+func (db *Database) DeleteFieldsFromUser(id string, fields []string) error {
+	if len(fields) > len(deletableFields) {
+		return models.NewReqErrStr("too many fields to delete", "invalid request body: too many specified fields to delete")
+	}
+	m := make(map[string]interface{})
+
+	for _, f := range deletableFields {
+		if models.Contains(fields, f) {
+			m[f] = firestore.Delete
+		}
+	}
+
+	_, err := db.Collection(userCol).Doc(id).Set(db.ctx, m, firestore.MergeAll)
 	return err
 }
 

@@ -27,7 +27,7 @@ type mockUserManager struct {
 func (m *mockUserManager) GetUserByID(id string) (*models.User, error)         { return m.user, m.err }
 func (m *mockUserManager) GetUserByName(username string) (*models.User, error) { return m.user, m.err }
 func (m *mockUserManager) SetUser(user *models.User) error                     { return m.err }
-func (m *mockUserManager) DeleteUser(id string) error                          { return m.err }
+func (m *mockUserManager) DeleteUser(id string, fields []string) error         { return m.err }
 func (m *mockUserManager) UpdateGames(id string) error                         { return m.err }
 func (m *mockUserManager) UpdateRiotAPIKey(key, id string) error               { return m.err }
 func (m *mockUserManager) Redirect(w http.ResponseWriter, r *http.Request)     {}

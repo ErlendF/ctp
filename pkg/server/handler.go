@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -147,7 +148,17 @@ func (h *handler) deleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.DeleteUser(id)
+	var fields []string
+	err = json.NewDecoder(r.Body).Decode(&fields)
+
+	// checking for errors. If the requestbody is empty (err == io.EOF), it should be allowed and the entire user should be deleted
+	if err != nil && err != io.EOF {
+		err = models.NewReqErr(err, "invalid request body")
+		logRespond(w, r, err)
+		return
+	}
+
+	err = h.DeleteUser(id, fields)
 	if err != nil {
 		logRespond(w, r, err)
 		return

@@ -18,14 +18,15 @@ type mockDB struct {
 	user *models.User
 }
 
-func (m *mockDB) CreateUser(user *models.User) error              { return m.err }
-func (m *mockDB) GetUserByID(id string) (*models.User, error)     { return m.user, m.err }
-func (m *mockDB) GetUserByName(name string) (*models.User, error) { return m.user, m.err }
-func (m *mockDB) UpdateUser(user *models.User) error              { return m.err }
-func (m *mockDB) UpdateGames(user *models.User) error             { return m.err }
-func (m *mockDB) SetUsername(user *models.User) error             { return m.err }
-func (m *mockDB) OverwriteUser(user *models.User) error           { return m.err }
-func (m *mockDB) DeleteUser(id string) error                      { return m.err }
+func (m *mockDB) CreateUser(user *models.User) error                    { return m.err }
+func (m *mockDB) GetUserByID(id string) (*models.User, error)           { return m.user, m.err }
+func (m *mockDB) GetUserByName(name string) (*models.User, error)       { return m.user, m.err }
+func (m *mockDB) UpdateUser(user *models.User) error                    { return m.err }
+func (m *mockDB) UpdateGames(user *models.User) error                   { return m.err }
+func (m *mockDB) SetUsername(user *models.User) error                   { return m.err }
+func (m *mockDB) OverwriteUser(user *models.User) error                 { return m.err }
+func (m *mockDB) DeleteUser(id string) error                            { return m.err }
+func (m *mockDB) DeleteFieldsFromUser(id string, fields []string) error { return m.err }
 
 type mockOrganizer struct {
 	valve   []models.Game

@@ -61,8 +61,12 @@ func (m *Manager) SetUser(user *models.User) error {
 }
 
 // DeleteUser deletes the user with the given id
-func (m *Manager) DeleteUser(id string) error {
-	return m.db.DeleteUser(id)
+func (m *Manager) DeleteUser(id string, fields []string) error {
+	if len(fields) == 0 {
+		return m.db.DeleteUser(id)
+	}
+
+	return m.db.DeleteFieldsFromUser(id, fields)
 }
 
 // UpdateGames updates all games the user has registered
