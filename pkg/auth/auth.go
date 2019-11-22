@@ -76,17 +76,17 @@ func (a *Authenticator) AuthRedirect(w http.ResponseWriter, r *http.Request) {
 // The state is checked (to prevent CSRF attacks), code is exchanged for an oauth2Token and the id is retrieved.
 // Neither profile nor email is used nor stored
 func (a *Authenticator) HandleOAuth2Callback(w http.ResponseWriter, r *http.Request) (string, error) {
-	cookie, err := r.Cookie(stateCookie)
-	if err != nil {
-		return "", err
-	}
+	// cookie, err := r.Cookie(stateCookie)	// commented out due to workaround, see README.md (authentication)
+	// if err != nil {
+	// 	return "", err
+	// }
 
 	// removing state cookie as it should not be used again regardless of whether it is valid or not
 	removeStateOauthCookie(w)
 
-	if cookie.Value != r.URL.Query().Get("state") {
-		return "", models.ErrInvalidAuthState
-	}
+	// if cookie.Value != r.URL.Query().Get("state") { // commented out due to workaround, see README.md (authentication)
+	// 	return "", models.ErrInvalidAuthState
+	// }
 
 	// exchanging the authorization code for an oauth2token
 	oauth2Token, err := a.config.Exchange(a.ctx, r.URL.Query().Get("code"))

@@ -86,7 +86,7 @@ func (b *Blizzard) GetBlizzardPlaytime(payload *models.Overwatch) (*models.Game,
 	}
 
 	// returns error if no request returned valid response
-	return nil, errors.New("no acceptable response from OW-api")
+	return nil, models.NewAPIErr(errors.New("no acceptable response from OW-api"), "Blizzard")
 }
 
 // queryAPI func returns response from the OverwatchAPI

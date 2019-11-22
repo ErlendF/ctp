@@ -93,6 +93,10 @@ issues:
     - path: cmd/root\.go
       linters:
         - gochecknoinits
+    # used to show what the code should have looked like without workaround. See README.md (authentication)
+    - path: pkg/auth/auth.go
+      linters:
+        - gocritic
     # to remove false positives on table driven testing
     # https://github.com/kyoh86/scopelint/issues/4
   exclude:
