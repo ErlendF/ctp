@@ -12,15 +12,23 @@ Most has been achieved, but we did not have time to expand the functionality as 
 
 
 ### Reflection
-The workload of this project was a bit more than we expected (reflected in total work hours), but we pulled through. 
+#### What went well
+
+
+#### What went wrong
+We wrongly estimated the workload needed to complete this project. We used ~110 hours on this project, while 75 hours was expected. 
+
+#### Hard aspects
 
 
 ### Learning outcome
-During the run of this project the group members have learned how to work with authentication, cobra file-structure, go testing using mocks and interfaces, OAuth2 and authentication using Google, and that proper documentation makes many hassles go away.
+During the run of this project the group members have learned how to work with authentication, cobra file-structure, go testing using mocks and interfaces, OAuth2 and authentication using Google, Gitlab CI/CD, and that proper documentation makes many hassles go away.
 
 ### Total work hours
-The total work hours spent on this project is a little over 100 hours.
+The total work hours spent on this project is a little over 110 hours.
 To track the group's work hours we used https://toggl.com/app/timer.
+
+
 
 ## Application information and setup
 #### Setup
@@ -59,6 +67,10 @@ OpenID Connect with Google as the provider is used to authenticate users of the 
 ###### Usage
 To login to the application, the user should send a GET request to /api/v1/login. This route should redirect the user to Googles OAuth consent screen, where the user needs to be signed in to a Google account and accept sending the required data to the application. The user is then redirected back to the application (/api/v1/authcallback), where a JWT token is sent back unless some error has occured. This token should be sent with every request requiring authentication as the **Authorization** header. Verification of the token is handled by the *auth middleware*.
 
+###### OAuth2 workaround
+For OAuth2, it is recommended to pass a *state* parameter with the request to prevent CSRF attacks. In our case, we very simply stored the state as a cookie and compared the state stored in the cookie with the state from the request. This was of course not foolproof, as cookie was unencrypted and could potentially be tampered with. It was however an additional security measure, which could quite easily be expanded upon (for example by storing the state on the serverside using something like [gorilla/sessions](https://github.com/gorilla/sessions) with a backend store, or merely encrypting the cookie). 
+
+However, to deploy the project, we ended up using SkyHigh. We then recieved a *floating IP*, which only accessible on the internal NTNU network. However, when setting **Authorised redirect URI** in Google Developer Console, this is not a valid **public top-level domain**. Thus, as a workaround for the project deployment, we use [xip.io](http://xip.io/) as a custom DNS server. The *redirect URI* is thus set to **http://<floating ip>xip.io:<port>/api/v1/authcallback**, which will redirect to xip.io. This means that everything essentially functions as intended **ecxept for the state cookie**. Thus, for this deployment, we have commented out the code validating the state in *pkg/auth/auth.go*. It has been commented out, not removed, to show what it would have looked like. All other paths than /login will function as intended with the current deployment.
 
 
 #### API endpoints
