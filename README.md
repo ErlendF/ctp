@@ -57,6 +57,7 @@ RIOT_API_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 GOOGLE_OAUTH2_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 GOOGLE_OAUTH2_CLIENT_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxx
 HMAC_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+DOMAIN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
 It is intended for these to be put in an **.env** file (just like sample.env, replacing the x's), which is injected into the environment variables for the running application by [joho/godotenv/autoload](https://github.com/joho/godotenv), which is imported in cmd/root. Whichever way they are added to the environment for the application, they are required to be present with valid values for the application to run.
@@ -66,7 +67,6 @@ The application accepts the following commandline arguments:
 ```
  -h, --help                  Help for CTA2
  -p, --port int              Specifies which port the API should listen to (default 80)
- -d, --domain string         Specifies the domain for the redirect URI used for authentication (default "localhost")
  -f, --fbkey string          Path to the firebase key file (default "./FBKEY.json")
  -v, --verbose               Verbose logging
  -j, --jsonFormatter         JSON logging format
