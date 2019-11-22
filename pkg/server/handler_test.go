@@ -162,7 +162,4 @@ func removeIgnoredOutput(user *models.User, url string) {
 	if strings.Contains(url, "/api/v1/user/") { // true means it's a test for /api/v1/user/{username}
 		user.Public = false // public should then be ignored as it is not returned
 	}
-	for i := range user.Games {
-		user.Games[i].ValveID = 0
-	}
 }
