@@ -90,7 +90,7 @@ func TestGetRSPlaytime(t *testing.T) {
 			assert.Equal(t, tc.expectedErr, err)
 			if tc.expectedErr == nil {
 				if assert.NotNil(t, game) {
-					assert.Equal(t, "Runescape", game.Name)
+					assert.Equal(t, "Old School Runescape", game.Name)
 				}
 			}
 		})
