@@ -28,10 +28,15 @@ In the end we used CI/CD for both deploying and linting. Use of [spf13/cobra](ht
 #### What went wrong
 We underestimated the workload needed to complete this project. 
 We used ~110 hours on this project, while 75 hours was expected. 
-Riot did not have time to process our application for a permanent API key, so we were only able to use a 24-hour personal API key (application process time was longer than the project timeperiod). This was fixed by implementing a hack to post new Riot API keys. <!-- more on this in section x?Ja-->
+Riot did not have time to process our application for a permanent API key, so we were only able to use a 24-hour personal API key (application process time was longer than the project timeperiod).
+This Riot API key problem was fixed with a hack where its possible to post a new Riot Key to the application with the "/riotapikey" endpoint. The API key should be sent in the body as shown bellow:
+```
+RGAPI-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+```
+
 
 #### Hard aspects
- - Managing time.
+ - Managing time
  - Prioritizing important aspects
  - Distributing workload
  - Implementing enough meaningful tests to reach 75% coverage (see testing section)
@@ -176,8 +181,12 @@ We were dismayed that the only metric for tests were *code coverage*. This meant
  - [gorilla/mux](https://github.com/gorilla/mux) for routing. Provides more functionality and flexibility than a standard router.
  - [sirupsen/logrus](https://github.com/sirupsen/logrus) for logging. Provides more functionality and flexibility than the log std.lib.
  - [stretchr/testify](https://github.com/stretchr/testify) for testing. Makes testing easier using assert and require.
- - [bxcodec/faker](https://github.com/bxcodec/faker) for generating test data
- - [mitchellh/mapstructure](https://github.com/mitchellh/mapstructure) for parsing response from Firebase
+ - [bxcodec/faker](https://github.com/bxcodec/faker) for generating test data.
+ - [mitchellh/mapstructure](https://github.com/mitchellh/mapstructure) for parsing response from Firebase.
+ - [coreos/go-oidc](https://github.com/coreos/go-oidc) as Go OpenID Connect client.
+ - [golang.org/x/oauth2](https://godoc.org/golang.org/x/oauth2) for OAuth2 authorization and authentication support.
+ - [dgrijalva/jwt-go](https://github.com/dgrijalva/jwt-go) for JSON Web Tokens (JWT).
+ - [google.golang.org/grpc](https://godoc.org/google.golang.org/grpc) for checking rpc codes.
  - Various firebase related libraries
 
 
