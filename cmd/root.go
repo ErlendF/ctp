@@ -46,7 +46,6 @@ var config struct {
 	clientTimeout   int
 	port            int
 	fbkey           string
-	domain          string
 }
 
 // rootCmd represents the base command
@@ -74,8 +73,15 @@ var rootCmd = &cobra.Command{
 		clientID := os.Getenv("GOOGLE_OAUTH2_CLIENT_ID")
 		clientSecret := os.Getenv("GOOGLE_OAUTH2_CLIENT_SECRET")
 		hmacSecret := os.Getenv("HMAC_SECRET")
+
 		if clientID == "" || clientSecret == "" || hmacSecret == "" || riotAPIKey == "" || valveAPIKey == "" {
 			logrus.Fatalf("Invalid environment variables")
+		}
+
+		// getting domain for oauth callback, defaulting to localhost
+		domain := os.Getenv("DOMAIN")
+		if domain == "" {
+			domain = "localhost"
 		}
 
 		// Initializing each of the provider packages
@@ -95,7 +101,7 @@ var rootCmd = &cobra.Command{
 		defer cancelC()
 
 		// getting a new authenticator, which is passed to the usermanager and server
-		auth, err := auth.New(ctxC, db, config.port, config.domain, clientID, clientSecret, hmacSecret)
+		auth, err := auth.New(ctxC, db, config.port, domain, clientID, clientSecret, hmacSecret)
 		if err != nil {
 			logrus.WithError(err).Fatalf("Unable to get new Authenticator:%s", err)
 		}
@@ -169,7 +175,6 @@ func init() {
 	rootCmd.Flags().BoolVarP(&config.verbose, "verbose", "v", false, "Verbose logging")
 	rootCmd.Flags().BoolVarP(&config.jsonFormatter, "jsonFormatter", "j", false, "JSON logging format")
 	rootCmd.Flags().StringVarP(&config.fbkey, "fbkey", "f", "./fbkey.json", "Path to the firebase key file")
-	rootCmd.Flags().StringVarP(&config.domain, "domain", "d", "localhost", "Specifies the domain for the redirect URI used for authentication")
 }
 
 // setupLog initializes logrus logger
