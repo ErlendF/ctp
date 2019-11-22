@@ -72,7 +72,7 @@ func (j *Jagex) GetRSPlaytime(rsAcc *models.RunescapeAccount) (*models.Game, err
 		time += xpToTime(xp, i, rsAcc.AccountType)
 	}
 
-	return &models.Game{Time: time, Name: "Runescape"}, nil
+	return &models.Game{Time: time, Name: "Old School Runescape"}, nil
 }
 
 // validator for runescape username
