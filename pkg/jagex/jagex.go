@@ -20,6 +20,7 @@ func New(getter models.Getter) *Jagex {
 	return &Jagex{getter}
 }
 
+// the varius types of runescape accounts
 const (
 	normal  = "normal"
 	ironman = "ironman"
@@ -27,6 +28,7 @@ const (
 	uim     = "ultimate ironman"
 )
 
+// relevant urls to check the beforementiond types
 var urls = map[string]string{
 	normal:  "http://services.runescape.com/m=hiscore_oldschool/index_lite.ws?player=%s",
 	ironman: "http://services.runescape.com/m=hiscore_oldschool_ironman/index_lite.ws?player=%s",
