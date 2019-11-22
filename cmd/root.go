@@ -93,12 +93,14 @@ var rootCmd = &cobra.Command{
 		ctx := context.Background()
 		ctxC, cancelC := context.WithCancel(ctx)
 		defer cancelC()
-		// authentication check
+
+		// getting a new authenticator, which is passed to the usermanager and server
 		auth, err := auth.New(ctxC, db, config.port, config.domain, clientID, clientSecret, hmacSecret)
 		if err != nil {
 			logrus.WithError(err).Fatalf("Unable to get new Authenticator:%s", err)
 		}
-		// the different apis we are going to for the database
+
+		// combining each of the provider packages to fulfill the organizer interface, passing to user manager
 		var organizer = struct {
 			models.Valve
 			models.Riot

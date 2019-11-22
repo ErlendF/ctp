@@ -26,7 +26,10 @@ type Authenticator struct {
 
 const stateCookie = "oauthstate"
 
-// sets up an authenticaor
+// New initializes and returns an Authenticator.
+// The authenticator fulfills the TokenGenerator and AuthMiddleware interfaces
+// Authenticating the user through OpenIDConnect with Google as provider
+// https://developers.google.com/identity/protocols/OpenIDConnect
 func New(ctx context.Context, uv models.UserValidator, port int,
 	domain, clientID, clientSecret, hmacSecret string) (*Authenticator, error) {
 	authenticator := &Authenticator{ctx: ctx, uv: uv}
@@ -56,6 +59,7 @@ func New(ctx context.Context, uv models.UserValidator, port int,
 }
 
 // AuthRedirect redirects the user to the oauth providers confirmation page
+// A random array of bytes is generated as oauth state and stored in a cookie to prevent CSRF attacks
 func (a *Authenticator) AuthRedirect(w http.ResponseWriter, r *http.Request) {
 	state, err := generateStateOauthCookie(w)
 	if err != nil {
@@ -68,7 +72,9 @@ func (a *Authenticator) AuthRedirect(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, a.config.AuthCodeURL(state), http.StatusFound)
 }
 
-// HandleOAuth2Callback handles callback from oauth2
+// HandleOAuth2Callback handles callback from oauth2 provider.
+// The state is checked (to prevent CSRF attacks), code is exchanged for an oauth2Token and the id is retrieved.
+// Neither profile nor email is used nor stored
 func (a *Authenticator) HandleOAuth2Callback(w http.ResponseWriter, r *http.Request) (string, error) {
 	cookie, err := r.Cookie(stateCookie)
 	if err != nil {
@@ -82,29 +88,31 @@ func (a *Authenticator) HandleOAuth2Callback(w http.ResponseWriter, r *http.Requ
 		return "", models.ErrInvalidAuthState
 	}
 
+	// exchanging the authorization code for an oauth2token
 	oauth2Token, err := a.config.Exchange(a.ctx, r.URL.Query().Get("code"))
 	if err != nil {
 		return "", err
 	}
 
+	// retrieving the raw ID token and casting it to a string
 	rawIDToken, ok := oauth2Token.Extra("id_token").(string)
 
 	if !ok {
 		return "", errors.New("no id_token field in oauth2 token")
 	}
 
+	// verifying the id token
 	idToken, err := a.verifier.Verify(a.ctx, rawIDToken)
-
 	if err != nil {
 		return "", err
 	}
 
 	var claims struct {
-		Sub string
+		Sub string // "subject", a unique identifier for the user (ID)
 	}
 
+	// extracting the claims.
 	err = idToken.Claims(&claims)
-
 	if err != nil {
 		return "", err
 	}
@@ -112,7 +120,7 @@ func (a *Authenticator) HandleOAuth2Callback(w http.ResponseWriter, r *http.Requ
 	return claims.Sub, nil
 }
 
-// random generator
+// generates a random array of bytes (state) and stores it in a cookie to prevent CSRF attacks
 // based on example from https://dev.to/douglasmakey/oauth2-example-with-go-3n8a
 func generateStateOauthCookie(w http.ResponseWriter) (string, error) {
 	b := make([]byte, 16)
@@ -128,6 +136,7 @@ func generateStateOauthCookie(w http.ResponseWriter) (string, error) {
 	return state, nil
 }
 
+// removes the state cookie
 func removeStateOauthCookie(w http.ResponseWriter) {
 	cookie := &http.Cookie{
 		Name:   stateCookie,

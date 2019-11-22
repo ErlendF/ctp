@@ -9,6 +9,7 @@ import (
 )
 
 // GetNewToken generates a new token for the given id
+// The token contains the id for the user and an expiration date (30 days after token generation)
 func (a *Authenticator) GetNewToken(id string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS512, jwt.MapClaims{
 		"id":  id,
@@ -37,13 +38,14 @@ func (a *Authenticator) validateToken(tokenString string) (string, error) {
 		return "", errors.New("invalid token")
 	}
 
+	// checking for the id claim. It needs to be present
 	idClaim, ok := claims["id"]
 	if !ok {
 		return "", errors.New("invalid id for token")
 	}
 
+	// casting the id claim to string
 	id, ok := idClaim.(string)
-
 	if !ok {
 		return "", errors.New("invalid id for token")
 	}
