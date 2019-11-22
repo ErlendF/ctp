@@ -32,7 +32,7 @@ func (h *handler) testHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Test handler!")
 }
 
-// check if user is public
+// Gets a user by their username. The user has to be public.
 func (h *handler) getPublicUser(w http.ResponseWriter, r *http.Request) {
 	username := mux.Vars(r)["username"]
 
@@ -47,11 +47,13 @@ func (h *handler) getPublicUser(w http.ResponseWriter, r *http.Request) {
 	respond(w, r, resp)
 }
 
-// log in redirect
+// login redirects to the OAuth provider's (Google's) consent screen for the application.
 func (h *handler) login(w http.ResponseWriter, r *http.Request) {
 	h.Redirect(w, r)
 }
 
+// authCallbakcHandler handles the callback when the user is redirected back to the application
+// from the OAuth provider (Google) after accepting.
 func (h *handler) authCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	resp, err := h.AuthCallback(w, r)
 	if err != nil {
@@ -71,6 +73,7 @@ func (h *handler) authCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	respondPlain(w, r, resp)
 }
 
+// updateUser decodes the body of the request and uses it toupdate the user's information (where allowed)
 func (h *handler) updateUser(w http.ResponseWriter, r *http.Request) {
 	id, err := getID(r)
 	if err != nil {
@@ -102,6 +105,7 @@ func (h *handler) updateUser(w http.ResponseWriter, r *http.Request) {
 	respondPlain(w, r, "Success")
 }
 
+// updateGames updates the playtime for all games in the services registered for the user
 func (h *handler) updateGames(w http.ResponseWriter, r *http.Request) {
 	id, err := getID(r)
 	if err != nil {
@@ -118,6 +122,7 @@ func (h *handler) updateGames(w http.ResponseWriter, r *http.Request) {
 	respondPlain(w, r, "Success")
 }
 
+// getUser retrieves all information about the user themself
 func (h *handler) getUser(w http.ResponseWriter, r *http.Request) {
 	id, err := getID(r)
 	if err != nil {
@@ -134,6 +139,7 @@ func (h *handler) getUser(w http.ResponseWriter, r *http.Request) {
 	respond(w, r, resp)
 }
 
+// deleteUser deletes the user and all information stored about or related to them
 func (h *handler) deleteUser(w http.ResponseWriter, r *http.Request) {
 	id, err := getID(r)
 	if err != nil {
@@ -150,6 +156,7 @@ func (h *handler) deleteUser(w http.ResponseWriter, r *http.Request) {
 	respondPlain(w, r, "Success")
 }
 
+// updateKey is a hack. It is used to update the Riot API key, because it is only valid for 24h.
 func (h *handler) updateKey(w http.ResponseWriter, r *http.Request) {
 	id, err := getID(r)
 	if err != nil {
@@ -173,6 +180,7 @@ func (h *handler) updateKey(w http.ResponseWriter, r *http.Request) {
 	respondPlain(w, r, "Success")
 }
 
+// respond is used for every response which should be JSON encoded.
 func respond(w http.ResponseWriter, r *http.Request, resp interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -186,6 +194,7 @@ func respond(w http.ResponseWriter, r *http.Request, resp interface{}) {
 	}
 }
 
+// respondPlain responds in plaintext, merely writing the resp
 func respondPlain(w http.ResponseWriter, r *http.Request, resp string) {
 	_, err := fmt.Fprint(w, resp)
 	if err != nil {
@@ -196,6 +205,7 @@ func respondPlain(w http.ResponseWriter, r *http.Request, resp string) {
 	}
 }
 
+// logRespond handles errors. It logs the error and returns an appropriate errormessage and status code based on the error.
 func logRespond(w http.ResponseWriter, r *http.Request, err error) {
 	logrus.WithField("route", mux.CurrentRoute(r).GetName()).Warn(err)
 
@@ -224,11 +234,15 @@ func logRespond(w http.ResponseWriter, r *http.Request, err error) {
 	}
 }
 
+// notFound handles all requests which don't hit any of the routes defined in the router
 func (h *handler) notFound(w http.ResponseWriter, r *http.Request) {
 	logrus.WithField("request", r.RequestURI).Debug("Not found handler")
 	http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 }
 
+// getID retrieves the user's id from the context of the request.
+// The context of the request is updated to contain the id by the AuthMiddleware.
+// It is only used for handlers which need authentication
 func getID(r *http.Request) (string, error) {
 	id := r.Context().Value(models.CtxKey("id"))
 	idStr, ok := id.(string)

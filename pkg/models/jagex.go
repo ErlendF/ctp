@@ -6,6 +6,7 @@ type Jagex interface {
 	ValidateRSAccount(rsAcc *RunescapeAccount) error
 }
 
+// RunescapeAccount contains relevant information about a runescape account
 type RunescapeAccount struct {
 	Username    string `json:"username" firebase:"username"`
 	AccountType string `json:"accountType" firebase:"accountType"`

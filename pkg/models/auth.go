@@ -2,7 +2,7 @@ package models
 
 import "net/http"
 
-// TokenGenerator generates a new token
+// TokenGenerator generates a new token and handles OAuth redirect and callbacks
 type TokenGenerator interface {
 	GetNewToken(id string) (string, error)
 	AuthRedirect(w http.ResponseWriter, r *http.Request)

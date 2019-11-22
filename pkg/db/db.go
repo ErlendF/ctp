@@ -28,14 +28,13 @@ type Database struct {
 
 const userCol = "users"
 
-// New returns a new databse
+// New returns a new databse containing context and a firestore client
 func New(key string) (*Database, error) {
 	db := &Database{ctx: context.Background()}
 
-	// We use a service account, load credentials file that you downloaded from your project's settings menu.
+	// We use a service account. The key location defaults to "./fbkey.json", but can be configured by the "-f" flag
 	opt := option.WithCredentialsFile(key)
 	app, err := firebase.NewApp(db.ctx, nil, opt)
-
 	if err != nil {
 		return nil, err
 	}

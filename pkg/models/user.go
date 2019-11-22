@@ -16,7 +16,9 @@ type User struct {
 
 // Game contains relevant information about a game
 type Game struct {
-	Name    string `json:"game" firestore:"name"`
-	Time    int    `json:"playTime" firestore:"time"`
-	ValveID int    `json:"-" firestore:"valveID"`
+	Name string `json:"game" firestore:"name"`
+	Time int    `json:"playTime" firestore:"time"`
+
+	// The "ValveID" corresponds to Valve's "AppID". It is only used internally to differentiate between games with the same name on Steam
+	ValveID int `json:"-" firestore:"valveID"`
 }
