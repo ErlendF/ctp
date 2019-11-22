@@ -1,5 +1,6 @@
 stages:
   - test
+  - lint
   - build
   - deploy
 
@@ -14,6 +15,14 @@ test:
     - mkdir -p ./GOPATH
   script:
     - go test ./...
+
+lint:
+  tags:
+    - docker
+  image: golangci/golangci-lint:latest
+  stage: lint
+  script:
+    - golangci-lint run
 
 
 build:
