@@ -17,7 +17,7 @@ We managed to let users create accounts, and save games to that account, using O
 
 All goals in our original plan has been achieved, except for the fact that we did not have time to expand the core functionality outside of playtime (as per our ambitions). <!---(we managed to add some extra functionality to the jagex account display)  <-- må skrive hva/referere til det hvis vi skal ha med dette
 
-### Reflection
+### Reflection 
 #### What went well 
 <!--Denne sectionen trenger innvoller -->
 We managed to implement wanted core functionality. Tests run beautifully. In the end we used CI/CD for both deploying and linting. Use of 'cobra' and gorilla/mux worked splendidly.
