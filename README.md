@@ -5,7 +5,7 @@ Erlend Fonnes, Johan Selnes, Aksel Baardsen, Knut Jørgen Totland, Benjamin Skin
 ## Project report
 ### Project description
 #### Original plan
-The original plan of this project was to create a RESTful web application that allowed users to register accounts where the information about the playtime on games they play is calculated from other APIs. The user should be able to register their accounts for four different game "providers": Blizzard, Jagex, Valve and Riot Games. This application should then show the total time spent playing games. 
+The original plan of this project was to create a RESTful web application that allows users to register accounts where the information about the playtime on games they play is calculated from other APIs. The user should be able to register their accounts for four different game "providers": Blizzard, Jagex, Valve and Riot Games. This application should then show the total time spent playing games. 
 
 We also planned to have automatic deployment of the application in Docker on Openstack via the CI/CD feature in Gitlab. We also wanted to use CI feature to run tests automatically and run linting tools.
 
@@ -13,23 +13,26 @@ Lastly, if we had time, we would expand the core functionality of the applicatio
 
 
 #### Achievements (what has and has not been achieved/changed in the final product)
-We managed to let users create accounts, and save games to that account, using OpenID Connect for authentication. All useful data is saved in Firebase for persistent storage. 
+We managed to let users create accounts, and save games to that account, using OpenID Connect for authentication. All useful data is saved in Firebase for persistent storage. Nearing the end of the assignment we implemented all wanted CI/CD functionality.
 
 All goals in our original plan has been achieved, except for the fact that we did not have time to expand the core functionality outside of playtime (as per our ambitions). <!---(we managed to add some extra functionality to the jagex account display)  <-- må skrive hva/referere til det hvis vi skal ha med dette
 
 ### Reflection
-#### What went well
-We managed to implement wanted core functionality. Tests run beautifully.
+#### What went well 
+<!--Denne sectionen trenger innvoller -->
+We managed to implement wanted core functionality. Tests run beautifully. In the end we used CI/CD for both deploying and linting. Use of 'cobra' and gorilla/mux worked splendidly.
+
 
 #### What went wrong
 We underestimated the workload needed to complete this project. 
 We used ~110 hours on this project, while 75 hours was expected. 
-Riot did not have time to process permanent API key application, so we were only able to use a 24-hour personal API key (process time was longer than the project timeperiod).
+Riot did not have time to process our application for a permanent API key, so we were only able to use a 24-hour personal API key (application process time was longer than the project timeperiod). This was fixed by implementing a hack to post new Riot API keys. <!-- more on this in section x?Ja-->
 
 #### Hard aspects
  - Managing time.
  - Prioritizing important aspects
  - Distributing workload
+ - Implementing enough MEANINGFUL tests to reach 75% coverage
 
 ### Learning outcome
 During the run of this project the group members have learned how to work with authentication, cobra file-structure, go testing using mocks and interfaces, OAuth2 and authentication using Google, Gitlab CI/CD, and that proper documentation makes many hassles go away. The group also discovered problems with local deployment concerning Google's *Authorized redirect URIs* (see Authentication OAuth workaround). 
@@ -154,6 +157,17 @@ The repository has the following main components:
 
 #### Testing
 We were dismayed that the only metric for tests were *code coverage*. This meant that the usefullness of the test, and what they are actually testing is utterly irrelevant, as long as enough of the code is executed. In our opinion, [test coverage alone is not a good metric](https://hackernoon.com/is-test-coverage-a-good-metric-for-test-or-code-quality-92fef332c871). As such, some of the tests contain very little actual testing. Specifically the tests *pkg/server/router_test.go*, *pkg/server/server_test.go* and the tests in *pkg/models* contain very little actual testing, as there is very little to test. The functions are nearly devoid of actual logic. It is possible to performe some more extensive tests on for example the router (checking that it contains each route as expected, and only allows certain methods), but this is very impractical and time consuming. This is also the reason *pkg/db* contain no test and *pkg/auth* contain few tests (these would also be unit tests as they would involve the database and OAuth provider respectively).
+
+
+#### Using various std. lib packages, in addition to:
+ - [spf13/cobra](https://github.com/spf13/cobra) for project initialization
+ - [joho/godotenv/autoload](https://github.com/joho/godotenv) to import .env file to os.env
+ - [gorilla/mux](https://github.com/gorilla/mux) for routing. Provides more functionality and flexibility than a standard router.
+ - [sirupsen/logrus](https://github.com/sirupsen/logrus) for logging. Provides more functionality and flexibility than the log std.lib.
+ - [stretchr/testify](https://github.com/stretchr/testify) for testing. Makes testing easier using assert and require.
+ - [bxcodec/faker](https://github.com/bxcodec/faker) for generating test data
+ - [mitchellh/mapstructure](https://github.com/mitchellh/mapstructure) for parsing response from Firebase
+ - Various firebase related libraries
 
 
 ##### Server setup is based on [gorilla/mux graceful-shutdown example](https://github.com/gorilla/mux#graceful-shutdown)
