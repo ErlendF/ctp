@@ -28,7 +28,7 @@ In the end we used CI/CD for both deploying and linting. Use of [spf13/cobra](ht
 #### What went wrong
 We underestimated the workload needed to complete this project. 
 We used ~110 hours on this project, while 75 hours was expected. 
-Riot did not have time to process our application for a permanent API key, so we were only able to use a 24-hour personal API key (application process time was longer than the project timeperiod). This was fixed by implementing a hack to post new Riot API keys. <!-- more on this in section x?Ja-->
+Riot did not have time to process our application for a permanent API key, so we were only able to use a 24-hour personal API key (application process time was longer than the project timeperiod). We "fixed" this problem by implementing a hack to allow a new and valid Riot API key to be injected into the running application. This can be done by sending a POST request to /riotapikey with a valid api-key in the body.
 
 #### Hard aspects
  - Managing time.
