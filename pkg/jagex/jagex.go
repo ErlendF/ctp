@@ -81,17 +81,16 @@ func (j *Jagex) ValidateRSAccount(rsAcc *models.RunescapeAccount) error {
 	if err != nil {
 		return err
 	}
-
 	if !matched {
 		return models.NewReqErrStr("invalid Runescape account name", "invalid Runescape account name")
 	}
 
+	// unless otherwise specified, the account is assumed to be "normal"
 	if rsAcc.AccountType == "" {
 		rsAcc.AccountType = normal
 	}
 
 	url, ok := urls[rsAcc.AccountType]
-
 	if !ok {
 		return models.NewReqErrStr("invalid Runescape account type", "invalid Runescape account type")
 	}
