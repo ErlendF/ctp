@@ -9,6 +9,8 @@ import (
 	"net/url"
 	"strings"
 	"sync"
+
+	"github.com/sirupsen/logrus"
 )
 
 // Riot is a struct which contains everything necessary to handle a request related to riot
@@ -146,7 +148,7 @@ func (r *Riot) UpdateKey(key string) error {
 	}
 
 	// Create an URL and ensure it is formatted correctly
-	URL := "https://EUW1.api.riotgames.com/lol/summoner/v4/summoners/by-name/LOPER"
+	URL := "https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/loper"
 	formatURL, err := url.Parse(URL)
 	if err != nil {
 		return err
@@ -160,7 +162,7 @@ func (r *Riot) UpdateKey(key string) error {
 
 	r.mutex.Lock()
 	// Set apiKey in header to avoid "403 Unauthorized"
-	req.Header.Set("X-Riot-Token", r.apiKey)
+	req.Header.Set("X-Riot-Token", key)
 	r.mutex.Unlock()
 
 	// Send get-request to API
@@ -177,5 +179,6 @@ func (r *Riot) UpdateKey(key string) error {
 	r.mutex.Lock()
 	r.apiKey = key
 	r.mutex.Unlock()
+	logrus.Debugf("is good: %s", r.apiKey)
 	return nil
 }
