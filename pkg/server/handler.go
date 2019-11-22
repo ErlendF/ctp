@@ -32,6 +32,7 @@ func (h *handler) testHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Test handler!")
 }
 
+// check if user is public
 func (h *handler) getPublicUser(w http.ResponseWriter, r *http.Request) {
 	username := mux.Vars(r)["username"]
 
@@ -46,6 +47,7 @@ func (h *handler) getPublicUser(w http.ResponseWriter, r *http.Request) {
 	respond(w, r, resp)
 }
 
+// log in redirect
 func (h *handler) login(w http.ResponseWriter, r *http.Request) {
 	h.Redirect(w, r)
 }
