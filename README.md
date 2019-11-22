@@ -125,7 +125,12 @@ Requires authentication:
 	},
 	"valve": {
 		"username": "olaroa3"
-	},
+	},OR
+	{
+    "valve": {
+        "id": "76561197997974710"
+    }
+}
 	"overwatch": {
 		"battleTag": "Onijuan-2670",
 		"platform": "pc",
@@ -137,6 +142,7 @@ Requires authentication:
 	}
 }
 ```
+For the valve api endpoint, it is possible to register with either a steam username or by using the 64bit id 
 
  - To delete specific fields, "/user" endpoint expects the following body for the DELETE request (all other values are ignored):
 ```
