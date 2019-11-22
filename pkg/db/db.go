@@ -117,7 +117,6 @@ func (db *Database) GetUserByName(name string) (*models.User, error) {
 func (db *Database) UpdateUser(user *models.User) error {
 	user.Name = "" // username and games are updated by dedicated functions
 	user.Games = nil
-	user.Admin = false // admin has to be set manually
 
 	s := structs.New(user)
 	m := make(map[string]interface{})

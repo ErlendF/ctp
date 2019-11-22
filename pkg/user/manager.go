@@ -148,15 +148,7 @@ func (m *Manager) AuthCallback(w http.ResponseWriter, r *http.Request) (string, 
 }
 
 // UpdateRiotAPIKey updates
-func (m *Manager) UpdateRiotAPIKey(key, id string) error {
-	user, err := m.db.GetUserByID(id)
-	if err != nil {
-		return err
-	}
-	if !user.Admin {
-		return models.ErrInvalidID // although, not entirely acurate error, it is still an invalid ID for the given action
-	}
-
+func (m *Manager) UpdateRiotAPIKey(key string) error {
 	return m.UpdateKey(key)
 }
 

@@ -163,12 +163,6 @@ func (h *handler) deleteUser(w http.ResponseWriter, r *http.Request) {
 
 // updateKey is a hack. It is used to update the Riot API key, because it is only valid for 24h.
 func (h *handler) updateKey(w http.ResponseWriter, r *http.Request) {
-	id, err := getID(r)
-	if err != nil {
-		logRespond(w, r, err)
-		return
-	}
-
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		err = models.NewReqErr(err, "invalid request body")
@@ -176,7 +170,7 @@ func (h *handler) updateKey(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.UpdateRiotAPIKey(string(body), id)
+	err = h.UpdateRiotAPIKey(string(body))
 	if err != nil {
 		logRespond(w, r, err)
 		return

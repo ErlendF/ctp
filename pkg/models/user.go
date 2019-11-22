@@ -5,7 +5,6 @@ type User struct {
 	ID            string                `json:"-" firestore:"id"`
 	Name          string                `json:"name,omitempty" firestore:"name"`
 	Public        bool                  `json:"public,omitempty" firestore:"public"`
-	Admin         bool                  `json:"-" firestore:"admin"`
 	TotalGameTime int                   `json:"totalPlayTime" firestore:"totalGameTime"`
 	Lol           *SummonerRegistration `json:"lol,omitempty" firestore:"lol"`
 	Valve         *ValveAccount         `json:"valve,omitempty" firestore:"valve"`

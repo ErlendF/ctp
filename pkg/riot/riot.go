@@ -15,7 +15,9 @@ import (
 type Riot struct {
 	models.Client
 	apiKey string
-	mutex  *sync.Mutex // strings are not thread safe
+
+	// strings are not thread safe. The mutex is used as a VERY simple locking mechanism to facilitate the UpdateKey hack. See readme
+	mutex *sync.Mutex
 }
 
 // New returns a new riot instance
@@ -141,6 +143,35 @@ func (r *Riot) UpdateKey(key string) error {
 	// very simple check of the key
 	if !strings.HasPrefix(key, "RGAPI-") || len(key) != 42 {
 		return models.NewReqErrStr("invalid riot API key", "invalid API key")
+	}
+
+	// Create an URL and ensure it is formatted correctly
+	URL := "https://EUW1.api.riotgames.com/lol/summoner/v4/summoners/by-name/LOPER"
+	formatURL, err := url.Parse(URL)
+	if err != nil {
+		return err
+	}
+
+	// Use the URL to validate SummonerName against API
+	req, err := http.NewRequest(http.MethodGet, formatURL.String(), nil)
+	if err != nil {
+		return err
+	}
+
+	r.mutex.Lock()
+	// Set apiKey in header to avoid "403 Unauthorized"
+	req.Header.Set("X-Riot-Token", r.apiKey)
+	r.mutex.Unlock()
+
+	// Send get-request to API
+	resp, err := r.Do(req)
+	if err != nil {
+		return models.NewAPIErr(err, "Riot")
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusForbidden {
+		return models.NewReqErrStr("invalid Riot API key", "invalid Riot API key")
 	}
 
 	r.mutex.Lock()
