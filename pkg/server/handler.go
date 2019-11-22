@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
+	"strings"
 
 	"ctp/pkg/models"
 
@@ -35,7 +36,7 @@ func (h *handler) testHandler(w http.ResponseWriter, r *http.Request) {
 
 // Gets a user by their username. The user has to be public.
 func (h *handler) getPublicUser(w http.ResponseWriter, r *http.Request) {
-	username := mux.Vars(r)["username"]
+	username := strings.ToLower(mux.Vars(r)["username"])
 
 	resp, err := h.GetUserByName(username)
 	if err != nil {
